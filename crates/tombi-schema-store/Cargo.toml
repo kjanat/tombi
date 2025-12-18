@@ -22,7 +22,7 @@ thiserror.workspace = true
 tokio = { workspace = true, features = ["sync"] }
 tombi-accessor.workspace = true
 tombi-ast.workspace = true
-tombi-cache.workspace = true
+tombi-cache = { workspace = true, optional = true }
 tombi-config.workspace = true
 tombi-document-tree = { workspace = true, optional = true }
 tombi-future.workspace = true
@@ -41,7 +41,7 @@ tombi-test-lib.workspace = true
 default = ["native"]
 document-tree = ["dep:tombi-document-tree"]
 gloo-net06 = ["dep:gloo-net"]
-native = ["reqwest01", "tombi-future/native"]
+native = ["reqwest01", "tombi-future/native", "dep:tombi-cache"]
 reqwest01 = ["dep:reqwest"]
 surf2 = ["dep:surf"]
 wasm = ["gloo-net06", "tombi-future/wasm"]

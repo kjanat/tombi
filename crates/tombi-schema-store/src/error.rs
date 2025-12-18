@@ -103,6 +103,7 @@ pub enum Error {
     #[error("schema must be an object: {schema_uri}")]
     SchemaMustBeObject { schema_uri: SchemaUri },
 
+    #[cfg(feature = "native")]
     #[error(transparent)]
     CacheError(#[from] tombi_cache::Error),
 }
@@ -137,6 +138,7 @@ impl Error {
             Self::UnsupportedReference { .. } => "unsupported-reference",
             Self::UnsupportedUriScheme { .. } => "unsupported-url-scheme",
             Self::SchemaMustBeObject { .. } => "schema-must-be-object",
+            #[cfg(feature = "native")]
             Self::CacheError(error) => error.code(),
         }
     }

@@ -3742,6 +3742,7 @@ dependencies = [
 name = "tombi-formatter"
 version = "0.0.0-dev"
 dependencies = [
+ "getrandom 0.3.3",
  "itertools 0.14.0",
  "pretty_assertions",
  "rstest",

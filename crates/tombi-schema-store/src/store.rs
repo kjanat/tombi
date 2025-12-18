@@ -9,6 +9,7 @@ use ahash::AHashMap;
 use itertools::{Either, Itertools};
 use tokio::sync::RwLock;
 use tombi_ast::SchemaDocumentCommentDirective;
+#[cfg(feature = "native")]
 use tombi_cache::{get_cache_file_path, read_from_cache, refresh_cache, save_to_cache};
 use tombi_config::{SchemaItem, SchemaOverviewOptions};
 use tombi_future::{BoxFuture, Boxable};
@@ -65,6 +66,7 @@ impl SchemaStore {
         self.options.strict.unwrap_or(true)
     }
 
+    #[cfg(feature = "native")]
     pub async fn refresh_cache(
         &self,
         config: &tombi_config::Config,
@@ -76,6 +78,15 @@ impl SchemaStore {
         } else {
             Ok(false)
         }
+    }
+
+    #[cfg(not(feature = "native"))]
+    pub async fn refresh_cache(
+        &self,
+        _config: &tombi_config::Config,
+        _config_path: Option<&std::path::Path>,
+    ) -> Result<bool, crate::Error> {
+        Ok(false)
     }
 
     pub async fn reload_config(
@@ -199,6 +210,7 @@ impl SchemaStore {
                     reason: err.to_string(),
                 })?
             }
+            #[cfg(feature = "native")]
             "http" | "https" => {
                 let catalog_cache_path = get_cache_file_path(catalog_uri).await;
                 if let Some(catalog_cache_path) = &catalog_cache_path {
@@ -252,6 +264,32 @@ impl SchemaStore {
                 if let Err(err) = save_to_cache(catalog_cache_path.as_deref(), &bytes).await {
                     tracing::warn!("{err}");
                 }
+
+                match serde_json::from_slice::<crate::json::JsonCatalog>(&bytes) {
+                    Ok(catalog) => catalog,
+                    Err(err) => {
+                        return Err(crate::Error::InvalidJsonFormat {
+                            uri: catalog_uri.deref().clone(),
+                            reason: err.to_string(),
+                        });
+                    }
+                }
+            }
+            #[cfg(not(feature = "native"))]
+            "http" | "https" => {
+                if self.offline() {
+                    tracing::debug!("offline mode, skip fetch catalog from url: {}", catalog_uri);
+                    return Ok(None);
+                }
+
+                let bytes = self.http_client.get_bytes(catalog_uri.as_str()).await.map_err(|err| {
+                    crate::Error::CatalogUriFetchFailed {
+                        catalog_uri: catalog_uri.clone(),
+                        reason: err.to_string(),
+                    }
+                })?;
+
+                tracing::debug!("fetch catalog from url: {}", catalog_uri);
 
                 match serde_json::from_slice::<crate::json::JsonCatalog>(&bytes) {
                     Ok(catalog) => catalog,
@@ -356,6 +394,7 @@ impl SchemaStore {
                     },
                 )?))
             }
+            #[cfg(feature = "native")]
             "http" | "https" => {
                 let schema_cache_path = get_cache_file_path(schema_uri).await;
                 if let Some(schema_cache_path) = &schema_cache_path {
@@ -409,6 +448,31 @@ impl SchemaStore {
                 if let Err(err) = save_to_cache(schema_cache_path.as_deref(), &bytes).await {
                     tracing::warn!("{err}");
                 }
+
+                Ok(Some(
+                    tombi_json::ValueNode::from_reader(std::io::Cursor::new(bytes)).map_err(
+                        |err| crate::Error::SchemaFileParseFailed {
+                            schema_uri: schema_uri.to_owned(),
+                            reason: err.to_string(),
+                        },
+                    )?,
+                ))
+            }
+            #[cfg(not(feature = "native"))]
+            "http" | "https" => {
+                if self.offline() {
+                    tracing::debug!("offline mode, skip fetch schema from uri: {}", schema_uri);
+                    return Ok(None);
+                }
+
+                let bytes = self.http_client.get_bytes(schema_uri.as_str()).await.map_err(|err| {
+                    crate::Error::SchemaFetchFailed {
+                        schema_uri: schema_uri.clone(),
+                        reason: err.to_string(),
+                    }
+                })?;
+
+                tracing::debug!("fetch schema from uri: {}", schema_uri);
 
                 Ok(Some(
                     tombi_json::ValueNode::from_reader(std::io::Cursor::new(bytes)).map_err(
@@ -726,6 +790,7 @@ impl SchemaStore {
     }
 }
 
+#[cfg(feature = "native")]
 async fn load_catalog_from_cache_ignoring_ttl(
     tagalog_uri: &CatalogUri,
     catalog_cache_path: Option<&std::path::Path>,
@@ -746,6 +811,7 @@ async fn load_catalog_from_cache_ignoring_ttl(
     Ok(None)
 }
 
+#[cfg(feature = "native")]
 async fn load_catalog_from_cache(
     tagalog_uri: &CatalogUri,
     catalog_cache_path: &std::path::Path,
@@ -767,6 +833,7 @@ async fn load_catalog_from_cache(
     Ok(None)
 }
 
+#[cfg(feature = "native")]
 /// Attempt to load the json schema from the cache, ignoring the TTL.
 async fn load_json_schema_from_cache_ignoring_ttl(
     schema_uri: &SchemaUri,
@@ -788,6 +855,7 @@ async fn load_json_schema_from_cache_ignoring_ttl(
     Ok(None)
 }
 
+#[cfg(feature = "native")]
 async fn load_json_schema_from_cache(
     schema_uri: &SchemaUri,
     schema_cache_path: &std::path::Path,
