@@ -17,7 +17,7 @@ pretty_assertions.workspace = true
 rstest.workspace = true
 
 [features]
-default = ["lsp", "serde"]
+default = ["serde"]
 lsp = ["dep:tower-lsp"]
 serde = ["dep:serde"]
 wasm = ["dep:wasm-bindgen", "serde"]
