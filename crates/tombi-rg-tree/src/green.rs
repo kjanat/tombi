@@ -11,9 +11,9 @@ pub use self::{
     node_cache::NodeCache,
     token::{GreenToken, GreenTokenData},
 };
-pub(crate) use self::{element::GreenElementRef, node::GreenChild};
+pub use self::{element::GreenElementRef, node::GreenChild};
 
-/// SyntaxKind is a type tag for each token or node.
+/// `SyntaxKind` is a type tag for each token or node.
 #[derive(Debug, Clone, Copy, PartialEq, Eq, PartialOrd, Ord, Hash)]
 pub struct SyntaxKind(pub u16);
 

@@ -23,78 +23,77 @@ impl ValueType {
     pub fn set_nullable(&mut self) {
         let value_type = self.clone();
         *self = match value_type {
-            ValueType::Null => ValueType::Null,
-            ValueType::Boolean
-            | ValueType::Integer
-            | ValueType::Float
-            | ValueType::String
-            | ValueType::OffsetDateTime
-            | ValueType::LocalDateTime
-            | ValueType::LocalDate
-            | ValueType::LocalTime
-            | ValueType::Array
-            | ValueType::Table => ValueType::AnyOf(vec![value_type, ValueType::Null]),
-            ValueType::OneOf(mut types) => {
-                if !types.iter().any(|t| t.is_nullable()) {
-                    types.push(ValueType::Null);
+            Self::Null => Self::Null,
+            Self::Boolean
+            | Self::Integer
+            | Self::Float
+            | Self::String
+            | Self::OffsetDateTime
+            | Self::LocalDateTime
+            | Self::LocalDate
+            | Self::LocalTime
+            | Self::Array
+            | Self::Table => Self::AnyOf(vec![value_type, Self::Null]),
+            Self::OneOf(mut types) => {
+                if !types.iter().any(Self::is_nullable) {
+                    types.push(Self::Null);
                 }
-                ValueType::OneOf(types)
+                Self::OneOf(types)
             }
-            ValueType::AnyOf(mut types) => {
-                if !types.iter().all(|t| t.is_nullable()) {
-                    types.push(ValueType::Null);
+            Self::AnyOf(mut types) => {
+                if !types.iter().all(Self::is_nullable) {
+                    types.push(Self::Null);
                 }
-                ValueType::AnyOf(types)
+                Self::AnyOf(types)
             }
-            ValueType::AllOf(types) => {
+            Self::AllOf(types) => {
                 if types.iter().all(|t| !t.is_nullable()) {
-                    ValueType::AnyOf(vec![ValueType::AllOf(types), ValueType::Null])
+                    Self::AnyOf(vec![Self::AllOf(types), Self::Null])
                 } else {
-                    ValueType::AllOf(types)
+                    Self::AllOf(types)
                 }
             }
         }
     }
 
+    #[must_use]
     pub fn is_nullable(&self) -> bool {
         match self {
-            ValueType::Null => true,
-            ValueType::Boolean
-            | ValueType::Integer
-            | ValueType::Float
-            | ValueType::String
-            | ValueType::OffsetDateTime
-            | ValueType::LocalDateTime
-            | ValueType::LocalDate
-            | ValueType::LocalTime
-            | ValueType::Array
-            | ValueType::Table => false,
-            ValueType::OneOf(types) | ValueType::AnyOf(types) => {
-                types.iter().any(|t| t.is_nullable())
-            }
-            ValueType::AllOf(types) => types.iter().all(|t| t.is_nullable()),
+            Self::Null => true,
+            Self::Boolean
+            | Self::Integer
+            | Self::Float
+            | Self::String
+            | Self::OffsetDateTime
+            | Self::LocalDateTime
+            | Self::LocalDate
+            | Self::LocalTime
+            | Self::Array
+            | Self::Table => false,
+            Self::OneOf(types) | Self::AnyOf(types) => types.iter().any(Self::is_nullable),
+            Self::AllOf(types) => types.iter().all(Self::is_nullable),
         }
     }
 
     fn to_display(&self, is_root: bool) -> String {
         match self {
-            ValueType::Null => {
+            Self::Null => {
                 // NOTE: If this representation appears in the Hover of the Language Server, it is a bug.
                 "Null".to_string()
             }
-            ValueType::Boolean => "Boolean".to_string(),
-            ValueType::Integer => "Integer".to_string(),
-            ValueType::Float => "Float".to_string(),
-            ValueType::String => "String".to_string(),
-            ValueType::OffsetDateTime => "OffsetDateTime".to_string(),
-            ValueType::LocalDateTime => "LocalDateTime".to_string(),
-            ValueType::LocalDate => "LocalDate".to_string(),
-            ValueType::LocalTime => "LocalTime".to_string(),
-            ValueType::Array => "Array".to_string(),
-            ValueType::Table => "Table".to_string(),
-            ValueType::OneOf(types) => fmt_composit_types(types, '^', is_root),
-            ValueType::AnyOf(types) => fmt_composit_types(types, '|', is_root),
-            ValueType::AllOf(types) => fmt_composit_types(types, '&', is_root),
+            Self::Boolean => "Boolean".to_string(),
+            Self::Integer => "Integer".to_string(),
+            Self::Float => "Float".to_string(),
+            Self::String => "String".to_string(),
+            Self::OffsetDateTime => "OffsetDateTime".to_string(),
+            Self::LocalDateTime => "LocalDateTime".to_string(),
+            Self::LocalDate => "LocalDate".to_string(),
+            Self::LocalTime => "LocalTime".to_string(),
+            Self::Array => "Array".to_string(),
+            Self::Table => "Table".to_string(),
+            Self::OneOf(types) => fmt_composit_types(types, '^', is_root),
+            Self::AnyOf(types) => fmt_composit_types(types, '|', is_root),
+            Self::AllOf(types) => fmt_composit_types(types, '&', is_root),
         }
     }
 
@@ -102,6 +101,7 @@ impl ValueType {
     ///
     /// For example, `OneOf([OneOf([A, B]), C])` will be simplified to `OneOf([A, B, C])`.
     /// Also, if `Null` is included, it is taken out at the end of the outermost. This always displays `? at the end of type display.
+    #[must_use]
     pub fn simplify(&self) -> Self {
         // Macro to handle the common pattern of simplifying composite types (OneOf, AnyOf, AllOf)
         macro_rules! simplify_composite {
@@ -159,13 +159,13 @@ impl ValueType {
         }
 
         let simplified = match self {
-            ValueType::OneOf(value_types) => {
+            Self::OneOf(value_types) => {
                 simplify_composite!(value_types, OneOf, AnyOf | AllOf)
             }
-            ValueType::AnyOf(value_types) => {
+            Self::AnyOf(value_types) => {
                 simplify_composite!(value_types, AnyOf, AllOf | OneOf)
             }
-            ValueType::AllOf(value_types) => {
+            Self::AllOf(value_types) => {
                 simplify_composite!(value_types, AllOf, OneOf | AnyOf)
             }
             other => other.to_owned(),
@@ -173,9 +173,7 @@ impl ValueType {
 
         // Further simplify single-element composite types
         match simplified {
-            ValueType::OneOf(value_types)
-            | ValueType::AnyOf(value_types)
-            | ValueType::AllOf(value_types)
+            Self::OneOf(value_types) | Self::AnyOf(value_types) | Self::AllOf(value_types)
                 if value_types.len() == 1 =>
             {
                 value_types.into_iter().next().unwrap()
@@ -195,16 +193,16 @@ impl std::fmt::Display for ValueType {
 impl From<tombi_document_tree::ValueType> for ValueType {
     fn from(value_type: tombi_document_tree::ValueType) -> Self {
         match value_type {
-            tombi_document_tree::ValueType::Boolean => ValueType::Boolean,
-            tombi_document_tree::ValueType::Integer => ValueType::Integer,
-            tombi_document_tree::ValueType::Float => ValueType::Float,
-            tombi_document_tree::ValueType::String => ValueType::String,
-            tombi_document_tree::ValueType::OffsetDateTime => ValueType::OffsetDateTime,
-            tombi_document_tree::ValueType::LocalDateTime => ValueType::LocalDateTime,
-            tombi_document_tree::ValueType::LocalDate => ValueType::LocalDate,
-            tombi_document_tree::ValueType::LocalTime => ValueType::LocalTime,
-            tombi_document_tree::ValueType::Array => ValueType::Array,
-            tombi_document_tree::ValueType::Table => ValueType::Table,
+            tombi_document_tree::ValueType::Boolean => Self::Boolean,
+            tombi_document_tree::ValueType::Integer => Self::Integer,
+            tombi_document_tree::ValueType::Float => Self::Float,
+            tombi_document_tree::ValueType::String => Self::String,
+            tombi_document_tree::ValueType::OffsetDateTime => Self::OffsetDateTime,
+            tombi_document_tree::ValueType::LocalDateTime => Self::LocalDateTime,
+            tombi_document_tree::ValueType::LocalDate => Self::LocalDate,
+            tombi_document_tree::ValueType::LocalTime => Self::LocalTime,
+            tombi_document_tree::ValueType::Array => Self::Array,
+            tombi_document_tree::ValueType::Table => Self::Table,
             tombi_document_tree::ValueType::Incomplete => unreachable!("incomplete value"),
         }
     }
@@ -215,7 +213,7 @@ fn fmt_composit_types(types: &[ValueType], separator: char, is_root: bool) -> St
     let non_null_types = types
         .iter()
         .filter(|t| {
-            if let ValueType::Null = t {
+            if matches!(t, ValueType::Null) {
                 nullable = true;
                 false
             } else {
@@ -241,9 +239,8 @@ fn fmt_composit_types(types: &[ValueType], separator: char, is_root: bool) -> St
             .iter()
             .map(|t| t.to_display(false))
             .join(&format!(" {separator} "))
-            .to_string()
     } else if non_null_types.len() == 1 {
-        non_null_types[0].to_display(false).to_string()
+        non_null_types[0].to_display(false)
     } else {
         format!(
             "({})",

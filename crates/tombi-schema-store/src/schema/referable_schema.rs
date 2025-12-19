@@ -6,7 +6,7 @@ use crate::x_taplo::XTaplo;
 
 use super::{AllOfSchema, AnyOfSchema, OneOfSchema, SchemaDefinitions, SchemaUri, ValueSchema};
 
-#[derive(Debug, Clone, PartialEq)]
+#[derive(Debug, Clone, PartialEq, Eq)]
 pub enum Referable<T> {
     Resolved {
         schema_uri: Option<SchemaUri>,
@@ -27,7 +27,8 @@ pub struct CurrentSchema<'a> {
     pub definitions: Cow<'a, SchemaDefinitions>,
 }
 
-impl<'a> CurrentSchema<'a> {
+impl CurrentSchema<'_> {
+    #[must_use]
     pub fn into_owned(self) -> CurrentSchema<'static> {
         CurrentSchema {
             value_schema: Cow::Owned(self.value_schema.into_owned()),
@@ -47,7 +48,7 @@ impl std::fmt::Debug for CurrentSchema<'_> {
 }
 
 impl<T> Referable<T> {
-    pub fn resolved(&self) -> Option<&T> {
+    pub const fn resolved(&self) -> Option<&T> {
         match self {
             Self::Resolved { value, .. } => Some(value),
             Self::Ref { .. } => None,
@@ -56,51 +57,52 @@ impl<T> Referable<T> {
 }
 
 impl Referable<ValueSchema> {
+    #[must_use]
     pub fn new(
         object: &tombi_json::ObjectNode,
         string_formats: Option<&[StringFormat]>,
     ) -> Option<Self> {
-        if let Some(x_taplo) = object.get("x-taplo") {
-            if let Ok(x_taplo) = tombi_json::from_value_node::<XTaplo>(x_taplo.to_owned()) {
-                if x_taplo.hidden == Some(true) {
-                    return None;
-                }
-            }
+        if let Some(x_taplo) = object.get("x-taplo")
+            && let Ok(x_taplo) = tombi_json::from_value_node::<XTaplo>(x_taplo.to_owned())
+            && x_taplo.hidden == Some(true)
+        {
+            return None;
         }
         if let Some(tombi_json::ValueNode::String(ref_string)) = object.get("$ref") {
-            return Some(Referable::Ref {
+            return Some(Self::Ref {
                 reference: ref_string.value.clone(),
                 title: object
                     .get("title")
-                    .and_then(|title| title.as_str().map(|s| s.to_string())),
-                description: object
-                    .get("description")
-                    .and_then(|description| description.as_str().map(|s| s.to_string())),
+                    .and_then(|title| title.as_str().map(std::string::ToString::to_string)),
+                description: object.get("description").and_then(|description| {
+                    description.as_str().map(std::string::ToString::to_string)
+                }),
                 deprecated: object
                     .get("deprecated")
-                    .and_then(|deprecated| deprecated.as_bool()),
+                    .and_then(tombi_json::ValueNode::as_bool),
             });
         }
 
-        ValueSchema::new(object, string_formats).map(|value_schema| Referable::Resolved {
+        ValueSchema::new(object, string_formats).map(|value_schema| Self::Resolved {
             schema_uri: None,
             value: value_schema,
         })
     }
 
+    #[must_use]
     pub fn deprecated<'a: 'b, 'b>(&'a self) -> tombi_future::BoxFuture<'b, Option<bool>> {
         Box::pin(async move {
             match self {
-                Referable::Resolved { value, .. } => value.deprecated().await,
-                Referable::Ref { .. } => None,
+                Self::Resolved { value, .. } => value.deprecated().await,
+                Self::Ref { .. } => None,
             }
         })
     }
 
     pub async fn value_type(&self) -> crate::ValueType {
         match self {
-            Referable::Resolved { value, .. } => value.value_type().await,
-            Referable::Ref { .. } => unreachable!("unreachable ref value_tyle."),
+            Self::Resolved { value, .. } => value.value_type().await,
+            Self::Ref { .. } => unreachable!("unreachable ref value_tyle."),
         }
     }
 
@@ -112,7 +114,7 @@ impl Referable<ValueSchema> {
     ) -> tombi_future::BoxFuture<'b, Result<Option<CurrentSchema<'a>>, crate::Error>> {
         Box::pin(async move {
             match self {
-                Referable::Ref {
+                Self::Ref {
                     reference,
                     title,
                     description,
@@ -120,7 +122,7 @@ impl Referable<ValueSchema> {
                 } => {
                     if let Some(definition_schema) = definitions.read().await.get(reference) {
                         let mut referable_schema = definition_schema.to_owned();
-                        if let Referable::Resolved {
+                        if let Self::Resolved {
                             value: value_schema,
                             ..
                         } = &mut referable_schema
@@ -155,7 +157,7 @@ impl Referable<ValueSchema> {
                                     resolved_schema.set_deprecated(*deprecated);
                                 }
 
-                                *self = Referable::Resolved {
+                                *self = Self::Resolved {
                                     schema_uri: Some(schema_uri.as_ref().clone()),
                                     value: resolved_schema,
                                 };
@@ -182,7 +184,7 @@ impl Referable<ValueSchema> {
                                     value_schema.set_deprecated(*deprecated);
                                 }
 
-                                *self = Referable::Resolved {
+                                *self = Self::Resolved {
                                     schema_uri: Some(document_schema.schema_uri.clone()),
                                     value: value_schema.clone(),
                                 };
@@ -194,15 +196,13 @@ impl Referable<ValueSchema> {
                                         schema_store,
                                     )
                                     .await;
-                            } else {
-                                return Err(crate::Error::InvalidJsonSchemaReference {
-                                    reference: reference.to_owned(),
-                                    schema_uri: schema_uri.clone(),
-                                });
                             }
-                        } else {
-                            return Ok(None);
+                            return Err(crate::Error::InvalidJsonSchemaReference {
+                                reference: reference.to_owned(),
+                                schema_uri: schema_uri.clone(),
+                            });
                         }
+                        return Ok(None);
                     } else {
                         return Err(crate::Error::UnsupportedReference {
                             reference: reference.to_owned(),
@@ -212,7 +212,7 @@ impl Referable<ValueSchema> {
 
                     self.resolve(schema_uri, definitions, schema_store).await
                 }
-                Referable::Resolved {
+                Self::Resolved {
                     schema_uri: reference_url,
                     value: value_schema,
                     ..
@@ -259,6 +259,7 @@ impl Referable<ValueSchema> {
     }
 }
 
+#[must_use]
 pub fn is_online_url(reference: &str) -> bool {
     reference.starts_with("https://") || reference.starts_with("http://")
 }
@@ -267,9 +268,9 @@ pub fn is_json_pointer(reference: &str) -> bool {
     reference.starts_with('#')
 }
 
-/// Resolve a JSON pointer to a ValueSchema.
+/// Resolve a JSON pointer to a `ValueSchema`.
 ///
-/// This function resolves a JSON pointer to a ValueSchema.
+/// This function resolves a JSON pointer to a `ValueSchema`.
 /// It is used to resolve pointers like `#/properties/foo` within the same schema.
 /// More correctly, it should use `#/definitions/foo` to use definitions,
 /// but this function is provided for exceptional cases of some JSON Schema implementations.
@@ -351,11 +352,11 @@ fn percent_decode(input: &str) -> String {
                 }
             }
 
-            if hex_chars.len() == 2 {
-                if let Ok(byte) = u8::from_str_radix(&hex_chars, 16) {
-                    result.push(byte);
-                    continue;
-                }
+            if hex_chars.len() == 2
+                && let Ok(byte) = u8::from_str_radix(&hex_chars, 16)
+            {
+                result.push(byte);
+                continue;
             }
 
             // If percent decoding failed, keep the original '%' and hex chars

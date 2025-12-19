@@ -11,6 +11,7 @@ pub struct NotSchema {
 
 impl NotSchema {
     #[inline]
+    #[must_use]
     pub fn new(
         object: &tombi_json::ObjectNode,
         string_formats: Option<&[StringFormat]>,

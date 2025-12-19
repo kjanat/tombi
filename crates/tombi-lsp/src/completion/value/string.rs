@@ -34,15 +34,13 @@ impl FindCompletionContents for tombi_document_tree::String {
                     StringCommonFormatRules,
                     StringCommonLintRules,
                 >(self.comment_directives(), position, accessors)
-            {
-                if let Some(completions) = get_tombi_comment_directive_content_completion_contents(
+                && let Some(completions) = get_tombi_comment_directive_content_completion_contents(
                     comment_directive_context,
                     schema_uri,
                 )
                 .await
-                {
-                    return completions;
-                }
+            {
+                return completions;
             }
 
             if !self.range().contains(position) {
@@ -156,10 +154,7 @@ impl FindCompletionContents for StringSchema {
                 type_hint_string(position, schema_uri, completion_hint)
                     .into_iter()
                     .filter(|completion_content| {
-                        self.default
-                            .as_ref()
-                            .map(|default| default != &completion_content.label)
-                            .unwrap_or(true)
+                        self.default.as_ref() != Some(&completion_content.label)
                     }),
             );
 

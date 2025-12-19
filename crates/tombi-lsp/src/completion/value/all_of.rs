@@ -85,7 +85,7 @@ where
             )
             .await;
 
-        for completion_item in completion_items.iter_mut() {
+        for completion_item in &mut completion_items {
             if completion_item.detail.is_none() {
                 completion_item.detail = detail.clone();
             }

@@ -42,7 +42,7 @@
 //! }
 //! ```
 //!
-//! ## Using TypedBuilder pattern
+//! ## Using `TypedBuilder` pattern
 //!
 //! ```rust
 //! use std::collections::HashMap;
@@ -125,15 +125,15 @@ pub enum Error {
 
 impl serde::ser::Error for Error {
     fn custom<T: fmt::Display>(msg: T) -> Self {
-        Error::Serialization(msg.to_string())
+        Self::Serialization(msg.to_string())
     }
 }
 
 impl serde::de::Error for Error {
     fn custom<T: fmt::Display>(msg: T) -> Self {
-        Error::Deserialization(msg.to_string())
+        Self::Deserialization(msg.to_string())
     }
 }
 
-/// A specialized `Result` type for serde_tombi operations.
+/// A specialized `Result` type for `serde_tombi` operations.
 pub type Result<T> = std::result::Result<T, Error>;

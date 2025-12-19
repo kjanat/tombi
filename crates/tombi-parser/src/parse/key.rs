@@ -1,7 +1,17 @@
-use tombi_syntax::{SyntaxKind::*, T};
+use tombi_syntax::{
+    SyntaxKind::{
+        BARE_KEY, BASIC_STRING, BOOLEAN, FLOAT, INTEGER_DEC, INVALID_TOKEN, KEYS, LITERAL_STRING,
+        LOCAL_DATE,
+    },
+    T,
+};
 
 use super::Parse;
-use crate::{ErrorKind::*, parser::Parser, token_set::TS_KEY_FIRST};
+use crate::{
+    ErrorKind::{ExpectedKey, ForbiddenKeysLastPeriod},
+    parser::Parser,
+    token_set::TS_KEY_FIRST,
+};
 
 impl Parse for tombi_ast::Keys {
     fn parse(p: &mut Parser<'_>) {
@@ -10,7 +20,7 @@ impl Parse for tombi_ast::Keys {
             m.complete(p, KEYS);
         } else {
             m.complete(p, INVALID_TOKEN);
-        };
+        }
     }
 }
 

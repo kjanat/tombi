@@ -1,14 +1,14 @@
 use quote::{format_ident, quote};
 
 #[derive(Default, Debug)]
-pub(crate) struct AstSrc {
+pub struct AstSrc {
     pub(crate) tokens: Vec<String>,
     pub(crate) nodes: Vec<AstNodeSrc>,
     pub(crate) enums: Vec<AstEnumSrc>,
 }
 
 #[derive(Debug)]
-pub(crate) struct AstNodeSrc {
+pub struct AstNodeSrc {
     #[allow(dead_code)]
     pub(crate) doc: Vec<String>,
     pub(crate) name: String,
@@ -17,7 +17,7 @@ pub(crate) struct AstNodeSrc {
 }
 
 #[derive(Debug)]
-pub(crate) struct AstEnumSrc {
+pub struct AstEnumSrc {
     #[allow(dead_code)]
     pub(crate) doc: Vec<String>,
     pub(crate) name: String,
@@ -26,7 +26,7 @@ pub(crate) struct AstEnumSrc {
 }
 
 #[derive(Debug, Eq, PartialEq)]
-pub(crate) enum Field {
+pub enum Field {
     Token(String),
     Node {
         name: String,
@@ -36,16 +36,16 @@ pub(crate) enum Field {
 }
 
 #[derive(Debug, Eq, PartialEq)]
-pub(crate) enum Cardinality {
+pub enum Cardinality {
     Optional,
     Many,
 }
 
 impl Field {
-    pub fn is_many(&self) -> bool {
+    pub const fn is_many(&self) -> bool {
         matches!(
             self,
-            Field::Node {
+            Self::Node {
                 cardinality: Cardinality::Many,
                 ..
             }
@@ -53,7 +53,7 @@ impl Field {
     }
     pub fn token_kind(&self) -> Option<proc_macro2::TokenStream> {
         match self {
-            Field::Token(token) => match token.as_str() {
+            Self::Token(token) => match token.as_str() {
                 "[[" | "]]" => Some(quote! { T![#token]}),
                 token if token.chars().all(|s| matches!(s, 'a'..='z' | '_')) => {
                     let token: proc_macro2::TokenStream = token.to_uppercase().parse().unwrap();
@@ -70,7 +70,7 @@ impl Field {
 
     pub fn method_name(&self) -> String {
         match self {
-            Field::Token(name) => match name.as_str() {
+            Self::Token(name) => match name.as_str() {
                 "'{'" => "brace_start",
                 "'}'" => "brace_end",
                 "'['" => "bracket_start",
@@ -82,7 +82,7 @@ impl Field {
                 "," => "comma",
                 _ => "token",
             },
-            Field::Node { name, .. } => match name.as_str() {
+            Self::Node { name, .. } => match name.as_str() {
                 "root_items" => "items",
                 _ => name,
             },
@@ -92,8 +92,8 @@ impl Field {
 
     pub fn ty(&self) -> proc_macro2::Ident {
         match self {
-            Field::Token(_) => format_ident!("SyntaxToken"),
-            Field::Node { ty, .. } => format_ident!("{}", ty),
+            Self::Token(_) => format_ident!("SyntaxToken"),
+            Self::Node { ty, .. } => format_ident!("{}", ty),
         }
     }
 }

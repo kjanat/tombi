@@ -12,7 +12,9 @@ pub enum TableKind {
 
 impl From<tombi_document_tree::TableKind> for TableKind {
     fn from(kind: tombi_document_tree::TableKind) -> Self {
-        use tombi_document_tree::TableKind::*;
+        use tombi_document_tree::TableKind::{
+            InlineTable, KeyValue, ParentKey, ParentTable, Root, Table,
+        };
         match kind {
             Root | Table | ParentTable | ParentKey => Self::Table,
             InlineTable { .. } => Self::InlineTable,
@@ -28,6 +30,7 @@ pub struct Table {
 }
 
 impl Table {
+    #[must_use]
     pub fn new(kind: TableKind) -> Self {
         Self {
             kind,
@@ -36,17 +39,19 @@ impl Table {
     }
 
     #[inline]
-    pub fn kind(&self) -> TableKind {
+    #[must_use]
+    pub const fn kind(&self) -> TableKind {
         self.kind
     }
 
     #[inline]
-    pub fn kind_mut(&mut self) -> &mut TableKind {
+    pub const fn kind_mut(&mut self) -> &mut TableKind {
         &mut self.kind
     }
 
     #[inline]
-    pub fn key_values(&self) -> &IndexMap<Key, Value> {
+    #[must_use]
+    pub const fn key_values(&self) -> &IndexMap<Key, Value> {
         &self.key_values
     }
 

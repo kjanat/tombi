@@ -16,24 +16,24 @@ use tombi_document_tree::{ArrayKind, TableKind};
 use tombi_schema_store::Accessor;
 
 pub const DOCUMENT_SCHEMA_DIRECTIVE_TITLE: &str = "Schema Document Directive";
-pub const DOCUMENT_SCHEMA_DIRECTIVE_DESCRIPTION: &str = r#"
+pub const DOCUMENT_SCHEMA_DIRECTIVE_DESCRIPTION: &str = r"
 Specify the Schema URL/Path for this document.
 
 See the [docs](https://tombi-toml.github.io/tombi/docs/comment-directive/#document-comment-directive) for more details.
-"#;
+";
 
 pub const DOCUMENT_TOMBI_DIRECTIVE_TITLE: &str = "Tombi Document Directive";
-pub const DOCUMENT_TOMBI_DIRECTIVE_DESCRIPTION: &str = r#"
+pub const DOCUMENT_TOMBI_DIRECTIVE_DESCRIPTION: &str = r"
 Directives that apply only to this document.
 
 See the [docs](https://tombi-toml.github.io/tombi/docs/comment-directive/#document-comment-directive) for more details.
-"#;
+";
 
 pub const VALUE_TOMBI_DIRECTIVE_TITLE: &str = "Tombi Value Directive";
-pub const VALUE_TOMBI_DIRECTIVE_DESCRIPTION: &str = r#"Directives that apply only to this value.
+pub const VALUE_TOMBI_DIRECTIVE_DESCRIPTION: &str = r"Directives that apply only to this value.
 
 See the [docs](https://tombi-toml.github.io/tombi/docs/comment-directive/#value-comment-directive) for more details.
-"#;
+";
 
 #[derive(Debug, Clone)]
 pub enum CommentDirectiveContext<T> {
@@ -60,7 +60,7 @@ impl GetCommentDirectiveContext<Result<tombi_uri::SchemaUri, String>>
     ) -> Option<CommentDirectiveContext<Result<tombi_uri::SchemaUri, String>>> {
         if self.uri_range.contains(position) {
             Some(CommentDirectiveContext::Content {
-                content: self.uri.to_owned(),
+                content: self.uri.clone(),
                 content_range: self.uri_range,
                 position_in_content: tombi_text::Position::new(
                     0,
@@ -132,10 +132,7 @@ impl GetCommentDirectiveContext<String> for TombiValueCommentDirective {
 }
 
 impl GetCommentDirectiveContext<String> for CommentDirectiveContext<String> {
-    fn get_context(
-        &self,
-        _position: tombi_text::Position,
-    ) -> Option<CommentDirectiveContext<String>> {
+    fn get_context(&self, _position: tombi_text::Position) -> Option<Self> {
         Some(self.clone())
     }
 }

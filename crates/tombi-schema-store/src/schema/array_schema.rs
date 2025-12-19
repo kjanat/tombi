@@ -34,10 +34,10 @@ impl ArraySchema {
         Self {
             title: object
                 .get("title")
-                .and_then(|v| v.as_str().map(|s| s.to_string())),
+                .and_then(|v| v.as_str().map(std::string::ToString::to_string)),
             description: object
                 .get("description")
-                .and_then(|v| v.as_str().map(|s| s.to_string())),
+                .and_then(|v| v.as_str().map(std::string::ToString::to_string)),
             items: object.get("items").and_then(|value| {
                 value
                     .as_object()
@@ -50,33 +50,38 @@ impl ArraySchema {
             max_items: object
                 .get("maxItems")
                 .and_then(|v| v.as_u64().map(|n| n as usize)),
-            unique_items: object.get("uniqueItems").and_then(|v| v.as_bool()),
+            unique_items: object
+                .get("uniqueItems")
+                .and_then(tombi_json::ValueNode::as_bool),
             enumerate: object
                 .get("enum")
                 .and_then(|v| v.as_array())
-                .map(|array| array.items.iter().map(|v| v.into()).collect()),
+                .map(|array| array.items.iter().map(std::convert::Into::into).collect()),
             default: object
                 .get("default")
                 .and_then(|v| v.as_array())
-                .map(|array| array.into()),
+                .map(std::convert::Into::into),
             const_value: object
                 .get("const")
                 .and_then(|v| v.as_array())
-                .map(|array| array.into()),
+                .map(std::convert::Into::into),
             examples: object
                 .get("examples")
                 .and_then(|v| v.as_array())
-                .map(|array| array.items.iter().map(|v| v.into()).collect()),
+                .map(|array| array.items.iter().map(std::convert::Into::into).collect()),
             values_order: object
                 .get(X_TOMBI_ARRAY_VALUES_ORDER)
                 .and_then(XTombiArrayValuesOrder::new),
-            deprecated: object.get("deprecated").and_then(|v| v.as_bool()),
+            deprecated: object
+                .get("deprecated")
+                .and_then(tombi_json::ValueNode::as_bool),
             range: object.range,
             not: NotSchema::new(object, string_formats),
         }
     }
 
-    pub fn value_type(&self) -> crate::ValueType {
+    #[must_use]
+    pub const fn value_type(&self) -> crate::ValueType {
         crate::ValueType::Array
     }
 }
@@ -120,7 +125,7 @@ impl FindSchemaCandidates for ArraySchema {
                     .await;
                 candidates.append(&mut item_candidates);
                 errors.append(&mut item_errors);
-            };
+            }
 
             (candidates, errors)
         }
@@ -139,7 +144,7 @@ impl XTombiArrayValuesOrder {
         match value_node {
             tombi_json::ValueNode::String(string) => {
                 match ArrayValuesOrder::try_from(string.value.as_ref()) {
-                    Ok(val) => return Some(XTombiArrayValuesOrder::All(val)),
+                    Ok(val) => return Some(Self::All(val)),
                     Err(_) => {
                         tracing::warn!("Invalid {X_TOMBI_ARRAY_VALUES_ORDER}: {}", string.value);
                     }
@@ -165,9 +170,7 @@ impl XTombiArrayValuesOrder {
                                         }
                                     }
                                 }
-                                return Some(XTombiArrayValuesOrder::Groups(
-                                    ArrayValuesOrderGroup::OneOf(orders),
-                                ));
+                                return Some(Self::Groups(ArrayValuesOrderGroup::OneOf(orders)));
                             }
                         }
                         "anyOf" => {
@@ -187,9 +190,7 @@ impl XTombiArrayValuesOrder {
                                         }
                                     }
                                 }
-                                return Some(XTombiArrayValuesOrder::Groups(
-                                    ArrayValuesOrderGroup::AnyOf(orders),
-                                ));
+                                return Some(Self::Groups(ArrayValuesOrderGroup::AnyOf(orders)));
                             }
                         }
                         _ => {

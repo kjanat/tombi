@@ -19,7 +19,7 @@ pub use table::{Table, TableKind};
 #[cfg(feature = "serde")]
 use serde::de::{Deserializer, IntoDeserializer};
 
-#[derive(Debug, Clone, Copy, PartialEq)]
+#[derive(Debug, Clone, Copy, PartialEq, Eq)]
 pub enum ValueKind {
     Boolean,
     Integer,
@@ -36,16 +36,16 @@ pub enum ValueKind {
 impl std::fmt::Display for ValueKind {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
         match self {
-            ValueKind::Boolean => write!(f, "Boolean"),
-            ValueKind::Integer => write!(f, "Integer"),
-            ValueKind::Float => write!(f, "Float"),
-            ValueKind::String => write!(f, "String"),
-            ValueKind::OffsetDateTime => write!(f, "OffsetDateTime"),
-            ValueKind::LocalDateTime => write!(f, "LocalDateTime"),
-            ValueKind::LocalDate => write!(f, "LocalDate"),
-            ValueKind::LocalTime => write!(f, "LocalTime"),
-            ValueKind::Array => write!(f, "Array"),
-            ValueKind::Table => write!(f, "Table"),
+            Self::Boolean => write!(f, "Boolean"),
+            Self::Integer => write!(f, "Integer"),
+            Self::Float => write!(f, "Float"),
+            Self::String => write!(f, "String"),
+            Self::OffsetDateTime => write!(f, "OffsetDateTime"),
+            Self::LocalDateTime => write!(f, "LocalDateTime"),
+            Self::LocalDate => write!(f, "LocalDate"),
+            Self::LocalTime => write!(f, "LocalTime"),
+            Self::Array => write!(f, "Array"),
+            Self::Table => write!(f, "Table"),
         }
     }
 }
@@ -63,16 +63,16 @@ impl<'a> TryFrom<serde::de::Unexpected<'a>> for ValueKind {
 
     fn try_from(unexp: serde::de::Unexpected<'a>) -> Result<Self, Self::Error> {
         match unexp {
-            serde::de::Unexpected::Bool(_) => Ok(ValueKind::Boolean),
-            serde::de::Unexpected::Unsigned(_) => Ok(ValueKind::Integer),
-            serde::de::Unexpected::Signed(_) => Ok(ValueKind::Integer),
-            serde::de::Unexpected::Float(_) => Ok(ValueKind::Float),
-            serde::de::Unexpected::Char(_) => Ok(ValueKind::String),
-            serde::de::Unexpected::Str(_) => Ok(ValueKind::String),
-            serde::de::Unexpected::Bytes(_) => Ok(ValueKind::String),
-            serde::de::Unexpected::Seq => Ok(ValueKind::Array),
-            serde::de::Unexpected::Map => Ok(ValueKind::Table),
-            serde::de::Unexpected::StructVariant => Ok(ValueKind::String),
+            serde::de::Unexpected::Bool(_) => Ok(Self::Boolean),
+            serde::de::Unexpected::Unsigned(_) => Ok(Self::Integer),
+            serde::de::Unexpected::Signed(_) => Ok(Self::Integer),
+            serde::de::Unexpected::Float(_) => Ok(Self::Float),
+            serde::de::Unexpected::Char(_) => Ok(Self::String),
+            serde::de::Unexpected::Str(_) => Ok(Self::String),
+            serde::de::Unexpected::Bytes(_) => Ok(Self::String),
+            serde::de::Unexpected::Seq => Ok(Self::Array),
+            serde::de::Unexpected::Map => Ok(Self::Table),
+            serde::de::Unexpected::StructVariant => Ok(Self::String),
             serde::de::Unexpected::Unit
             | serde::de::Unexpected::Option
             | serde::de::Unexpected::NewtypeStruct
@@ -101,42 +101,43 @@ pub enum Value {
 
 impl Value {
     #[inline]
-    pub fn kind(&self) -> ValueKind {
+    #[must_use]
+    pub const fn kind(&self) -> ValueKind {
         match self {
-            Value::Boolean(_) => ValueKind::Boolean,
-            Value::Integer(_) => ValueKind::Integer,
-            Value::Float(_) => ValueKind::Float,
-            Value::String(_) => ValueKind::String,
-            Value::OffsetDateTime(_) => ValueKind::OffsetDateTime,
-            Value::LocalDateTime(_) => ValueKind::LocalDateTime,
-            Value::LocalDate(_) => ValueKind::LocalDate,
-            Value::LocalTime(_) => ValueKind::LocalTime,
-            Value::Array(_) => ValueKind::Array,
-            Value::Table(_) => ValueKind::Table,
+            Self::Boolean(_) => ValueKind::Boolean,
+            Self::Integer(_) => ValueKind::Integer,
+            Self::Float(_) => ValueKind::Float,
+            Self::String(_) => ValueKind::String,
+            Self::OffsetDateTime(_) => ValueKind::OffsetDateTime,
+            Self::LocalDateTime(_) => ValueKind::LocalDateTime,
+            Self::LocalDate(_) => ValueKind::LocalDate,
+            Self::LocalTime(_) => ValueKind::LocalTime,
+            Self::Array(_) => ValueKind::Array,
+            Self::Table(_) => ValueKind::Table,
         }
     }
 
     #[cfg(feature = "serde")]
     pub(crate) fn unexpected(&self) -> serde::de::Unexpected<'_> {
         match self {
-            Value::Boolean(bool) => serde::de::Unexpected::Bool(bool.value()),
-            Value::Integer(integer) => serde::de::Unexpected::Signed(integer.value()),
-            Value::Float(float) => serde::de::Unexpected::Float(float.value()),
-            Value::String(string) => serde::de::Unexpected::Str(string.value()),
-            Value::OffsetDateTime(_) => {
+            Self::Boolean(bool) => serde::de::Unexpected::Bool(bool.value()),
+            Self::Integer(integer) => serde::de::Unexpected::Signed(integer.value()),
+            Self::Float(float) => serde::de::Unexpected::Float(float.value()),
+            Self::String(string) => serde::de::Unexpected::Str(string.value()),
+            Self::OffsetDateTime(_) => {
                 serde::de::Unexpected::Other(tombi_date_time::OffsetDateTime::type_name())
             }
-            Value::LocalDateTime(_) => {
+            Self::LocalDateTime(_) => {
                 serde::de::Unexpected::Other(tombi_date_time::LocalDateTime::type_name())
             }
-            Value::LocalDate(_) => {
+            Self::LocalDate(_) => {
                 serde::de::Unexpected::Other(tombi_date_time::LocalDate::type_name())
             }
-            Value::LocalTime(_) => {
+            Self::LocalTime(_) => {
                 serde::de::Unexpected::Other(tombi_date_time::LocalTime::type_name())
             }
-            Value::Array(_) => serde::de::Unexpected::Seq,
-            Value::Table(_) => serde::de::Unexpected::Map,
+            Self::Array(_) => serde::de::Unexpected::Seq,
+            Self::Table(_) => serde::de::Unexpected::Map,
         }
     }
 }
@@ -144,23 +145,17 @@ impl Value {
 impl IntoDocument<Value> for tombi_document_tree::Value {
     fn into_document(self, toml_version: crate::TomlVersion) -> Value {
         match self {
-            tombi_document_tree::Value::Boolean(value) => Value::Boolean(value.into()),
-            tombi_document_tree::Value::Integer(value) => Value::Integer(value.into()),
-            tombi_document_tree::Value::Float(value) => Value::Float(value.into()),
-            tombi_document_tree::Value::String(value) => Value::String(value.into()),
-            tombi_document_tree::Value::OffsetDateTime(value) => {
-                Value::OffsetDateTime(value.into())
-            }
-            tombi_document_tree::Value::LocalDateTime(value) => Value::LocalDateTime(value.into()),
-            tombi_document_tree::Value::LocalDate(value) => Value::LocalDate(value.into()),
-            tombi_document_tree::Value::LocalTime(value) => Value::LocalTime(value.into()),
-            tombi_document_tree::Value::Array(value) => {
-                Value::Array(value.into_document(toml_version))
-            }
-            tombi_document_tree::Value::Table(value) => {
-                Value::Table(value.into_document(toml_version))
-            }
-            tombi_document_tree::Value::Incomplete { .. } => {
+            Self::Boolean(value) => Value::Boolean(value.into()),
+            Self::Integer(value) => Value::Integer(value.into()),
+            Self::Float(value) => Value::Float(value.into()),
+            Self::String(value) => Value::String(value.into()),
+            Self::OffsetDateTime(value) => Value::OffsetDateTime(value.into()),
+            Self::LocalDateTime(value) => Value::LocalDateTime(value.into()),
+            Self::LocalDate(value) => Value::LocalDate(value.into()),
+            Self::LocalTime(value) => Value::LocalTime(value.into()),
+            Self::Array(value) => Value::Array(value.into_document(toml_version)),
+            Self::Table(value) => Value::Table(value.into_document(toml_version)),
+            Self::Incomplete { .. } => {
                 unreachable!("Incomplete value should not be converted to document")
             }
         }
@@ -174,16 +169,16 @@ impl serde::Serialize for Value {
         S: serde::Serializer,
     {
         match self {
-            Value::Boolean(value) => value.serialize(serializer),
-            Value::Integer(value) => value.serialize(serializer),
-            Value::Float(value) => value.serialize(serializer),
-            Value::String(value) => value.serialize(serializer),
-            Value::OffsetDateTime(value) => value.serialize(serializer),
-            Value::LocalDateTime(value) => value.serialize(serializer),
-            Value::LocalDate(value) => value.serialize(serializer),
-            Value::LocalTime(value) => value.serialize(serializer),
-            Value::Array(value) => value.serialize(serializer),
-            Value::Table(value) => value.serialize(serializer),
+            Self::Boolean(value) => value.serialize(serializer),
+            Self::Integer(value) => value.serialize(serializer),
+            Self::Float(value) => value.serialize(serializer),
+            Self::String(value) => value.serialize(serializer),
+            Self::OffsetDateTime(value) => value.serialize(serializer),
+            Self::LocalDateTime(value) => value.serialize(serializer),
+            Self::LocalDate(value) => value.serialize(serializer),
+            Self::LocalTime(value) => value.serialize(serializer),
+            Self::Array(value) => value.serialize(serializer),
+            Self::Table(value) => value.serialize(serializer),
         }
     }
 }
@@ -233,10 +228,7 @@ impl<'de> serde::Deserialize<'de> for Value {
             }
 
             fn visit_string<E>(self, v: std::string::String) -> Result<Value, E> {
-                Ok(Value::String(String::new(
-                    StringKind::BasicString,
-                    v.to_string(),
-                )))
+                Ok(Value::String(String::new(StringKind::BasicString, v)))
             }
 
             fn visit_seq<A>(self, mut seq: A) -> Result<Value, A::Error>

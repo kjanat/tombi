@@ -27,11 +27,13 @@ pub struct Key {
 }
 
 impl Key {
-    pub fn new(kind: KeyKind, value: String) -> Self {
+    #[must_use]
+    pub const fn new(kind: KeyKind, value: String) -> Self {
         Self { kind, value }
     }
 
     #[inline]
+    #[must_use]
     pub fn value(&self) -> &str {
         &self.value
     }
@@ -49,7 +51,7 @@ impl From<crate::String> for Key {
     fn from(value: crate::String) -> Self {
         Self {
             kind: match value.kind() {
-                _ if !value.value.contains("'") && !value.value.contains("\"") => KeyKind::BareKey,
+                _ if !value.value.contains('\'') && !value.value.contains('"') => KeyKind::BareKey,
                 crate::StringKind::BasicString => KeyKind::BasicString,
                 crate::StringKind::LiteralString => KeyKind::LiteralString,
                 crate::StringKind::MultiLineBasicString => KeyKind::BasicString,
@@ -62,7 +64,7 @@ impl From<crate::String> for Key {
 
 impl std::hash::Hash for Key {
     fn hash<H: std::hash::Hasher>(&self, state: &mut H) {
-        self.value.hash(state)
+        self.value.hash(state);
     }
 }
 
@@ -71,7 +73,7 @@ impl std::fmt::Display for Key {
         match self.kind {
             KeyKind::BareKey => write!(f, "{}", self.value),
             KeyKind::BasicString => write!(f, r#""{}""#, self.value),
-            KeyKind::LiteralString => write!(f, r#"'{}'"#, self.value),
+            KeyKind::LiteralString => write!(f, r"'{}'", self.value),
         }
     }
 }
@@ -102,7 +104,7 @@ impl<'de> serde::Deserialize<'de> for Key {
         D: serde::Deserializer<'de>,
     {
         let value = String::deserialize(deserializer)?;
-        if !value.contains("'") && !value.contains("\"") {
+        if !value.contains('\'') && !value.contains('"') {
             Ok(Self {
                 kind: KeyKind::BareKey,
                 value,
@@ -115,7 +117,7 @@ impl<'de> serde::Deserialize<'de> for Key {
         } else {
             Ok(Self {
                 kind: KeyKind::BasicString,
-                value: format!(r#""{}""#, value.replace("\"", r#"\""#)),
+                value: format!(r#""{}""#, value.replace('"', r#"\""#)),
             })
         }
     }

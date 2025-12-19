@@ -236,7 +236,7 @@ pub fn parse_basic_string(
             '\r' | '\n' if is_multi_line => {
                 output.push(c);
                 if c == '\r' {
-                    if let Some(&'\n') = chars.peek() {
+                    if chars.peek() == Some(&'\n') {
                         output.push(chars.next().unwrap());
                     } else {
                         return Err(ParseError::InvalidLineBreak);
@@ -263,7 +263,7 @@ pub fn parse_literal_string(input: &str, is_multi_line: bool) -> Result<String, 
             '\r' | '\n' if is_multi_line => {
                 output.push(c);
                 if c == '\r' {
-                    if let Some(&'\n') = chars.peek() {
+                    if chars.peek() == Some(&'\n') {
                         output.push(chars.next().unwrap());
                     } else {
                         return Err(ParseError::InvalidLineBreak);
@@ -281,6 +281,7 @@ pub fn parse_literal_string(input: &str, is_multi_line: bool) -> Result<String, 
     Ok(output)
 }
 
+#[must_use]
 pub fn to_basic_string(value: &str) -> String {
     let mut result = String::with_capacity(value.len() + 2);
     result.push('"');
@@ -307,14 +308,17 @@ pub fn to_basic_string(value: &str) -> String {
     result
 }
 
+#[must_use]
 pub fn to_literal_string(value: &str) -> String {
     format!("'{value}'")
 }
 
+#[must_use]
 pub fn to_multi_line_basic_string(value: &str) -> String {
     format!("\"\"\"\n{value}\"\"\"")
 }
 
+#[must_use]
 pub fn to_multi_line_literal_string(value: &str) -> String {
     format!("'''\n{value}'''")
 }

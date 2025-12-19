@@ -4,7 +4,7 @@ mod comment;
 mod one_of;
 mod value;
 
-use std::{borrow::Cow, ops::Deref};
+use std::borrow::Cow;
 
 use ahash::AHashMap;
 pub use comment::get_tombi_document_comment_directive_type_definition;
@@ -20,7 +20,7 @@ pub async fn get_type_definition(
     keys: &[tombi_document_tree::Key],
     schema_context: &tombi_schema_store::SchemaContext<'_>,
 ) -> Option<TypeDefinition> {
-    let table = document_tree.deref();
+    let table = &**document_tree;
     match schema_context.root_schema {
         Some(document_schema) => {
             let current_schema =

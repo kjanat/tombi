@@ -16,6 +16,7 @@ use parse::Parse;
 pub use parsed::Parsed;
 pub use tombi_syntax::{SyntaxKind, SyntaxNode, SyntaxToken};
 
+#[must_use]
 pub fn parse(source: &str, toml_version: tombi_config::TomlVersion) -> Parsed<SyntaxNode> {
     parse_as::<tombi_ast::Root>(source, toml_version)
 }
@@ -66,6 +67,7 @@ pub fn parse_as<P: Parse>(
     Parsed::new(green_tree, errors)
 }
 
+#[must_use]
 pub fn build_green_tree(
     source: &str,
     tokens: &[tombi_lexer::Token],

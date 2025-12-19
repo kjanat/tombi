@@ -52,41 +52,49 @@ impl Diagnostic {
     }
 
     #[inline]
-    pub fn level(&self) -> level::Level {
+    #[must_use]
+    pub const fn level(&self) -> level::Level {
         self.level
     }
 
     #[inline]
+    #[must_use]
     pub fn is_warning(&self) -> bool {
         self.level == level::Level::WARNING
     }
 
     #[inline]
+    #[must_use]
     pub fn is_error(&self) -> bool {
         self.level == level::Level::ERROR
     }
 
     #[inline]
+    #[must_use]
     pub fn code(&self) -> &str {
         &self.code
     }
 
     #[inline]
+    #[must_use]
     pub fn message(&self) -> &str {
         &self.message
     }
 
     #[inline]
-    pub fn position(&self) -> tombi_text::Position {
+    #[must_use]
+    pub const fn position(&self) -> tombi_text::Position {
         self.range.start
     }
 
     #[inline]
-    pub fn range(&self) -> tombi_text::Range {
+    #[must_use]
+    pub const fn range(&self) -> tombi_text::Range {
         self.range
     }
 
     #[inline]
+    #[must_use]
     pub fn source_file(&self) -> Option<&std::path::Path> {
         self.source_file.as_deref()
     }
@@ -111,7 +119,7 @@ impl std::hash::Hash for Diagnostic {
 pub trait SetDiagnostics {
     /// Set the diagnostic to the given diagnostics.
     ///
-    /// We use set_diagnostic instead of to_diagnostic because self may have multiple diagnostics.
+    /// We use `set_diagnostic` instead of `to_diagnostic` because self may have multiple diagnostics.
     fn set_diagnostics(self, diagnostics: &mut Vec<Diagnostic>);
 }
 
@@ -125,13 +133,10 @@ impl<T: SetDiagnostics> SetDiagnostics for Vec<T> {
 
 #[cfg(feature = "lsp")]
 impl tombi_text::FromLsp<Diagnostic> for tower_lsp::lsp_types::Diagnostic {
-    fn from_lsp(
-        source: Diagnostic,
-        line_index: &tombi_text::LineIndex,
-    ) -> tower_lsp::lsp_types::Diagnostic {
+    fn from_lsp(source: Diagnostic, line_index: &tombi_text::LineIndex) -> Self {
         use tombi_text::IntoLsp;
 
-        tower_lsp::lsp_types::Diagnostic {
+        Self {
             range: source.range().into_lsp(line_index),
             severity: Some(match source.level() {
                 level::Level::WARNING => tower_lsp::lsp_types::DiagnosticSeverity::WARNING,

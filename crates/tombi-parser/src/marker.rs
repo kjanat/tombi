@@ -3,14 +3,14 @@ use tombi_syntax::SyntaxKind;
 
 use crate::{Event, parser::Parser};
 
-pub(crate) struct Marker {
+pub struct Marker {
     event_index: u32,
     bomb: DropBomb,
 }
 
 impl Marker {
-    pub fn new(event_index: u32) -> Marker {
-        Marker {
+    pub fn new(event_index: u32) -> Self {
+        Self {
             event_index,
             bomb: DropBomb::new("Marker must be either completed or abandoned"),
         }

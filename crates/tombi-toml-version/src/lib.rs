@@ -16,6 +16,7 @@ define_toml_version! {
 }
 
 impl TomlVersion {
+    #[must_use]
     pub const fn latest() -> Self {
         Self::V1_1_0
     }

@@ -16,10 +16,8 @@ use crate::{
     },
     error::{REQUIRED_KEY_SCORE, TYPE_MATCHED_SCORE},
     validate::{
-        handle_deprecated,
-        handle_deprecated_value, not_schema::validate_not,
-        handle_type_mismatch,
-        handle_unused_noqa,
+        handle_deprecated, handle_deprecated_value, handle_type_mismatch, handle_unused_noqa,
+        not_schema::validate_not,
     },
 };
 
@@ -188,23 +186,16 @@ async fn validate_table(
                 )
                 .await
                 .inspect_err(|err| tracing::warn!("{err}"))
-            {
-                if let Err(crate::Error {
+                && let Err(crate::Error {
                     mut diagnostics, ..
                 }) = value
                     .validate(&new_accessors, Some(&current_schema), schema_context)
                     .await
-                {
-                    convert_deprecated_diagnostics_range(
-                        &current_schema,
-                        value,
-                        key,
-                        &mut diagnostics,
-                    )
+            {
+                convert_deprecated_diagnostics_range(&current_schema, value, key, &mut diagnostics)
                     .await;
 
-                    total_diagnostics.extend(diagnostics);
-                }
+                total_diagnostics.extend(diagnostics);
             }
         }
 
@@ -230,23 +221,21 @@ async fn validate_table(
                         )
                         .await
                         .inspect_err(|err| tracing::warn!("{err}"))
-                    {
-                        if let Err(crate::Error {
+                        && let Err(crate::Error {
                             mut diagnostics, ..
                         }) = value
                             .validate(&new_accessors, Some(&current_schema), schema_context)
                             .await
-                        {
-                            convert_deprecated_diagnostics_range(
-                                &current_schema,
-                                value,
-                                key,
-                                &mut diagnostics,
-                            )
-                            .await;
+                    {
+                        convert_deprecated_diagnostics_range(
+                            &current_schema,
+                            value,
+                            key,
+                            &mut diagnostics,
+                        )
+                        .await;
 
-                            total_diagnostics.extend(diagnostics);
-                        }
+                        total_diagnostics.extend(diagnostics);
                     }
                 }
             }
@@ -371,25 +360,7 @@ async fn validate_table(
         let keys = table_value.keys().map(|key| &key.value).collect_vec();
 
         for required_key in required {
-            if !keys.contains(&required_key) {
-                let level = table_rules
-                    .map(|rules| &rules.value)
-                    .and_then(|rules| {
-                        rules
-                            .table_key_required
-                            .as_ref()
-                            .map(SeverityLevelDefaultError::from)
-                    })
-                    .unwrap_or_default();
-
-                crate::Diagnostic {
-                    kind: Box::new(crate::DiagnosticKind::TableKeyRequired {
-                        key: required_key.to_string(),
-                    }),
-                    range: table_value.range(),
-                }
-                .push_diagnostic_with_level(level, &mut total_diagnostics);
-            } else {
+            if keys.contains(&required_key) {
                 if table_rules
                     .map(|rules| &rules.value)
                     .and_then(|rules| rules.table_key_required.as_ref())
@@ -404,6 +375,24 @@ async fn validate_table(
                     );
                 }
                 total_score += REQUIRED_KEY_SCORE;
+            } else {
+                let level = table_rules
+                    .map(|rules| &rules.value)
+                    .and_then(|rules| {
+                        rules
+                            .table_key_required
+                            .as_ref()
+                            .map(SeverityLevelDefaultError::from)
+                    })
+                    .unwrap_or_default();
+
+                crate::Diagnostic {
+                    kind: Box::new(crate::DiagnosticKind::TableKeyRequired {
+                        key: required_key.clone(),
+                    }),
+                    range: table_value.range(),
+                }
+                .push_diagnostic_with_level(level, &mut total_diagnostics);
             }
         }
     }
@@ -489,8 +478,8 @@ async fn validate_table(
         );
     }
 
-    if let Some(not_schema) = table_schema.not.as_ref() {
-        if let Err(error) = validate_not(
+    if let Some(not_schema) = table_schema.not.as_ref()
+        && let Err(error) = validate_not(
             table_value,
             accessors,
             not_schema,
@@ -500,9 +489,8 @@ async fn validate_table(
             table_rules.as_ref().map(|rules| &rules.common),
         )
         .await
-        {
-            total_diagnostics.extend(error.diagnostics);
-        }
+    {
+        total_diagnostics.extend(error.diagnostics);
     }
 
     if total_diagnostics.is_empty() {
@@ -555,17 +543,6 @@ async fn convert_deprecated_diagnostics_range(
     schema_diagnostics: &mut [tombi_diagnostic::Diagnostic],
 ) {
     if current_schema.value_schema.deprecated().await == Some(true) {
-        for diagnostic in schema_diagnostics.iter_mut() {
-            if diagnostic.code() == "deprecated" && diagnostic.range() == value.range() {
-                *diagnostic = tombi_diagnostic::Diagnostic::new_warning(
-                    diagnostic.message(),
-                    diagnostic.code(),
-                    key.range() + value.range(),
-                );
-                break;
-            }
-        }
-    } else if current_schema.value_schema.deprecated().await == Some(true) {
         for diagnostic in schema_diagnostics.iter_mut() {
             if diagnostic.code() == "deprecated" && diagnostic.range() == value.range() {
                 *diagnostic = tombi_diagnostic::Diagnostic::new_warning(

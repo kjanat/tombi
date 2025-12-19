@@ -163,7 +163,7 @@ pub async fn get_tombi_array_comment_directive_and_diagnostics(
                 total_diagnostics.push(diagnostic);
             }
         }
-    };
+    }
 
     (array_common_rules, total_diagnostics)
 }
@@ -350,7 +350,7 @@ pub async fn get_tombi_table_comment_directive_and_diagnostics(
                 total_diagnostics.push(diagnostic);
             }
         }
-    };
+    }
 
     (table_common_rules, total_diagnostics)
 }

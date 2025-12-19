@@ -20,7 +20,7 @@ pub async fn handle_update_config(
                     .update_config_with_path(config, &config_path)
                     .await
                 {
-                    Ok(_) => {
+                    Ok(()) => {
                         tracing::info!("Updated config: {}", text_document_uri);
                         return Ok(true);
                     }

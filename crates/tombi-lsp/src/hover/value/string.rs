@@ -31,22 +31,20 @@ impl GetHoverContent for tombi_document_tree::String {
                     StringCommonFormatRules,
                     StringCommonLintRules,
                 >(self.comment_directives(), position, accessors)
-            {
-                if let Some(hover_content) =
+                && let Some(hover_content) =
                     get_value_comment_directive_hover_content(comment_directive_context, schema_uri)
                         .await
-                {
-                    return Some(hover_content);
-                }
+            {
+                return Some(hover_content);
             }
 
             if let Some(current_schema) = current_schema {
                 match current_schema.value_schema.as_ref() {
                     ValueSchema::String(string_schema) => {
-                        if let Some(enumerate) = &string_schema.enumerate {
-                            if !enumerate.iter().any(|x| x == self.value()) {
-                                return None;
-                            }
+                        if let Some(enumerate) = &string_schema.enumerate
+                            && !enumerate.iter().any(|x| x == self.value())
+                        {
+                            return None;
                         }
 
                         let mut hover_content = string_schema

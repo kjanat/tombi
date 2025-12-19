@@ -6,7 +6,7 @@ mod display_value;
 mod one_of;
 mod value;
 
-use std::{borrow::Cow, fmt::Debug, ops::Deref};
+use std::{borrow::Cow, fmt::Debug};
 
 pub use comment::get_document_comment_directive_hover_content;
 use constraints::ValueConstraints;
@@ -23,7 +23,7 @@ pub async fn get_hover_content(
     keys: &[tombi_document_tree::Key],
     schema_context: &tombi_schema_store::SchemaContext<'_>,
 ) -> Option<HoverContent> {
-    let table = tree.deref();
+    let table = &**tree;
     match schema_context.root_schema {
         Some(document_schema) => {
             let current_schema =
@@ -84,7 +84,7 @@ pub struct HoverDirectiveContent {
 
 impl FromLsp<HoverDirectiveContent> for tower_lsp::lsp_types::Hover {
     fn from_lsp(source: HoverDirectiveContent, line_index: &tombi_text::LineIndex) -> Self {
-        tower_lsp::lsp_types::Hover {
+        Self {
             contents: tower_lsp::lsp_types::HoverContents::Markup(
                 tower_lsp::lsp_types::MarkupContent {
                     kind: tower_lsp::lsp_types::MarkupKind::Markdown,
@@ -158,10 +158,9 @@ impl std::fmt::Display for HoverValueContent {
             .schema_uri
             .as_ref()
             .and_then(|url| get_tombi_github_uri(url))
+            && let Some(schema_filename) = get_schema_name(schema_uri)
         {
-            if let Some(schema_filename) = get_schema_name(schema_uri) {
-                writeln!(f, "Schema: [{schema_filename}]({schema_uri})\n",)?;
-            }
+            writeln!(f, "Schema: [{schema_filename}]({schema_uri})\n",)?;
         }
 
         Ok(())
@@ -170,7 +169,7 @@ impl std::fmt::Display for HoverValueContent {
 
 impl FromLsp<HoverValueContent> for tower_lsp::lsp_types::Hover {
     fn from_lsp(source: HoverValueContent, line_index: &tombi_text::LineIndex) -> Self {
-        tower_lsp::lsp_types::Hover {
+        Self {
             contents: tower_lsp::lsp_types::HoverContents::Markup(
                 tower_lsp::lsp_types::MarkupContent {
                     kind: tower_lsp::lsp_types::MarkupKind::Markdown,

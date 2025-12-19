@@ -113,13 +113,13 @@ struct Patch {
 }
 
 impl Patch {
-    fn new(sh: &Shell, path: impl Into<PathBuf>) -> anyhow::Result<Patch> {
+    fn new(sh: &Shell, path: impl Into<PathBuf>) -> anyhow::Result<Self> {
         let path = path.into();
         let contents = sh.read_file(&path)?;
-        Ok(Patch { path, contents })
+        Ok(Self { path, contents })
     }
 
-    fn replace(&mut self, from: &str, to: &str) -> &mut Patch {
+    fn replace(&mut self, from: &str, to: &str) -> &mut Self {
         pretty_assertions::assert_eq!(
             self.contents.contains(from),
             true,

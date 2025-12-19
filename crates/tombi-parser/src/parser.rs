@@ -1,12 +1,12 @@
 use tombi_syntax::{
-    SyntaxKind::{self, *},
+    SyntaxKind::{self, BARE_KEY, EOF, FLOAT, INVALID_TOKEN},
     T,
 };
 
 use crate::{Event, marker::Marker, token_set::TokenSet};
 
 #[derive(Debug)]
-pub(crate) struct Parser<'t> {
+pub struct Parser<'t> {
     source: &'t str,
     input_tokens: &'t [tombi_lexer::Token],
     pos: usize,
@@ -282,7 +282,7 @@ impl<'t> Parser<'t> {
                 n_raw_tokens: 1,
             });
 
-            m.complete(self, token.kind())
+            m.complete(self, token.kind());
         }
         self.pos += 1;
     }

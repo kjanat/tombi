@@ -1,8 +1,8 @@
 use tombi_config::{DateTimeDelimiter, FormatOptions, IndentStyle, StringQuoteStyle};
 
-/// FormatDefinitions provides the definition of the format that does not have the freedom set by [`FormatOptions`][crate::FormatOptions].
+/// `FormatDefinitions` provides the definition of the format that does not have the freedom set by [`FormatOptions`][crate::FormatOptions].
 ///
-/// NOTE: Some of the items defined in FormatDefinitions may be moved to [`FormatOptions`][crate::FormatOptions] in the future.
+/// NOTE: Some of the items defined in `FormatDefinitions` may be moved to [`FormatOptions`][crate::FormatOptions] in the future.
 #[cfg_attr(feature = "serde", derive(serde::Serialize, serde::Deserialize))]
 #[cfg_attr(feature = "serde", serde(deny_unknown_fields))]
 #[cfg_attr(feature = "serde", serde(rename_all = "kebab-case"))]
@@ -28,6 +28,7 @@ pub struct FormatDefinitions {
 }
 
 impl FormatDefinitions {
+    #[must_use]
     pub fn new(options: &FormatOptions) -> Self {
         Self {
             line_width: options

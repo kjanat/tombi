@@ -46,6 +46,6 @@ pub enum Error {
 
 impl serde::ser::Error for Error {
     fn custom<T: std::fmt::Display>(msg: T) -> Self {
-        Error::Serde(msg.to_string())
+        Self::Serde(msg.to_string())
     }
 }

@@ -12,7 +12,7 @@ pub struct WalkDir {
 }
 
 impl WalkDir {
-    /// Create a new WalkDir instance
+    /// Create a new `WalkDir` instance
     pub fn new<P: AsRef<Path>>(root: P) -> Self {
         Self {
             root: root.as_ref().to_path_buf(),
@@ -20,7 +20,7 @@ impl WalkDir {
         }
     }
 
-    /// Create a new WalkDir instance with custom options
+    /// Create a new `WalkDir` instance with custom options
     pub fn new_with_options<P: AsRef<Path>>(root: P, options: FilesOptions) -> Self {
         Self {
             root: root.as_ref().to_path_buf(),
@@ -34,13 +34,13 @@ impl WalkDir {
 
         if !root_path.exists() {
             return Err(crate::Error::RootPathNotFound {
-                path: root_path.to_path_buf(),
+                path: root_path.clone(),
             });
         }
 
         if !root_path.is_dir() {
             return Err(crate::Error::RootPathNotDirectory {
-                path: root_path.to_path_buf(),
+                path: root_path.clone(),
             });
         }
 
@@ -58,52 +58,46 @@ impl WalkDir {
             let results_clone = Arc::clone(&results);
             let include_patterns = self.options.include.clone().unwrap_or_default();
             let exclude_patterns = self.options.exclude.clone().unwrap_or_default();
-            let root_path = root_path.to_path_buf();
+            let root_path = root_path.clone();
 
             Box::new(move |entry_result| {
-                match entry_result {
-                    Ok(entry) => {
-                        if let Some(file_type) = entry.file_type() {
-                            if file_type.is_file() {
-                                let path = entry.path();
-                                let relative_path =
-                                    if let Ok(rel_path) = path.strip_prefix(&root_path) {
-                                        rel_path.to_string_lossy()
-                                    } else {
-                                        path.to_string_lossy()
-                                    };
+                if let Ok(entry) = entry_result {
+                    if let Some(file_type) = entry.file_type()
+                        && file_type.is_file()
+                    {
+                        let path = entry.path();
+                        let relative_path = if let Ok(rel_path) = path.strip_prefix(&root_path) {
+                            rel_path.to_string_lossy()
+                        } else {
+                            path.to_string_lossy()
+                        };
 
-                                // Check if file matches any include pattern
-                                let mut should_include = include_patterns.is_empty();
-                                for pattern in &include_patterns {
-                                    if glob_match(pattern, &relative_path) {
-                                        should_include = true;
-                                        break;
-                                    }
+                        // Check if file matches any include pattern
+                        let mut should_include = include_patterns.is_empty();
+                        for pattern in &include_patterns {
+                            if glob_match(pattern, &relative_path) {
+                                should_include = true;
+                                break;
+                            }
+                        }
+
+                        if should_include {
+                            // Check if file should be excluded
+                            let mut should_exclude = false;
+                            for pattern in &exclude_patterns {
+                                if glob_match(pattern, &relative_path) {
+                                    should_exclude = true;
+                                    break;
                                 }
+                            }
 
-                                if should_include {
-                                    // Check if file should be excluded
-                                    let mut should_exclude = false;
-                                    for pattern in &exclude_patterns {
-                                        if glob_match(pattern, &relative_path) {
-                                            should_exclude = true;
-                                            break;
-                                        }
-                                    }
-
-                                    if !should_exclude {
-                                        if let Ok(mut results_guard) = results_clone.lock() {
-                                            results_guard.push(path.to_path_buf());
-                                        }
-                                    }
-                                }
+                            if !should_exclude && let Ok(mut results_guard) = results_clone.lock() {
+                                results_guard.push(path.to_path_buf());
                             }
                         }
                     }
-                    Err(_) => {
-                        // Ignore errors and continue
-                    }
+                } else {
+                    // Ignore errors and continue
                 }
                 ignore::WalkState::Continue
             })
@@ -162,19 +156,17 @@ mod tests {
             Box::new(move |entry_result| {
                 match entry_result {
                     Ok(entry) => {
-                        if let Some(file_type) = entry.file_type() {
-                            if file_type.is_file() {
+                        if let Some(file_type) = entry.file_type()
+                            && file_type.is_file() {
                                 let path = entry.path();
                                 let filename =
                                     path.file_name().and_then(|n| n.to_str()).unwrap_or("");
 
-                                if glob_match("*.rs", filename) {
-                                    if let Ok(mut results_guard) = results_clone.lock() {
+                                if glob_match("*.rs", filename)
+                                    && let Ok(mut results_guard) = results_clone.lock() {
                                         results_guard.push(path.to_path_buf());
                                     }
-                                }
                             }
-                        }
                     }
                     Err(_) => {
                         // Ignore errors and continue
@@ -230,19 +222,17 @@ mod tests {
             Box::new(move |entry_result| {
                 match entry_result {
                     Ok(entry) => {
-                        if let Some(file_type) = entry.file_type() {
-                            if file_type.is_file() {
+                        if let Some(file_type) = entry.file_type()
+                            && file_type.is_file() {
                                 let path = entry.path();
                                 let filename =
                                     path.file_name().and_then(|n| n.to_str()).unwrap_or("");
 
-                                if glob_match("*.toml", filename) {
-                                    if let Ok(mut results_guard) = results_clone.lock() {
+                                if glob_match("*.toml", filename)
+                                    && let Ok(mut results_guard) = results_clone.lock() {
                                         results_guard.push(path.to_path_buf());
                                     }
-                                }
                             }
-                        }
                     }
                     Err(_) => {
                         // Ignore errors and continue

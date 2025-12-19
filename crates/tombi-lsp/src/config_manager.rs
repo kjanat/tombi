@@ -6,7 +6,7 @@ use tombi_config::Config;
 use tombi_schema_store::{SchemaStore, SchemaUri};
 use tower_lsp::lsp_types::Url;
 
-/// Holds a Config and its associated SchemaStore
+/// Holds a Config and its associated `SchemaStore`
 #[derive(Debug, Clone)]
 pub struct ConfigSchemaStore {
     pub config: Config,
@@ -15,7 +15,11 @@ pub struct ConfigSchemaStore {
 }
 
 impl ConfigSchemaStore {
-    pub fn new(config: Config, config_path: Option<PathBuf>, schema_store: SchemaStore) -> Self {
+    pub const fn new(
+        config: Config,
+        config_path: Option<PathBuf>,
+        schema_store: SchemaStore,
+    ) -> Self {
         Self {
             config,
             config_path,
@@ -29,9 +33,9 @@ impl ConfigSchemaStore {
 pub struct ConfigManager {
     /// Maps source file paths to their associated config file paths
     source_config_paths: Arc<tokio::sync::RwLock<AHashMap<PathBuf, PathBuf>>>,
-    /// Maps config file paths to their ConfigSchemaStore
+    /// Maps config file paths to their `ConfigSchemaStore`
     config_schema_stores: Arc<tokio::sync::RwLock<AHashMap<PathBuf, ConfigSchemaStore>>>,
-    /// Default ConfigSchemaStore when no config file is found
+    /// Default `ConfigSchemaStore` when no config file is found
     default_config_schema_store: Arc<tokio::sync::RwLock<Option<ConfigSchemaStore>>>,
 
     backend_options: crate::backend::Options,
@@ -107,9 +111,10 @@ impl ConfigManager {
     ) -> ConfigSchemaStore {
         // Check if we already have a config path for this source file
         let mut source_config_paths = self.source_config_paths.write().await;
-        let config_path: PathBuf = match source_config_paths.get(text_document_path) {
-            Some(config_path) => config_path.to_owned(),
-            None => {
+        let config_path: PathBuf =
+            if let Some(config_path) = source_config_paths.get(text_document_path) {
+                config_path.to_owned()
+            } else {
                 let text_document_path_buf: PathBuf = text_document_path.to_path_buf();
                 if let Ok((config, Some(config_path_buf))) = serde_tombi::config::load_with_path(
                     text_document_path_buf.parent().map(ToOwned::to_owned),
@@ -155,8 +160,7 @@ impl ConfigManager {
                 } else {
                     return self.default_config_schema_store().await;
                 }
-            }
-        };
+            };
 
         let config_schema_stores = self.config_schema_stores.read().await;
         if let Some(config_schema_store) = config_schema_stores.get(&config_path) {
@@ -361,7 +365,10 @@ fn schema_store_options(
 ) -> tombi_schema_store::Options {
     tombi_schema_store::Options {
         offline: backend_options.offline,
-        strict: config.schema.as_ref().and_then(|schema| schema.strict()),
+        strict: config
+            .schema
+            .as_ref()
+            .and_then(tombi_config::SchemaOverviewOptions::strict),
         cache: Some(tombi_cache::Options {
             no_cache: backend_options.no_cache,
             ..Default::default()

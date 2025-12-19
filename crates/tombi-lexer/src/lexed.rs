@@ -1,4 +1,4 @@
-use tombi_syntax::SyntaxKind::*;
+use tombi_syntax::SyntaxKind::INVALID_TOKEN;
 
 #[allow(non_camel_case_types)]
 type bits = u64;
@@ -41,13 +41,13 @@ impl Lexed {
         }
     }
 
-    fn bit_index(&self, n: usize) -> (usize, usize) {
+    const fn bit_index(&self, n: usize) -> (usize, usize) {
         let idx = n / (bits::BITS as usize);
         let b_idx = n % (bits::BITS as usize);
         (idx, b_idx)
     }
 
-    fn len(&self) -> usize {
+    const fn len(&self) -> usize {
         self.tokens.len()
     }
 
@@ -64,6 +64,7 @@ impl Lexed {
         self.joints[idx] |= 1 << b_idx;
     }
 
+    #[must_use]
     pub fn is_joint(&self, n: usize) -> bool {
         let (idx, b_idx) = self.bit_index(n);
         self.joints[idx] & (1 << b_idx) != 0

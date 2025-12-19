@@ -103,16 +103,16 @@ pub enum CodeActionRefactorRewriteName {
 impl std::fmt::Display for CodeActionRefactorRewriteName {
     fn fmt(&self, f: &mut std::fmt::Formatter) -> std::fmt::Result {
         match self {
-            CodeActionRefactorRewriteName::InheritFromWorkspace => {
+            Self::InheritFromWorkspace => {
                 write!(f, "Inherit from Workspace")
             }
-            CodeActionRefactorRewriteName::InheritDependencyFromWorkspace => {
+            Self::InheritDependencyFromWorkspace => {
                 write!(f, "Inherit Dependency from Workspace")
             }
-            CodeActionRefactorRewriteName::ConvertDependencyToTableFormat => {
+            Self::ConvertDependencyToTableFormat => {
                 write!(f, "Convert Dependency to Table Format")
             }
-            CodeActionRefactorRewriteName::AddToWorkspaceAndInheritDependency => {
+            Self::AddToWorkspaceAndInheritDependency => {
                 write!(f, "Add to Workspace and Inherit Dependency")
             }
         }
@@ -143,7 +143,7 @@ pub fn code_action(
             line_index,
             document_tree,
             accessors,
-        ))
+        ));
     } else {
         code_actions.extend(code_actions_for_crate_cargo_toml(
             text_document_uri,
@@ -320,15 +320,15 @@ fn workspace_code_action(
         &["workspace", "package", parent_key.as_str()],
     )?;
 
-    if let tombi_document_tree::Value::Table(table) = value {
-        if table.get("workspace").is_some() {
-            return None; // Workspace already exists
-        }
-    };
+    if let tombi_document_tree::Value::Table(table) = value
+        && table.get("workspace").is_some()
+    {
+        return None; // Workspace already exists
+    }
 
     Some(CodeAction {
         title: CodeActionRefactorRewriteName::InheritFromWorkspace.to_string(),
-        kind: Some(CodeActionKind::REFACTOR_REWRITE.clone()),
+        kind: Some(CodeActionKind::REFACTOR_REWRITE),
         diagnostics: None,
         edit: Some(WorkspaceEdit {
             changes: None,
@@ -392,7 +392,7 @@ fn use_workspace_dependency_code_action(
             )?;
             return Some(CodeAction {
                 title: CodeActionRefactorRewriteName::InheritDependencyFromWorkspace.to_string(),
-                kind: Some(CodeActionKind::REFACTOR_REWRITE.clone()),
+                kind: Some(CodeActionKind::REFACTOR_REWRITE),
                 diagnostics: None,
                 edit: Some(WorkspaceEdit {
                     changes: None,
@@ -445,7 +445,7 @@ fn use_workspace_dependency_code_action(
 
             return Some(CodeAction {
                 title: CodeActionRefactorRewriteName::InheritDependencyFromWorkspace.to_string(),
-                kind: Some(CodeActionKind::REFACTOR_REWRITE.clone()),
+                kind: Some(CodeActionKind::REFACTOR_REWRITE),
                 diagnostics: None,
                 edit: Some(WorkspaceEdit {
                     changes: None,
@@ -489,46 +489,44 @@ fn crate_version_code_action(
     document_tree: &tombi_document_tree::DocumentTree,
     accessors: &[Accessor],
 ) -> Option<CodeAction> {
-    if matches_accessors!(accessors, ["dependencies", _])
+    if (matches_accessors!(accessors, ["dependencies", _])
         || matches_accessors!(accessors, ["dev-dependencies", _])
         || matches_accessors!(accessors, ["build-dependencies", _])
         || matches_accessors!(accessors, ["workspace", "dependencies", _])
         || matches_accessors!(accessors, ["target", _, "dependencies", _])
         || matches_accessors!(accessors, ["target", _, "dev-dependencies", _])
-        || matches_accessors!(accessors, ["target", _, "build-dependencies", _])
-    {
-        if let Some((_, tombi_document_tree::Value::String(version))) =
+        || matches_accessors!(accessors, ["target", _, "build-dependencies", _]))
+        && let Some((_, tombi_document_tree::Value::String(version))) =
             dig_accessors(document_tree, accessors)
-        {
-            return Some(CodeAction {
-                title: CodeActionRefactorRewriteName::ConvertDependencyToTableFormat.to_string(),
-                kind: Some(CodeActionKind::REFACTOR_REWRITE.clone()),
-                diagnostics: None,
-                edit: Some(WorkspaceEdit {
-                    changes: None,
-                    document_changes: Some(DocumentChanges::Edits(vec![TextDocumentEdit {
-                        text_document: OptionalVersionedTextDocumentIdentifier {
-                            uri: text_document_uri.to_owned().into(),
-                            version: None,
-                        },
-                        edits: vec![
-                            OneOf::Left(TextEdit {
-                                range: tombi_text::Range::at(version.symbol_range().start)
-                                    .into_lsp(line_index),
-                                new_text: "{ version = ".to_string(),
-                            }),
-                            OneOf::Left(TextEdit {
-                                range: tombi_text::Range::at(version.symbol_range().end)
-                                    .into_lsp(line_index),
-                                new_text: " }".to_string(),
-                            }),
-                        ],
-                    }])),
-                    change_annotations: None,
-                }),
-                ..Default::default()
-            });
-        }
+    {
+        return Some(CodeAction {
+            title: CodeActionRefactorRewriteName::ConvertDependencyToTableFormat.to_string(),
+            kind: Some(CodeActionKind::REFACTOR_REWRITE),
+            diagnostics: None,
+            edit: Some(WorkspaceEdit {
+                changes: None,
+                document_changes: Some(DocumentChanges::Edits(vec![TextDocumentEdit {
+                    text_document: OptionalVersionedTextDocumentIdentifier {
+                        uri: text_document_uri.to_owned().into(),
+                        version: None,
+                    },
+                    edits: vec![
+                        OneOf::Left(TextEdit {
+                            range: tombi_text::Range::at(version.symbol_range().start)
+                                .into_lsp(line_index),
+                            new_text: "{ version = ".to_string(),
+                        }),
+                        OneOf::Left(TextEdit {
+                            range: tombi_text::Range::at(version.symbol_range().end)
+                                .into_lsp(line_index),
+                            new_text: " }".to_string(),
+                        }),
+                    ],
+                }])),
+                change_annotations: None,
+            }),
+            ..Default::default()
+        });
     }
     None
 }
@@ -547,8 +545,8 @@ fn calculate_insertion_index(existing_crate_names: &[&str], new_crate_name: &str
         .unwrap_or(existing_crate_names.len())
 }
 
-/// Get AST InlineTable from document tree range
-/// First finds the range in document_tree, then locates the corresponding AST node
+/// Get AST `InlineTable` from document tree range
+/// First finds the range in `document_tree`, then locates the corresponding AST node
 fn get_ast_inline_table_from_document_tree(
     root: &tombi_ast::Root,
     document_tree: &tombi_document_tree::DocumentTree,
@@ -568,10 +566,10 @@ fn get_ast_inline_table_from_document_tree(
 
     // Use descendants to find the InlineTable with matching range
     for node in root.syntax().descendants() {
-        if let Some(inline_table) = tombi_ast::InlineTable::cast(node) {
-            if inline_table.range() == target_range {
-                return Some(inline_table);
-            }
+        if let Some(inline_table) = tombi_ast::InlineTable::cast(node)
+            && inline_table.range() == target_range
+        {
+            return Some(inline_table);
         }
     }
 
@@ -579,7 +577,7 @@ fn get_ast_inline_table_from_document_tree(
 }
 
 /// Calculate insertion position and text for inline table insertion with comma handling
-/// Uses tombi_ast API to properly handle commas and formatting
+/// Uses `tombi_ast` API to properly handle commas and formatting
 fn calculate_inline_table_insertion(
     ast_inline_table: &tombi_ast::InlineTable,
     insertion_index: usize,
@@ -599,12 +597,12 @@ fn calculate_inline_table_insertion(
         {
             Some((
                 dangling_comment.syntax().range().end,
-                format!("\n\n{},\n", new_entry_text),
+                format!("\n\n{new_entry_text},\n"),
             ))
         } else {
             Some((
                 ast_inline_table.brace_start()?.range().end,
-                format!("{}", new_entry_text),
+                new_entry_text.to_string(),
             ))
         };
     }
@@ -614,7 +612,7 @@ fn calculate_inline_table_insertion(
         // { tokio = "1.0" } -> { serde = "1.0", tokio = "1.0" }
         let (first_key_value, _) = key_values_with_comma.first()?;
         let insert_pos = first_key_value.syntax().range().start;
-        let new_text = format!("{},\n", new_entry_text);
+        let new_text = format!("{new_entry_text},\n");
         return Some((insert_pos, new_text));
     }
 
@@ -624,11 +622,11 @@ fn calculate_inline_table_insertion(
         let (last_key_value, last_comma) = key_values_with_comma.last()?;
         if let Some(last_comma) = last_comma {
             let insert_pos = last_comma.range().end;
-            let new_text = format!("\n{}, ", new_entry_text);
+            let new_text = format!("\n{new_entry_text}, ");
             return Some((insert_pos, new_text));
         } else {
             let insert_pos = last_key_value.syntax().range().end;
-            let new_text = format!(", {}", new_entry_text);
+            let new_text = format!(", {new_entry_text}");
             return Some((insert_pos, new_text));
         }
     }
@@ -641,7 +639,7 @@ fn calculate_inline_table_insertion(
     } else {
         target_key_value.syntax().range().end
     };
-    let new_text = format!("\n{},\n", new_entry_text);
+    let new_text = format!("\n{new_entry_text},\n");
     Some((insert_pos, new_text))
 }
 
@@ -775,14 +773,14 @@ fn add_workspace_dependency_code_action(
 
     Some(CodeAction {
         title: CodeActionRefactorRewriteName::AddToWorkspaceAndInheritDependency.to_string(),
-        kind: Some(CodeActionKind::REFACTOR_REWRITE.clone()),
+        kind: Some(CodeActionKind::REFACTOR_REWRITE),
         diagnostics: None,
         edit: Some(workspace_edit),
         ..Default::default()
     })
 }
 
-/// Generate TextEdit for adding dependency to workspace.dependencies
+/// Generate `TextEdit` for adding dependency to workspace.dependencies
 fn generate_workspace_dependencies_edit(
     workspace_line_index: &tombi_text::LineIndex,
     workspace_root: &tombi_ast::Root,
@@ -859,7 +857,7 @@ fn generate_workspace_dependencies_edit(
     })
 }
 
-/// Generate TextEdit for converting member dependency to workspace = true
+/// Generate `TextEdit` for converting member dependency to workspace = true
 fn generate_member_workspace_true_edit(
     line_index: &tombi_text::LineIndex,
     crate_name: &str,
@@ -872,7 +870,7 @@ fn generate_member_workspace_true_edit(
 
     Some(TextEdit {
         range: (crate_key_context.range + crate_value.range()).into_lsp(line_index),
-        new_text: format!("{} = {{ workspace = true }}", crate_name),
+        new_text: format!("{crate_name} = {{ workspace = true }}"),
     })
 }
 

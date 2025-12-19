@@ -169,7 +169,7 @@ async fn validate_local_date_time(
         crate::Diagnostic {
             kind: Box::new(crate::DiagnosticKind::Enumerate {
                 expected: enumerate.iter().map(ToString::to_string).collect(),
-                actual: value_string.clone(),
+                actual: value_string,
             }),
             range,
         }

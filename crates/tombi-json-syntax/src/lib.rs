@@ -39,8 +39,9 @@ pub enum SyntaxKind {
 
 impl SyntaxKind {
     #[inline]
-    pub fn is_trivia(self) -> bool {
-        matches!(self, SyntaxKind::WHITESPACE | SyntaxKind::LINE_BREAK)
+    #[must_use]
+    pub const fn is_trivia(self) -> bool {
+        matches!(self, Self::WHITESPACE | Self::LINE_BREAK)
     }
 }
 
@@ -53,20 +54,20 @@ impl From<SyntaxKind> for tombi_rg_tree::SyntaxKind {
 
 impl From<u16> for SyntaxKind {
     #[inline]
-    fn from(d: u16) -> SyntaxKind {
-        debug_assert!(d <= (SyntaxKind::__LAST as u16));
-        unsafe { std::mem::transmute::<u16, SyntaxKind>(d) }
+    fn from(d: u16) -> Self {
+        debug_assert!(d <= (Self::__LAST as u16));
+        unsafe { std::mem::transmute::<u16, Self>(d) }
     }
 }
 
 impl From<SyntaxKind> for u16 {
     #[inline]
-    fn from(k: SyntaxKind) -> u16 {
-        k as u16
+    fn from(k: SyntaxKind) -> Self {
+        k as Self
     }
 }
 
-/// Utility macro for creating a SyntaxKind through simple macro syntax
+/// Utility macro for creating a `SyntaxKind` through simple macro syntax
 #[macro_export]
 macro_rules! T {
     ['{'] => { $crate::SyntaxKind::BRACE_START };

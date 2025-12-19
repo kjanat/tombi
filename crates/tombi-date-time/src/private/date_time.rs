@@ -1,5 +1,5 @@
 #[derive(PartialEq, Eq, PartialOrd, Ord, Copy, Clone, Debug)]
-pub(crate) struct DateTime {
+pub struct DateTime {
     /// Optional date.
     /// Required for: *Offset Date-Time*, *Local Date-Time*, *Local Date*.
     pub date: Option<crate::private::Date>,
@@ -32,7 +32,7 @@ impl DateTime {
 
 impl From<crate::private::Date> for DateTime {
     fn from(other: crate::private::Date) -> Self {
-        DateTime {
+        Self {
             date: Some(other),
             time: None,
             offset: None,
@@ -42,7 +42,7 @@ impl From<crate::private::Date> for DateTime {
 
 impl From<crate::private::Time> for DateTime {
     fn from(other: crate::private::Time) -> Self {
-        DateTime {
+        Self {
             date: None,
             time: Some(other),
             offset: None,
@@ -71,7 +71,7 @@ impl std::fmt::Display for DateTime {
 impl std::str::FromStr for DateTime {
     type Err = crate::parse::Error;
 
-    fn from_str(date: &str) -> Result<DateTime, crate::parse::Error> {
+    fn from_str(date: &str) -> Result<Self, crate::parse::Error> {
         // Accepted formats:
         //
         // 0000-00-00T00:00:00.00Z
@@ -236,14 +236,14 @@ impl std::str::FromStr for DateTime {
                     _ => return Err(crate::parse::Error::ExpectedTimeZoneOffsetSign),
                 };
                 chars.next();
-                let h1 = digit(&mut chars)? as i16;
-                let h2 = digit(&mut chars)? as i16;
+                let h1 = i16::from(digit(&mut chars)?);
+                let h2 = i16::from(digit(&mut chars)?);
                 match chars.next() {
                     Some(':') => {}
                     _ => return Err(crate::parse::Error::ExpectedTimeZoneOffsetColon),
                 }
-                let m1 = digit(&mut chars)? as i16;
-                let m2 = digit(&mut chars)? as i16;
+                let m1 = i16::from(digit(&mut chars)?);
+                let m2 = i16::from(digit(&mut chars)?);
 
                 let hours = h1 * 10 + h2;
                 let minutes = m1 * 10 + m2;
@@ -275,7 +275,7 @@ impl std::str::FromStr for DateTime {
             return Err(crate::parse::Error::TooLong);
         }
 
-        Ok(DateTime {
+        Ok(Self {
             date: full_date,
             time,
             offset,
@@ -316,7 +316,7 @@ impl serde::ser::Serialize for DateTime {
 }
 
 #[cfg(feature = "serde")]
-pub(crate) struct DateTimeVisitor;
+pub struct DateTimeVisitor;
 
 #[cfg(feature = "serde")]
 impl<'de> serde::de::Visitor<'de> for DateTimeVisitor {

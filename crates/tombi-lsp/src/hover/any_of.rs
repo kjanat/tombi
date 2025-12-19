@@ -134,7 +134,7 @@ where
                 None => {
                     continue;
                 }
-            };
+            }
         }
 
         let mut hover_value_content =

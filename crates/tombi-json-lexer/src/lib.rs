@@ -4,7 +4,10 @@ mod lexed;
 mod token;
 
 use cursor::Cursor;
-use error::ErrorKind::*;
+use error::ErrorKind::{
+    InvalidFalse, InvalidLineBreak, InvalidNull, InvalidNumber, InvalidString, InvalidToken,
+    InvalidTrue,
+};
 pub use error::{Error, ErrorKind};
 pub use lexed::Lexed;
 pub use token::Token;
@@ -238,12 +241,12 @@ impl Cursor<'_> {
 }
 
 #[inline]
-fn is_whitespace(c: char) -> bool {
+const fn is_whitespace(c: char) -> bool {
     c == ' ' || c == '\t'
 }
 
 #[inline]
-fn is_line_break(c: char) -> bool {
+const fn is_line_break(c: char) -> bool {
     c == '\n' || c == '\r'
 }
 

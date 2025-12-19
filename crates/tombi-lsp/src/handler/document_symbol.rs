@@ -51,7 +51,10 @@ fn symbols_for_value(
     line_index: &tombi_text::LineIndex,
     symbols: &mut Vec<DocumentSymbol>,
 ) {
-    use tombi_document_tree::Value::*;
+    use tombi_document_tree::Value::{
+        Array, Boolean, Float, Incomplete, Integer, LocalDate, LocalDateTime, LocalTime,
+        OffsetDateTime, String, Table,
+    };
 
     // If the key is empty, set the name to "\"\"" for avoiding the empty key error.
     // See: https://github.com/tombi-toml/tombi/pull/1090

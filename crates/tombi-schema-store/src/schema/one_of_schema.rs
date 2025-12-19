@@ -21,15 +21,16 @@ pub struct OneOfSchema {
 }
 
 impl OneOfSchema {
+    #[must_use]
     pub fn new(object: &tombi_json::ObjectNode, string_formats: Option<&[StringFormat]>) -> Self {
         let title = object
             .get("title")
             .and_then(|v| v.as_str())
-            .map(|s| s.to_string());
+            .map(std::string::ToString::to_string);
         let description = object
             .get("description")
             .and_then(|v| v.as_str())
-            .map(|s| s.to_string());
+            .map(std::string::ToString::to_string);
         let schemas = object
             .get("oneOf")
             .and_then(|v| v.as_array())
@@ -48,12 +49,14 @@ impl OneOfSchema {
             description,
             range: object.range,
             schemas: Arc::new(tokio::sync::RwLock::new(schemas)),
-            default: object.get("default").cloned().map(|v| v.into()),
+            default: object.get("default").cloned().map(std::convert::Into::into),
             examples: object
                 .get("examples")
                 .and_then(|v| v.as_array())
-                .map(|array| array.items.iter().map(|v| v.into()).collect()),
-            deprecated: object.get("deprecated").and_then(|v| v.as_bool()),
+                .map(|array| array.items.iter().map(std::convert::Into::into).collect()),
+            deprecated: object
+                .get("deprecated")
+                .and_then(tombi_json::ValueNode::as_bool),
             keys_order: object
                 .get(X_TOMBI_TABLE_KEYS_ORDER)
                 .and_then(|v| v.as_str().and_then(|s| TableKeysOrder::try_from(s).ok())),

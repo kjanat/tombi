@@ -1,7 +1,13 @@
-use tombi_syntax::{SyntaxKind::*, T};
+use tombi_syntax::{
+    SyntaxKind::{COMMENT, KEY_VALUE},
+    T,
+};
 
 use super::{Parse, TS_LINE_END, leading_comments, trailing_comment};
-use crate::{ErrorKind::*, parser::Parser};
+use crate::{
+    ErrorKind::{ExpectedEqual, ExpectedValue},
+    parser::Parser,
+};
 
 impl Parse for tombi_ast::KeyValue {
     fn parse(p: &mut Parser) {

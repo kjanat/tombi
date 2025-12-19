@@ -34,119 +34,134 @@ pub enum Value {
 
 impl Value {
     /// Check if the value is null
-    pub fn is_null(&self) -> bool {
-        matches!(self, Value::Null)
+    #[must_use]
+    pub const fn is_null(&self) -> bool {
+        matches!(self, Self::Null)
     }
 
     /// Check if the value is a boolean
-    pub fn is_bool(&self) -> bool {
-        matches!(self, Value::Bool(_))
+    #[must_use]
+    pub const fn is_bool(&self) -> bool {
+        matches!(self, Self::Bool(_))
     }
 
     /// Check if the value is a number
-    pub fn is_number(&self) -> bool {
-        matches!(self, Value::Number(_))
+    #[must_use]
+    pub const fn is_number(&self) -> bool {
+        matches!(self, Self::Number(_))
     }
 
     /// Check if the value is a string
-    pub fn is_string(&self) -> bool {
-        matches!(self, Value::String(_))
+    #[must_use]
+    pub const fn is_string(&self) -> bool {
+        matches!(self, Self::String(_))
     }
 
     /// Check if the value is an array
-    pub fn is_array(&self) -> bool {
-        matches!(self, Value::Array(_))
+    #[must_use]
+    pub const fn is_array(&self) -> bool {
+        matches!(self, Self::Array(_))
     }
 
     /// Check if the value is an object
-    pub fn is_object(&self) -> bool {
-        matches!(self, Value::Object(_))
+    #[must_use]
+    pub const fn is_object(&self) -> bool {
+        matches!(self, Self::Object(_))
     }
 
     /// Check if the value is an integer number
+    #[must_use]
     pub fn is_i64(&self) -> bool {
         match self {
-            Value::Number(n) => n.is_i64(),
+            Self::Number(n) => n.is_i64(),
             _ => false,
         }
     }
 
     /// Check if the value is a floating point number
+    #[must_use]
     pub fn is_f64(&self) -> bool {
         match self {
-            Value::Number(n) => n.is_f64(),
+            Self::Number(n) => n.is_f64(),
             _ => false,
         }
     }
 
     /// Get as boolean value
-    pub fn as_bool(&self) -> Option<bool> {
+    #[must_use]
+    pub const fn as_bool(&self) -> Option<bool> {
         match self {
-            Value::Bool(b) => Some(*b),
+            Self::Bool(b) => Some(*b),
             _ => None,
         }
     }
 
     /// Get as floating point number value
+    #[must_use]
     pub fn as_f64(&self) -> Option<f64> {
         match self {
-            Value::Number(n) => n.as_f64(),
+            Self::Number(n) => n.as_f64(),
             _ => None,
         }
     }
 
     /// Get as integer number value
+    #[must_use]
     pub fn as_i64(&self) -> Option<i64> {
         match self {
-            Value::Number(n) => n.as_i64(),
+            Self::Number(n) => n.as_i64(),
             _ => None,
         }
     }
 
     /// Get as u64 value
+    #[must_use]
     pub fn as_u64(&self) -> Option<u64> {
         match self {
-            Value::Number(n) => n.as_u64(),
+            Self::Number(n) => n.as_u64(),
             _ => None,
         }
     }
 
     /// Get as string reference
+    #[must_use]
     pub fn as_str(&self) -> Option<&str> {
         match self {
-            Value::String(s) => Some(s),
+            Self::String(s) => Some(s),
             _ => None,
         }
     }
 
     /// Get as array reference
-    pub fn as_array(&self) -> Option<&Vec<Value>> {
+    #[must_use]
+    pub const fn as_array(&self) -> Option<&Vec<Self>> {
         match self {
-            Value::Array(a) => Some(a),
+            Self::Array(a) => Some(a),
             _ => None,
         }
     }
 
     /// Get as mutable array reference
-    pub fn as_array_mut(&mut self) -> Option<&mut Vec<Value>> {
+    pub const fn as_array_mut(&mut self) -> Option<&mut Vec<Self>> {
         match self {
-            Value::Array(a) => Some(a),
+            Self::Array(a) => Some(a),
             _ => None,
         }
     }
 
     /// Get as object reference
-    pub fn as_object(&self) -> Option<&Object> {
+    #[must_use]
+    pub const fn as_object(&self) -> Option<&Object> {
         match self {
-            Value::Object(o) => Some(o),
+            Self::Object(o) => Some(o),
             _ => None,
         }
     }
 
     /// Get as mutable object reference
-    pub fn as_object_mut(&mut self) -> Option<&mut Object> {
+    pub const fn as_object_mut(&mut self) -> Option<&mut Object> {
         match self {
-            Value::Object(o) => Some(o),
+            Self::Object(o) => Some(o),
             _ => None,
         }
     }
@@ -154,139 +169,139 @@ impl Value {
 
 impl From<bool> for Value {
     fn from(b: bool) -> Self {
-        Value::Bool(b)
+        Self::Bool(b)
     }
 }
 
 impl From<i8> for Value {
     fn from(i: i8) -> Self {
-        Value::Number(i.into())
+        Self::Number(i.into())
     }
 }
 
 impl From<i16> for Value {
     fn from(i: i16) -> Self {
-        Value::Number(i.into())
+        Self::Number(i.into())
     }
 }
 
 impl From<i32> for Value {
     fn from(i: i32) -> Self {
-        Value::Number(i.into())
+        Self::Number(i.into())
     }
 }
 
 impl From<i64> for Value {
     fn from(i: i64) -> Self {
-        Value::Number(i.into())
+        Self::Number(i.into())
     }
 }
 
 impl From<u8> for Value {
     fn from(u: u8) -> Self {
-        Value::Number(u.into())
+        Self::Number(u.into())
     }
 }
 
 impl From<u16> for Value {
     fn from(u: u16) -> Self {
-        Value::Number(u.into())
+        Self::Number(u.into())
     }
 }
 
 impl From<u32> for Value {
     fn from(u: u32) -> Self {
-        Value::Number(u.into())
+        Self::Number(u.into())
     }
 }
 
 impl From<u64> for Value {
     fn from(u: u64) -> Self {
-        Value::Number(u.into())
+        Self::Number(u.into())
     }
 }
 
 impl From<f32> for Value {
     fn from(f: f32) -> Self {
-        Value::Number(f.into())
+        Self::Number(f.into())
     }
 }
 
 impl From<f64> for Value {
     fn from(f: f64) -> Self {
-        Value::Number(f.into())
+        Self::Number(f.into())
     }
 }
 
 impl From<Number> for Value {
     fn from(n: Number) -> Self {
-        Value::Number(n)
+        Self::Number(n)
     }
 }
 
 impl From<String> for Value {
     fn from(s: String) -> Self {
-        Value::String(s)
+        Self::String(s)
     }
 }
 
 impl From<&str> for Value {
     fn from(s: &str) -> Self {
-        Value::String(s.to_owned())
+        Self::String(s.to_owned())
     }
 }
 
 impl<T> From<Vec<T>> for Value
 where
-    T: Into<Value>,
+    T: Into<Self>,
 {
     fn from(v: Vec<T>) -> Self {
-        Value::Array(v.into_iter().map(Into::into).collect())
+        Self::Array(v.into_iter().map(Into::into).collect())
     }
 }
 
 impl From<Object> for Value {
     fn from(m: Object) -> Self {
-        Value::Object(m)
+        Self::Object(m)
     }
 }
 
 impl<K, V> From<IndexMap<K, V>> for Value
 where
     K: Into<String> + Hash + Eq,
-    V: Into<Value>,
+    V: Into<Self>,
 {
     fn from(m: IndexMap<K, V>) -> Self {
         let mut map = Object::new();
         for (k, v) in m {
             map.insert(k.into(), v.into());
         }
-        Value::Object(map)
+        Self::Object(map)
     }
 }
 
 impl<K, V> From<HashMap<K, V>> for Value
 where
     K: Into<String> + Hash + Eq,
-    V: Into<Value>,
+    V: Into<Self>,
 {
     fn from(m: HashMap<K, V>) -> Self {
         let mut map = Object::new();
         for (k, v) in m {
             map.insert(k.into(), v.into());
         }
-        Value::Object(map)
+        Self::Object(map)
     }
 }
 
 impl fmt::Display for Value {
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
         match self {
-            Value::Null => write!(f, "null"),
-            Value::Bool(b) => write!(f, "{b}"),
-            Value::Number(n) => write!(f, "{n}"),
-            Value::String(s) => write!(f, "\"{}\"", s.replace('"', "\\\"")),
-            Value::Array(a) => {
+            Self::Null => write!(f, "null"),
+            Self::Bool(b) => write!(f, "{b}"),
+            Self::Number(n) => write!(f, "{n}"),
+            Self::String(s) => write!(f, "\"{}\"", s.replace('"', "\\\"")),
+            Self::Array(a) => {
                 write!(f, "[")?;
                 let mut first = true;
                 for item in a {
@@ -298,7 +313,7 @@ impl fmt::Display for Value {
                 }
                 write!(f, "]")
             }
-            Value::Object(o) => {
+            Self::Object(o) => {
                 write!(f, "{{")?;
                 let mut first = true;
                 for (key, value) in o.iter() {
@@ -321,12 +336,12 @@ impl serde::Serialize for Value {
         S: serde::Serializer,
     {
         match self {
-            Value::Null => serializer.serialize_unit(),
-            Value::Bool(b) => serializer.serialize_bool(*b),
-            Value::Number(n) => n.serialize(serializer),
-            Value::String(s) => serializer.serialize_str(s),
-            Value::Array(a) => a.serialize(serializer),
-            Value::Object(o) => o.serialize(serializer),
+            Self::Null => serializer.serialize_unit(),
+            Self::Bool(b) => serializer.serialize_bool(*b),
+            Self::Number(n) => n.serialize(serializer),
+            Self::String(s) => serializer.serialize_str(s),
+            Self::Array(a) => a.serialize(serializer),
+            Self::Object(o) => o.serialize(serializer),
         }
     }
 }

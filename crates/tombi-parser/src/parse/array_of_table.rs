@@ -1,8 +1,11 @@
-use tombi_syntax::{SyntaxKind::*, T};
+use tombi_syntax::{
+    SyntaxKind::{ARRAY_OF_TABLE, LINE_BREAK},
+    T,
+};
 
 use super::Parse;
 use crate::{
-    ErrorKind::*,
+    ErrorKind::{ExpectedDoubleBracketEnd, ExpectedLineBreak},
     parse::{
         TS_LINE_END, begin_dangling_comments, end_dangling_comments, invalid_line,
         leading_comments, peek_leading_comments, trailing_comment,

@@ -10,24 +10,28 @@ pub struct SyntaxText {
 
 impl SyntaxText {
     #[inline]
-    pub(crate) fn new(node: SyntaxNode) -> SyntaxText {
+    pub(crate) fn new(node: SyntaxNode) -> Self {
         let span = node.span();
-        SyntaxText { node, span }
+        Self { node, span }
     }
 
-    pub fn len(&self) -> tombi_text::RawOffset {
+    #[must_use]
+    pub const fn len(&self) -> tombi_text::RawOffset {
         self.span.len()
     }
 
-    pub fn is_empty(&self) -> bool {
+    #[must_use]
+    pub const fn is_empty(&self) -> bool {
         self.span.is_empty()
     }
 
+    #[must_use]
     pub fn contains_char(&self, c: char) -> bool {
         self.try_for_each_chunk(|chunk| if chunk.contains(c) { Err(()) } else { Ok(()) })
             .is_err()
     }
 
+    #[must_use]
     pub fn find_char(&self, c: char) -> Option<tombi_text::Offset> {
         let mut acc: tombi_text::Offset = 0.into();
         let res = self.try_for_each_chunk(|chunk| {
@@ -40,6 +44,7 @@ impl SyntaxText {
         found(res)
     }
 
+    #[must_use]
     pub fn char_at(&self, offset: tombi_text::Offset) -> Option<char> {
         let mut start: tombi_text::Offset = 0.into();
         let res = self.try_for_each_chunk(|chunk| {
@@ -54,7 +59,7 @@ impl SyntaxText {
         found(res)
     }
 
-    pub fn slice<S: private::SyntaxTextSpan>(&self, span: S) -> SyntaxText {
+    pub fn slice<S: private::SyntaxTextSpan>(&self, span: S) -> Self {
         let start = span.start().unwrap_or_default();
         let end = span.end().unwrap_or(tombi_text::Offset::new(self.len()));
         debug_assert!(start <= end);
@@ -63,7 +68,7 @@ impl SyntaxText {
         let end = start + len;
         let span = tombi_text::Span::new(start, end);
 
-        SyntaxText {
+        Self {
             node: self.node.clone(),
             span,
         }
@@ -99,7 +104,7 @@ impl SyntaxText {
         let span = self.span;
         self.node
             .descendants_with_tokens()
-            .filter_map(|element| element.into_token())
+            .filter_map(super::utility_types::NodeOrToken::into_token)
             .filter_map(move |token| {
                 let token_span = token.span();
                 let span = span.intersect(token_span)?;
@@ -125,7 +130,7 @@ impl fmt::Display for SyntaxText {
 }
 
 impl From<SyntaxText> for String {
-    fn from(text: SyntaxText) -> String {
+    fn from(text: SyntaxText) -> Self {
         text.to_string()
     }
 }
@@ -163,7 +168,7 @@ impl PartialEq<SyntaxText> for &'_ str {
 }
 
 impl PartialEq for SyntaxText {
-    fn eq(&self, other: &SyntaxText) -> bool {
+    fn eq(&self, other: &Self) -> bool {
         if self.span.len() != other.span.len() {
             return false;
         }

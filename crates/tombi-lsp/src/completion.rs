@@ -28,7 +28,7 @@ pub fn get_comment_context(
     if let Some(comments) = root.get_document_header_comments() {
         for comment in comments {
             if comment.syntax().range().contains(position)
-                && comment.syntax().text()[1..].trim_start().starts_with(":")
+                && comment.syntax().text()[1..].trim_start().starts_with(':')
             {
                 return Some(CommentContext::DocumentDirective(comment));
             }
@@ -77,16 +77,16 @@ pub fn extract_keys_and_hint(
         matches!(comment_context, Some(CommentContext::ValueDirective(_)));
 
     for (index, node) in ancestors_at_position(root.syntax(), position).enumerate() {
-        let ast_keys = if tombi_ast::Keys::cast(node.to_owned()).is_some() {
-            if let Some(SyntaxElement::Token(last_token)) = node.last_child_or_token() {
-                if last_token.kind() == SyntaxKind::DOT {
-                    completion_hint = Some(CompletionHint::DotTrigger {
-                        range: last_token.range(),
-                    });
-                }
+        let ast_keys = if tombi_ast::Keys::cast(node.clone()).is_some() {
+            if let Some(SyntaxElement::Token(last_token)) = node.last_child_or_token()
+                && last_token.kind() == SyntaxKind::DOT
+            {
+                completion_hint = Some(CompletionHint::DotTrigger {
+                    range: last_token.range(),
+                });
             }
             continue;
-        } else if let Some(kv) = tombi_ast::KeyValue::cast(node.to_owned()) {
+        } else if let Some(kv) = tombi_ast::KeyValue::cast(node.clone()) {
             match (kv.keys(), kv.eq(), kv.value()) {
                 (Some(_), Some(_), Some(_)) => {}
                 (Some(_), Some(eq), None) => {
@@ -110,7 +110,7 @@ pub fn extract_keys_and_hint(
                 _ => {}
             }
             kv.keys()
-        } else if let Some(table) = tombi_ast::Table::cast(node.to_owned()) {
+        } else if let Some(table) = tombi_ast::Table::cast(node.clone()) {
             let (bracket_start_range, bracket_end_range) =
                 match (table.bracket_start(), table.bracket_end()) {
                     (Some(bracket_start), Some(blacket_end)) => {
@@ -124,13 +124,12 @@ pub fn extract_keys_and_hint(
                         && position.line == bracket_end_range.end.line))
             {
                 return None;
-            } else {
-                if table.contains_header(position) {
-                    completion_hint = Some(CompletionHint::InTableHeader);
-                }
-                table.header()
             }
-        } else if let Some(array_of_table) = tombi_ast::ArrayOfTable::cast(node.to_owned()) {
+            if table.contains_header(position) {
+                completion_hint = Some(CompletionHint::InTableHeader);
+            }
+            table.header()
+        } else if let Some(array_of_table) = tombi_ast::ArrayOfTable::cast(node.clone()) {
             let (double_bracket_start_range, double_bracket_end_range) = {
                 match (
                     array_of_table.double_bracket_start(),
@@ -148,12 +147,11 @@ pub fn extract_keys_and_hint(
                         && position.line == double_bracket_end_range.end.line))
             {
                 return None;
-            } else {
-                if array_of_table.contains_header(position) {
-                    completion_hint = Some(CompletionHint::InTableHeader);
-                }
-                array_of_table.header()
             }
+            if array_of_table.contains_header(position) {
+                completion_hint = Some(CompletionHint::InTableHeader);
+            }
+            array_of_table.header()
         } else {
             if index == 0 {
                 let leading_comma = get_leading_comma(&node, position);
@@ -337,7 +335,7 @@ impl<T: CompositeSchemaImpl + Sync + Send> CompletionCandidate for T {
                         )
                         .await
                         {
-                            candidates.insert(candidate.to_string());
+                            candidates.insert(candidate.clone());
                         }
                     }
                 }
@@ -346,7 +344,7 @@ impl<T: CompositeSchemaImpl + Sync + Send> CompletionCandidate for T {
                 return candidates.into_iter().next();
             }
 
-            self.title().as_deref().map(|title| title.into())
+            self.title().as_deref().map(std::convert::Into::into)
         }
         .boxed()
     }
@@ -387,7 +385,7 @@ impl<T: CompositeSchemaImpl + Sync + Send> CompletionCandidate for T {
                         )
                         .await
                         {
-                            candidates.insert(candidate.to_string());
+                            candidates.insert(candidate.clone());
                         }
                     }
                 }
@@ -397,9 +395,7 @@ impl<T: CompositeSchemaImpl + Sync + Send> CompletionCandidate for T {
                 return candidates.into_iter().next();
             }
 
-            self.description()
-                .as_deref()
-                .map(|description| description.into())
+            self.description().as_deref().map(std::convert::Into::into)
         }
         .boxed()
     }
@@ -428,7 +424,7 @@ fn tombi_json_value_to_completion_default_item(
 
     Some(CompletionContent::new_default_value(
         kind,
-        value.to_string(),
+        value.clone(),
         detail,
         documentation,
         CompletionEdit::new_literal(&value, position, completion_hint),
@@ -438,22 +434,21 @@ fn tombi_json_value_to_completion_default_item(
 }
 
 fn get_leading_comma(node: &SyntaxNode, position: tombi_text::Position) -> Option<CommaHint> {
-    if let Some(child) = node.last_child() {
-        if child.kind() == SyntaxKind::COMMA {
-            return Some(CommaHint {
-                range: child.range(),
-            });
-        }
+    if let Some(child) = node.last_child()
+        && child.kind() == SyntaxKind::COMMA
+    {
+        return Some(CommaHint {
+            range: child.range(),
+        });
     }
     if let Some(sibling) = node
         .siblings_with_tokens(Direction::Prev)
         .find(|node_or_token| !node_or_token.range().contains(position))
+        && sibling.kind() == SyntaxKind::COMMA
     {
-        if sibling.kind() == SyntaxKind::COMMA {
-            return Some(CommaHint {
-                range: sibling.range(),
-            });
-        }
+        return Some(CommaHint {
+            range: sibling.range(),
+        });
     }
     None
 }
@@ -477,14 +472,13 @@ fn get_trailing_comma(node: &SyntaxNode, position: tombi_text::Position) -> Opti
                 // ```toml
                 // key = [█, "value"]
                 // ```
-                if let NodeOrToken::Node(node) = sibling {
-                    if let Some(SyntaxElement::Token(token)) = node.first_child_or_token() {
-                        if token.kind() == SyntaxKind::COMMA {
-                            return Some(CommaHint {
-                                range: token.range(),
-                            });
-                        }
-                    }
+                if let NodeOrToken::Node(node) = sibling
+                    && let Some(SyntaxElement::Token(token)) = node.first_child_or_token()
+                    && token.kind() == SyntaxKind::COMMA
+                {
+                    return Some(CommaHint {
+                        range: token.range(),
+                    });
                 }
             }
             SyntaxKind::ARRAY => {
@@ -495,33 +489,30 @@ fn get_trailing_comma(node: &SyntaxNode, position: tombi_text::Position) -> Opti
                 // dev = [  █   , "pytest"]
                 // ```
 
-                if let NodeOrToken::Node(node) = sibling {
-                    if let Some(next_node_or_token) = node
+                if let NodeOrToken::Node(node) = sibling
+                    && let Some(next_node_or_token) = node
                         .children_with_tokens()
                         .skip_while(|sibling| !sibling.range().contains(position))
                         .nth(1)
-                    {
-                        match next_node_or_token.kind() {
-                            SyntaxKind::COMMA => {
+                {
+                    match next_node_or_token.kind() {
+                        SyntaxKind::COMMA => {
+                            return Some(CommaHint {
+                                range: next_node_or_token.range(),
+                            });
+                        }
+                        SyntaxKind::INVALID_TOKEN => {
+                            if let NodeOrToken::Node(node) = next_node_or_token
+                                && let Some(SyntaxElement::Token(token)) =
+                                    node.first_child_or_token()
+                                && token.kind() == SyntaxKind::COMMA
+                            {
                                 return Some(CommaHint {
-                                    range: next_node_or_token.range(),
+                                    range: token.range(),
                                 });
                             }
-                            SyntaxKind::INVALID_TOKEN => {
-                                if let NodeOrToken::Node(node) = next_node_or_token {
-                                    if let Some(SyntaxElement::Token(token)) =
-                                        node.first_child_or_token()
-                                    {
-                                        if token.kind() == SyntaxKind::COMMA {
-                                            return Some(CommaHint {
-                                                range: token.range(),
-                                            });
-                                        }
-                                    }
-                                }
-                            }
-                            _ => {}
                         }
+                        _ => {}
                     }
                 }
             }
@@ -540,7 +531,7 @@ pub async fn get_completion_keys_with_context(
     let mut key_contexts = vec![];
 
     for node in ancestors_at_position(root.syntax(), position) {
-        if let Some(kv) = tombi_ast::KeyValue::cast(node.to_owned()) {
+        if let Some(kv) = tombi_ast::KeyValue::cast(node.clone()) {
             let keys = kv.keys()?;
             let keys = if keys.range().contains(position) {
                 keys.keys()
@@ -566,7 +557,7 @@ pub async fn get_completion_keys_with_context(
                     _ => return None,
                 }
             }
-        } else if let Some(table) = tombi_ast::Table::cast(node.to_owned()) {
+        } else if let Some(table) = tombi_ast::Table::cast(node.clone()) {
             if let Some(header) = table.header() {
                 for key in header.keys().rev() {
                     match key.try_into_document_tree(toml_version) {
@@ -581,19 +572,19 @@ pub async fn get_completion_keys_with_context(
                     }
                 }
             }
-        } else if let Some(array_of_table) = tombi_ast::ArrayOfTable::cast(node.to_owned()) {
-            if let Some(header) = array_of_table.header() {
-                for key in header.keys().rev() {
-                    match key.try_into_document_tree(toml_version) {
-                        Ok(Some(key_dt)) => {
-                            keys_vec.push(key_dt.clone());
-                            key_contexts.push(KeyContext {
-                                kind: AccessorKeyKind::Header,
-                                range: key_dt.range(),
-                            });
-                        }
-                        _ => return None,
+        } else if let Some(array_of_table) = tombi_ast::ArrayOfTable::cast(node.clone())
+            && let Some(header) = array_of_table.header()
+        {
+            for key in header.keys().rev() {
+                match key.try_into_document_tree(toml_version) {
+                    Ok(Some(key_dt)) => {
+                        keys_vec.push(key_dt.clone());
+                        key_contexts.push(KeyContext {
+                            kind: AccessorKeyKind::Header,
+                            range: key_dt.range(),
+                        });
                     }
+                    _ => return None,
                 }
             }
         }

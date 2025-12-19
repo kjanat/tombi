@@ -31,16 +31,16 @@ pub fn run(args: impl Into<Args>) -> Result<(), anyhow::Error> {
         command::XTaskCommand::Codegen(subcommand) => match subcommand {
             command::CodeGenCommand::All => {
                 command::codegen_grammar::run()?;
-                command::codegen_jsonschema::run()?
+                command::codegen_jsonschema::run()?;
             }
             command::CodeGenCommand::Grammar => command::codegen_grammar::run()?,
             command::CodeGenCommand::Jsonschema => command::codegen_jsonschema::run()?,
         },
         command::XTaskCommand::SetVersion => {
-            command::set_version::run(&xshell::Shell::new().unwrap())?
+            command::set_version::run(&xshell::Shell::new().unwrap())?;
         }
         command::XTaskCommand::TomlTest(args) => {
-            command::toml_test::run(&xshell::Shell::new().unwrap(), verbosity, args)?
+            command::toml_test::run(&xshell::Shell::new().unwrap(), verbosity, args)?;
         }
         command::XTaskCommand::Dist => command::dist::run(&xshell::Shell::new().unwrap())?,
     }

@@ -38,7 +38,7 @@ impl TombiCommentDirectiveImpl for TombiKeyLocalDateTimeDirectiveContent {
     }
 }
 
-#[derive(Debug, Default, Clone, PartialEq, serde::Deserialize)]
+#[derive(Debug, Default, Clone, PartialEq, Eq, serde::Deserialize)]
 #[serde(rename_all = "kebab-case")]
 #[cfg_attr(feature = "jsonschema", derive(schemars::JsonSchema))]
 pub struct LocalDateTimeLintRules {

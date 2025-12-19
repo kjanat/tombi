@@ -51,7 +51,7 @@ impl crate::Edit for tombi_ast::Table {
                                         schema_context,
                                     )
                                     .await,
-                            )
+                            );
                         }
                         changes.extend(
                             table_keys_order(

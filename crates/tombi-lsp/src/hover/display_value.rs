@@ -24,24 +24,24 @@ impl DisplayValue {
         local_date_time: &str,
     ) -> Result<Self, tombi_date_time::parse::Error> {
         tombi_date_time::LocalDateTime::from_str(local_date_time)?;
-        Ok(DisplayValue::OffsetDateTime(local_date_time.to_string()))
+        Ok(Self::OffsetDateTime(local_date_time.to_string()))
     }
 
     pub fn try_new_local_date_time(
         local_date_time: &str,
     ) -> Result<Self, tombi_date_time::parse::Error> {
         tombi_date_time::LocalDateTime::from_str(local_date_time)?;
-        Ok(DisplayValue::LocalDateTime(local_date_time.to_string()))
+        Ok(Self::LocalDateTime(local_date_time.to_string()))
     }
 
     pub fn try_new_local_date(local_date: &str) -> Result<Self, tombi_date_time::parse::Error> {
         tombi_date_time::LocalDate::from_str(local_date)?;
-        Ok(DisplayValue::LocalDate(local_date.to_string()))
+        Ok(Self::LocalDate(local_date.to_string()))
     }
 
     pub fn try_new_local_time(local_time: &str) -> Result<Self, tombi_date_time::parse::Error> {
         tombi_date_time::LocalTime::from_str(local_time)?;
-        Ok(DisplayValue::LocalTime(local_time.to_string()))
+        Ok(Self::LocalTime(local_time.to_string()))
     }
 }
 
@@ -50,16 +50,16 @@ impl TryFrom<&tombi_json::Value> for DisplayValue {
 
     fn try_from(value: &tombi_json::Value) -> Result<Self, Self::Error> {
         match value {
-            tombi_json::Value::Bool(boolean) => Ok(DisplayValue::Boolean(*boolean)),
+            tombi_json::Value::Bool(boolean) => Ok(Self::Boolean(*boolean)),
             tombi_json::Value::Number(number) => match number {
-                tombi_json::Number::Integer(integer) => Ok(DisplayValue::Integer(*integer)),
-                tombi_json::Number::Float(float) => Ok(DisplayValue::Float(*float)),
+                tombi_json::Number::Integer(integer) => Ok(Self::Integer(*integer)),
+                tombi_json::Number::Float(float) => Ok(Self::Float(*float)),
             },
-            tombi_json::Value::String(string) => Ok(DisplayValue::String(string.clone())),
-            tombi_json::Value::Array(array) => Ok(DisplayValue::Array(
+            tombi_json::Value::String(string) => Ok(Self::String(string.clone())),
+            tombi_json::Value::Array(array) => Ok(Self::Array(
                 array.iter().map(|item| item.try_into().unwrap()).collect(),
             )),
-            tombi_json::Value::Object(object) => Ok(DisplayValue::Table(
+            tombi_json::Value::Object(object) => Ok(Self::Table(
                 object
                     .iter()
                     .map(|(key, value)| (key.clone(), value.try_into().unwrap()))
@@ -72,7 +72,7 @@ impl TryFrom<&tombi_json::Value> for DisplayValue {
 
 impl From<tombi_json::Object> for DisplayValue {
     fn from(object: tombi_json::Object) -> Self {
-        DisplayValue::Table(
+        Self::Table(
             object
                 .into_inner()
                 .iter()
@@ -84,7 +84,7 @@ impl From<tombi_json::Object> for DisplayValue {
 
 impl From<&tombi_json::Object> for DisplayValue {
     fn from(object: &tombi_json::Object) -> Self {
-        DisplayValue::Table(
+        Self::Table(
             object
                 .iter()
                 .filter_map(|(key, value)| value.try_into().map(|v| (key.clone(), v)).ok())
@@ -96,15 +96,15 @@ impl From<&tombi_json::Object> for DisplayValue {
 impl std::fmt::Display for DisplayValue {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
         match self {
-            DisplayValue::Boolean(boolean) => write!(f, "{boolean}"),
-            DisplayValue::Integer(integer) => write!(f, "{integer}"),
-            DisplayValue::Float(float) => write!(f, "{float}"),
-            DisplayValue::String(string) => write!(f, "\"{}\"", string.replace("\"", "\\\"")),
-            DisplayValue::OffsetDateTime(offset_date_time) => write!(f, "{offset_date_time}"),
-            DisplayValue::LocalDateTime(local_date_time) => write!(f, "{local_date_time}"),
-            DisplayValue::LocalDate(local_date) => write!(f, "{local_date}"),
-            DisplayValue::LocalTime(local_time) => write!(f, "{local_time}"),
-            DisplayValue::Array(array) => {
+            Self::Boolean(boolean) => write!(f, "{boolean}"),
+            Self::Integer(integer) => write!(f, "{integer}"),
+            Self::Float(float) => write!(f, "{float}"),
+            Self::String(string) => write!(f, "\"{}\"", string.replace('"', "\\\"")),
+            Self::OffsetDateTime(offset_date_time) => write!(f, "{offset_date_time}"),
+            Self::LocalDateTime(local_date_time) => write!(f, "{local_date_time}"),
+            Self::LocalDate(local_date) => write!(f, "{local_date}"),
+            Self::LocalTime(local_time) => write!(f, "{local_time}"),
+            Self::Array(array) => {
                 write!(f, "[")?;
                 for (i, value) in array.iter().enumerate() {
                     if i > 0 {
@@ -114,7 +114,7 @@ impl std::fmt::Display for DisplayValue {
                 }
                 write!(f, "]")
             }
-            DisplayValue::Table(table) => {
+            Self::Table(table) => {
                 write!(f, "{{ ")?;
                 for (i, (key, value)) in table.iter().enumerate() {
                     if i > 0 {
@@ -146,7 +146,7 @@ impl GetEnumerate for ValueSchema {
     ) -> tombi_future::BoxFuture<'b, Option<Vec<DisplayValue>>> {
         async move {
             match self {
-                ValueSchema::Boolean(schema) => {
+                Self::Boolean(schema) => {
                     let mut enumerate_values = Vec::new();
 
                     // Add const_value if present
@@ -160,13 +160,13 @@ impl GetEnumerate for ValueSchema {
                             .extend(enumerate.iter().map(|v| DisplayValue::Boolean(*v)));
                     }
 
-                    if !enumerate_values.is_empty() {
-                        Some(enumerate_values)
-                    } else {
+                    if enumerate_values.is_empty() {
                         None
+                    } else {
+                        Some(enumerate_values)
                     }
                 }
-                ValueSchema::Integer(schema) => {
+                Self::Integer(schema) => {
                     let mut enumerate_values = Vec::new();
 
                     if let Some(const_value) = &schema.const_value {
@@ -178,13 +178,13 @@ impl GetEnumerate for ValueSchema {
                             .extend(enumerate.iter().map(|v| DisplayValue::Integer(*v)));
                     }
 
-                    if !enumerate_values.is_empty() {
-                        Some(enumerate_values)
-                    } else {
+                    if enumerate_values.is_empty() {
                         None
+                    } else {
+                        Some(enumerate_values)
                     }
                 }
-                ValueSchema::Float(schema) => {
+                Self::Float(schema) => {
                     let mut enumerate_values = Vec::new();
 
                     if let Some(const_value) = &schema.const_value {
@@ -195,13 +195,13 @@ impl GetEnumerate for ValueSchema {
                         enumerate_values.extend(enumerate.iter().map(|v| DisplayValue::Float(*v)));
                     }
 
-                    if !enumerate_values.is_empty() {
-                        Some(enumerate_values)
-                    } else {
+                    if enumerate_values.is_empty() {
                         None
+                    } else {
+                        Some(enumerate_values)
                     }
                 }
-                ValueSchema::String(schema) => {
+                Self::String(schema) => {
                     let mut enumerate_values = Vec::new();
 
                     if let Some(const_value) = &schema.const_value {
@@ -213,13 +213,13 @@ impl GetEnumerate for ValueSchema {
                             .extend(enumerate.iter().map(|v| DisplayValue::String(v.clone())));
                     }
 
-                    if !enumerate_values.is_empty() {
-                        Some(enumerate_values)
-                    } else {
+                    if enumerate_values.is_empty() {
                         None
+                    } else {
+                        Some(enumerate_values)
                     }
                 }
-                ValueSchema::OffsetDateTime(schema) => {
+                Self::OffsetDateTime(schema) => {
                     let mut enumerate_values = Vec::new();
 
                     if let Some(const_value) = &schema.const_value {
@@ -234,13 +234,13 @@ impl GetEnumerate for ValueSchema {
                         );
                     }
 
-                    if !enumerate_values.is_empty() {
-                        Some(enumerate_values)
-                    } else {
+                    if enumerate_values.is_empty() {
                         None
+                    } else {
+                        Some(enumerate_values)
                     }
                 }
-                ValueSchema::LocalDateTime(schema) => {
+                Self::LocalDateTime(schema) => {
                     let mut enumerate_values = Vec::new();
 
                     if let Some(const_value) = &schema.const_value {
@@ -255,13 +255,13 @@ impl GetEnumerate for ValueSchema {
                         );
                     }
 
-                    if !enumerate_values.is_empty() {
-                        Some(enumerate_values)
-                    } else {
+                    if enumerate_values.is_empty() {
                         None
+                    } else {
+                        Some(enumerate_values)
                     }
                 }
-                ValueSchema::LocalDate(schema) => {
+                Self::LocalDate(schema) => {
                     let mut enumerate_values = Vec::new();
 
                     if let Some(const_value) = &schema.const_value {
@@ -273,13 +273,13 @@ impl GetEnumerate for ValueSchema {
                             .extend(enumerate.iter().map(|v| DisplayValue::LocalDate(v.clone())));
                     }
 
-                    if !enumerate_values.is_empty() {
-                        Some(enumerate_values)
-                    } else {
+                    if enumerate_values.is_empty() {
                         None
+                    } else {
+                        Some(enumerate_values)
                     }
                 }
-                ValueSchema::LocalTime(schema) => {
+                Self::LocalTime(schema) => {
                     let mut enumerate_values = Vec::new();
 
                     if let Some(const_value) = &schema.const_value {
@@ -291,16 +291,16 @@ impl GetEnumerate for ValueSchema {
                             .extend(enumerate.iter().map(|v| DisplayValue::LocalTime(v.clone())));
                     }
 
-                    if !enumerate_values.is_empty() {
-                        Some(enumerate_values)
-                    } else {
+                    if enumerate_values.is_empty() {
                         None
+                    } else {
+                        Some(enumerate_values)
                     }
                 }
-                ValueSchema::Array(_) | ValueSchema::Table(_) | ValueSchema::Null => None,
-                ValueSchema::OneOf(OneOfSchema { schemas, .. })
-                | ValueSchema::AnyOf(AnyOfSchema { schemas, .. })
-                | ValueSchema::AllOf(AllOfSchema { schemas, .. }) => {
+                Self::Array(_) | Self::Table(_) | Self::Null => None,
+                Self::OneOf(OneOfSchema { schemas, .. })
+                | Self::AnyOf(AnyOfSchema { schemas, .. })
+                | Self::AllOf(AllOfSchema { schemas, .. }) => {
                     get_enumerate_from_schemas(schemas, schema_uri, definitions, schema_context)
                         .await
                 }
@@ -327,14 +327,12 @@ fn get_enumerate_from_schemas<'a: 'b, 'b>(
                     schema_context.store,
                 )
                 .await
-            {
-                if let Some(values) = resolved
+                && let Some(values) = resolved
                     .value_schema
                     .get_enumerate(schema_uri, definitions, schema_context)
                     .await
-                {
-                    enumerate_values.extend(values);
-                }
+            {
+                enumerate_values.extend(values);
             }
         }
 

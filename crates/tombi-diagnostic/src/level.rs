@@ -7,24 +7,27 @@ pub enum Level {
 }
 
 impl Level {
+    #[must_use]
     pub const fn as_str(&self) -> &'static str {
         match self {
-            Level::ERROR => "Error",
-            Level::WARNING => "Warning",
+            Self::ERROR => "Error",
+            Self::WARNING => "Warning",
         }
     }
 
-    pub fn as_padded_str(&self) -> &'static str {
+    #[must_use]
+    pub const fn as_padded_str(&self) -> &'static str {
         match self {
-            Level::ERROR => "  Error",
-            Level::WARNING => "Warning",
+            Self::ERROR => "  Error",
+            Self::WARNING => "Warning",
         }
     }
 
-    pub fn color(&self) -> Color {
+    #[must_use]
+    pub const fn color(&self) -> Color {
         match self {
-            Level::ERROR => Color::Red,
-            Level::WARNING => Color::Yellow,
+            Self::ERROR => Color::Red,
+            Self::WARNING => Color::Yellow,
         }
     }
 }
@@ -32,8 +35,8 @@ impl Level {
 impl From<Level> for Style {
     fn from(val: Level) -> Self {
         match val {
-            Level::ERROR => Style::new().bold().fg(Color::Red),
-            Level::WARNING => Style::new().bold().fg(Color::Yellow),
+            Level::ERROR => Self::new().bold().fg(Color::Red),
+            Level::WARNING => Self::new().bold().fg(Color::Yellow),
         }
     }
 }

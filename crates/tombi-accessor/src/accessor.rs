@@ -10,27 +10,31 @@ pub enum Accessor {
 
 impl Accessor {
     #[inline]
-    pub fn is_key(&self) -> bool {
-        matches!(self, Accessor::Key(_))
+    #[must_use]
+    pub const fn is_key(&self) -> bool {
+        matches!(self, Self::Key(_))
     }
 
     #[inline]
+    #[must_use]
     pub fn as_key(&self) -> Option<&str> {
         match self {
-            Accessor::Key(key) => Some(key),
+            Self::Key(key) => Some(key),
             _ => None,
         }
     }
 
     #[inline]
-    pub fn is_index(&self) -> bool {
-        matches!(self, Accessor::Index(_))
+    #[must_use]
+    pub const fn is_index(&self) -> bool {
+        matches!(self, Self::Index(_))
     }
 
     #[inline]
-    pub fn as_index(&self) -> Option<usize> {
+    #[must_use]
+    pub const fn as_index(&self) -> Option<usize> {
         match self {
-            Accessor::Index(index) => Some(*index),
+            Self::Index(index) => Some(*index),
             _ => None,
         }
     }
@@ -39,8 +43,8 @@ impl Accessor {
 impl std::fmt::Display for Accessor {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
         match self {
-            Accessor::Key(key) => write!(f, "{key}"),
-            Accessor::Index(index) => write!(f, "[{index}]"),
+            Self::Key(key) => write!(f, "{key}"),
+            Self::Index(index) => write!(f, "[{index}]"),
         }
     }
 }
@@ -48,8 +52,8 @@ impl std::fmt::Display for Accessor {
 impl PartialEq<SchemaAccessor> for Accessor {
     fn eq(&self, other: &SchemaAccessor) -> bool {
         match (self, other) {
-            (Accessor::Key(key), SchemaAccessor::Key(other_key)) => key == other_key,
-            (Accessor::Index(_), SchemaAccessor::Index) => true,
+            (Self::Key(key), SchemaAccessor::Key(other_key)) => key == other_key,
+            (Self::Index(_), SchemaAccessor::Index) => true,
             _ => false,
         }
     }
@@ -58,17 +62,17 @@ impl PartialEq<SchemaAccessor> for Accessor {
 impl PartialEq<&str> for Accessor {
     fn eq(&self, other: &&str) -> bool {
         match self {
-            Accessor::Key(key) => key == *other,
+            Self::Key(key) => key == *other,
             _ => false,
         }
     }
 }
 
-impl PartialOrd<Accessor> for Accessor {
-    fn partial_cmp(&self, other: &Accessor) -> Option<std::cmp::Ordering> {
+impl PartialOrd<Self> for Accessor {
+    fn partial_cmp(&self, other: &Self) -> Option<std::cmp::Ordering> {
         match (self, other) {
-            (Accessor::Key(key1), Accessor::Key(key2)) => key1.partial_cmp(key2),
-            (Accessor::Index(index1), Accessor::Index(index2)) => index1.partial_cmp(index2),
+            (Self::Key(key1), Self::Key(key2)) => key1.partial_cmp(key2),
+            (Self::Index(index1), Self::Index(index2)) => index1.partial_cmp(index2),
             _ => None,
         }
     }
@@ -77,8 +81,8 @@ impl PartialOrd<Accessor> for Accessor {
 impl indexmap::Equivalent<SchemaAccessor> for Accessor {
     fn equivalent(&self, other: &SchemaAccessor) -> bool {
         match (self, other) {
-            (Accessor::Key(key1), SchemaAccessor::Key(key2)) => key1 == key2,
-            (Accessor::Index(_), SchemaAccessor::Index) => true,
+            (Self::Key(key1), SchemaAccessor::Key(key2)) => key1 == key2,
+            (Self::Index(_), SchemaAccessor::Index) => true,
             _ => false,
         }
     }
@@ -90,17 +94,20 @@ pub struct Accessors(Vec<Accessor>);
 
 impl Accessors {
     #[inline]
+    #[must_use]
     pub fn first(&self) -> Option<&Accessor> {
         self.0.first()
     }
 
     #[inline]
+    #[must_use]
     pub fn last(&self) -> Option<&Accessor> {
         self.0.last()
     }
 
     #[inline]
-    pub fn is_empty(&self) -> bool {
+    #[must_use]
+    pub const fn is_empty(&self) -> bool {
         self.0.is_empty()
     }
 }

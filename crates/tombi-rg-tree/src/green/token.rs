@@ -88,23 +88,27 @@ impl fmt::Display for GreenTokenData {
 impl GreenTokenData {
     /// Kind of this Token.
     #[inline]
-    pub fn kind(&self) -> SyntaxKind {
+    #[must_use]
+    pub const fn kind(&self) -> SyntaxKind {
         self.data.header.kind
     }
 
     /// Text of this Token.
     #[inline]
+    #[must_use]
     pub fn text(&self) -> &str {
         unsafe { std::str::from_utf8_unchecked(self.data.slice()) }
     }
 
     /// Returns the length of the text covered by this token.
     #[inline]
+    #[must_use]
     pub fn text_len(&self) -> tombi_text::RawOffset {
         self.text().len() as tombi_text::RawOffset
     }
 
     #[inline]
+    #[must_use]
     pub fn text_relative_position(&self) -> tombi_text::RelativePosition {
         tombi_text::RelativePosition::of(self.text())
     }
@@ -113,27 +117,28 @@ impl GreenTokenData {
 impl GreenToken {
     /// Creates new Token.
     #[inline]
-    pub fn new(kind: SyntaxKind, text: &str) -> GreenToken {
+    #[must_use]
+    pub fn new(kind: SyntaxKind, text: &str) -> Self {
         let head = GreenTokenHead {
             kind,
             _c: Count::new(),
         };
         let ptr = ThinArc::from_header_and_iter(head, text.bytes());
-        GreenToken { ptr }
+        Self { ptr }
     }
     #[inline]
-    pub(crate) fn into_raw(this: GreenToken) -> ptr::NonNull<GreenTokenData> {
+    pub(crate) fn into_raw(this: Self) -> ptr::NonNull<GreenTokenData> {
         let green = ManuallyDrop::new(this);
         let green: &GreenTokenData = &green;
         ptr::NonNull::from(green)
     }
 
     #[inline]
-    pub(crate) unsafe fn from_raw(ptr: ptr::NonNull<GreenTokenData>) -> GreenToken {
+    pub(crate) unsafe fn from_raw(ptr: ptr::NonNull<GreenTokenData>) -> Self {
         unsafe {
-            let arc = Arc::from_raw(&ptr.as_ref().data as *const ReprThin);
+            let arc = Arc::from_raw(&raw const ptr.as_ref().data);
             let arc = mem::transmute::<Arc<ReprThin>, ThinArc<GreenTokenHead, u8>>(arc);
-            GreenToken { ptr: arc }
+            Self { ptr: arc }
         }
     }
 }
@@ -145,7 +150,7 @@ impl ops::Deref for GreenToken {
     fn deref(&self) -> &GreenTokenData {
         unsafe {
             let repr: &Repr = &self.ptr;
-            let repr: &ReprThin = &*(repr as *const Repr as *const ReprThin);
+            let repr: &ReprThin = &*std::ptr::from_ref::<Repr>(repr).cast::<ReprThin>();
             mem::transmute::<&ReprThin, &GreenTokenData>(repr)
         }
     }

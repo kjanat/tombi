@@ -12,7 +12,7 @@ macro_rules! token_types {
         pub mod token_type {
             use super::SemanticTokenType;
 
-            $(pub(crate) const $custom: SemanticTokenType = SemanticTokenType::new($string);)*
+            $(pub const $custom: SemanticTokenType = SemanticTokenType::new($string);)*
         }
 
         #[allow(clippy::upper_case_acronyms)]

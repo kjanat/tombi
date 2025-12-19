@@ -6,95 +6,102 @@ use crate::{Language, NodeOrToken, cursor};
 pub type RedElement<L> = NodeOrToken<RedNode<L>, RedToken<L>>;
 
 impl<L: Language> From<RedNode<L>> for RedElement<L> {
-    fn from(node: RedNode<L>) -> RedElement<L> {
-        NodeOrToken::Node(node)
+    fn from(node: RedNode<L>) -> Self {
+        Self::Node(node)
     }
 }
 
 impl<L: Language> From<RedToken<L>> for RedElement<L> {
-    fn from(token: RedToken<L>) -> RedElement<L> {
-        NodeOrToken::Token(token)
+    fn from(token: RedToken<L>) -> Self {
+        Self::Token(token)
     }
 }
 
 impl<L: Language> RedElement<L> {
+    #[must_use]
     pub fn span(&self) -> tombi_text::Span {
         match self {
-            NodeOrToken::Node(it) => it.span(),
-            NodeOrToken::Token(it) => it.span(),
+            Self::Node(it) => it.span(),
+            Self::Token(it) => it.span(),
         }
     }
 
+    #[must_use]
     pub fn range(&self) -> tombi_text::Range {
         match self {
-            NodeOrToken::Node(it) => it.range(),
-            NodeOrToken::Token(it) => it.range(),
+            Self::Node(it) => it.range(),
+            Self::Token(it) => it.range(),
         }
     }
 
+    #[must_use]
     pub fn index(&self) -> usize {
         match self {
-            NodeOrToken::Node(it) => it.index(),
-            NodeOrToken::Token(it) => it.index(),
+            Self::Node(it) => it.index(),
+            Self::Token(it) => it.index(),
         }
     }
 
+    #[must_use]
     pub fn kind(&self) -> L::Kind {
         match self {
-            NodeOrToken::Node(it) => it.kind(),
-            NodeOrToken::Token(it) => it.kind(),
+            Self::Node(it) => it.kind(),
+            Self::Token(it) => it.kind(),
         }
     }
 
+    #[must_use]
     pub fn parent(&self) -> Option<RedNode<L>> {
         match self {
-            NodeOrToken::Node(it) => it.parent(),
-            NodeOrToken::Token(it) => it.parent(),
+            Self::Node(it) => it.parent(),
+            Self::Token(it) => it.parent(),
         }
     }
 
     pub fn ancestors(&self) -> impl Iterator<Item = RedNode<L>> {
         let first = match self {
-            NodeOrToken::Node(it) => Some(it.clone()),
-            NodeOrToken::Token(it) => it.parent(),
+            Self::Node(it) => Some(it.clone()),
+            Self::Token(it) => it.parent(),
         };
         iter::successors(first, RedNode::parent)
     }
 
-    pub fn next_sibling_or_token(&self) -> Option<RedElement<L>> {
+    #[must_use]
+    pub fn next_sibling_or_token(&self) -> Option<Self> {
         match self {
-            NodeOrToken::Node(it) => it.next_sibling_or_token(),
-            NodeOrToken::Token(it) => it.next_sibling_or_token(),
+            Self::Node(it) => it.next_sibling_or_token(),
+            Self::Token(it) => it.next_sibling_or_token(),
         }
     }
-    pub fn prev_sibling_or_token(&self) -> Option<RedElement<L>> {
+    #[must_use]
+    pub fn prev_sibling_or_token(&self) -> Option<Self> {
         match self {
-            NodeOrToken::Node(it) => it.prev_sibling_or_token(),
-            NodeOrToken::Token(it) => it.prev_sibling_or_token(),
+            Self::Node(it) => it.prev_sibling_or_token(),
+            Self::Token(it) => it.prev_sibling_or_token(),
         }
     }
     pub fn detach(&self) {
         match self {
-            NodeOrToken::Node(it) => it.detach(),
-            NodeOrToken::Token(it) => it.detach(),
+            Self::Node(it) => it.detach(),
+            Self::Token(it) => it.detach(),
         }
     }
 }
 
 impl<L: Language> From<cursor::SyntaxElement> for RedElement<L> {
-    fn from(raw: cursor::SyntaxElement) -> RedElement<L> {
+    fn from(raw: cursor::SyntaxElement) -> Self {
         match raw {
-            NodeOrToken::Node(it) => NodeOrToken::Node(it.into()),
-            NodeOrToken::Token(it) => NodeOrToken::Token(it.into()),
+            NodeOrToken::Node(it) => Self::Node(it.into()),
+            NodeOrToken::Token(it) => Self::Token(it.into()),
         }
     }
 }
 
 impl<L: Language> From<RedElement<L>> for cursor::SyntaxElement {
-    fn from(element: RedElement<L>) -> cursor::SyntaxElement {
+    fn from(element: RedElement<L>) -> Self {
         match element {
-            NodeOrToken::Node(it) => NodeOrToken::Node(it.into()),
-            NodeOrToken::Token(it) => NodeOrToken::Token(it.into()),
+            NodeOrToken::Node(it) => Self::Node(it.into()),
+            NodeOrToken::Token(it) => Self::Token(it.into()),
         }
     }
 }

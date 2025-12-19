@@ -28,7 +28,7 @@ impl Format for WithAlignmentHint<'_, tombi_ast::BasicString> {
             StringQuoteStyle::Double | StringQuoteStyle::Preserve => text,
             StringQuoteStyle::Single => {
                 // TODO: Only supports simple conditions, so it needs to be changed to behavior closer to black
-                if text.contains("\\") || text.contains("'") {
+                if text.contains('\\') || text.contains('\'') {
                     text
                 } else {
                     format!("'{}'", &text[1..text.len() - 1])
@@ -65,7 +65,7 @@ impl Format for WithAlignmentHint<'_, tombi_ast::LiteralString> {
             StringQuoteStyle::Single | StringQuoteStyle::Preserve => text,
             StringQuoteStyle::Double => {
                 // TODO: Only supports simple conditions, so it needs to be changed to behavior closer to black
-                if text.contains("\\") || text.contains("\"") {
+                if text.contains('\\') || text.contains('"') {
                     text
                 } else {
                     format!("\"{}\"", &text[1..text.len() - 1])
@@ -100,7 +100,6 @@ impl LiteralNode for tombi_ast::MultiLineLiteralString {
 mod tests {
     use crate::{Formatter, test_format};
     use tombi_config::{StringQuoteStyle, format::FormatRules};
-    
 
     test_format! {
         #[tokio::test]

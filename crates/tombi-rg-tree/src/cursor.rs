@@ -120,7 +120,7 @@ struct NodeData {
     index: Cell<u32>,
     green: Green,
 
-    /// Invariant: never changes after NodeData is created.
+    /// Invariant: never changes after `NodeData` is created.
     mutable: bool,
     /// Absolute offset for immutable nodes, unused for mutable nodes.
     offset: tombi_text::Offset,
@@ -159,7 +159,7 @@ impl Clone for SyntaxNode {
     #[inline]
     fn clone(&self) -> Self {
         self.data().inc_rc();
-        SyntaxNode { ptr: self.ptr }
+        Self { ptr: self.ptr }
     }
 }
 
@@ -184,7 +184,7 @@ impl Clone for SyntaxToken {
     #[inline]
     fn clone(&self) -> Self {
         self.data().inc_rc();
-        SyntaxToken { ptr: self.ptr }
+        Self { ptr: self.ptr }
     }
 }
 
@@ -204,29 +204,26 @@ unsafe fn free(mut data: ptr::NonNull<NodeData>) {
             debug_assert_eq!(data.as_ref().rc.get(), 0);
             debug_assert!(data.as_ref().first.get().is_null());
             let node = Box::from_raw(data.as_ptr());
-            match node.parent.take() {
-                Some(parent) => {
-                    debug_assert!(parent.as_ref().rc.get() > 0);
-                    if node.mutable {
-                        sll::unlink(&parent.as_ref().first, &*node)
-                    }
-                    if parent.as_ref().dec_rc() {
-                        data = parent;
-                    } else {
-                        break;
-                    }
+            if let Some(parent) = node.parent.take() {
+                debug_assert!(parent.as_ref().rc.get() > 0);
+                if node.mutable {
+                    sll::unlink(&parent.as_ref().first, &*node);
                 }
-                None => {
-                    match &node.green {
-                        Green::Node { ptr } => {
-                            let _ = GreenNode::from_raw(ptr.get());
-                        }
-                        Green::Token { ptr } => {
-                            let _ = GreenToken::from_raw(*ptr);
-                        }
-                    }
+                if parent.as_ref().dec_rc() {
+                    data = parent;
+                } else {
                     break;
                 }
+            } else {
+                match &node.green {
+                    Green::Node { ptr } => {
+                        let _ = GreenNode::from_raw(ptr.get());
+                    }
+                    Green::Token { ptr } => {
+                        let _ = GreenToken::from_raw(*ptr);
+                    }
+                }
+                break;
             }
         }
     }
@@ -241,9 +238,9 @@ impl NodeData {
         position: tombi_text::Position,
         green: Green,
         mutable: bool,
-    ) -> ptr::NonNull<NodeData> {
+    ) -> ptr::NonNull<Self> {
         let parent = ManuallyDrop::new(parent);
-        let res = NodeData {
+        let res = Self {
             _c: Count::new(),
             rc: Cell::new(1),
             parent: Cell::new(parent.as_ref().map(|it| it.ptr)),
@@ -259,7 +256,7 @@ impl NodeData {
         };
         unsafe {
             if mutable {
-                let res_ptr: *const NodeData = &res;
+                let res_ptr: *const Self = &raw const res;
                 match sll::init(
                     (*res_ptr).parent().map(|it| &it.first),
                     res_ptr.as_ref().unwrap(),
@@ -269,10 +266,10 @@ impl NodeData {
                             assert_eq!((*node).index(), (*res_ptr).index());
                             match ((*node).green(), (*res_ptr).green()) {
                                 (NodeOrToken::Node(lhs), NodeOrToken::Node(rhs)) => {
-                                    assert!(ptr::eq(lhs, rhs))
+                                    assert!(ptr::eq(lhs, rhs));
                                 }
                                 (NodeOrToken::Token(lhs), NodeOrToken::Token(rhs)) => {
-                                    assert!(ptr::eq(lhs, rhs))
+                                    assert!(ptr::eq(lhs, rhs));
                                 }
                                 it => {
                                     panic!("node/token confusion: {it:?}")
@@ -281,7 +278,7 @@ impl NodeData {
                         }
 
                         ManuallyDrop::into_inner(parent);
-                        let res = node as *mut NodeData;
+                        let res = node.cast_mut();
                         (*res).inc_rc();
                         return ptr::NonNull::new_unchecked(res);
                     }
@@ -302,7 +299,7 @@ impl NodeData {
             Some(it) => it,
             None => std::process::abort(),
         };
-        self.rc.set(rc)
+        self.rc.set(rc);
     }
 
     #[inline]
@@ -332,7 +329,7 @@ impl NodeData {
     }
 
     #[inline]
-    fn parent(&self) -> Option<&NodeData> {
+    fn parent(&self) -> Option<&Self> {
         self.parent.get().map(|it| unsafe { &*it.as_ptr() })
     }
 
@@ -355,7 +352,7 @@ impl NodeData {
         }
     }
     #[inline]
-    fn index(&self) -> u32 {
+    const fn index(&self) -> u32 {
         self.index.get()
     }
 
@@ -543,7 +540,7 @@ impl NodeData {
             unsafe { free(parent_ptr) }
         }
     }
-    fn attach_child(&self, index: usize, child: &NodeData) {
+    fn attach_child(&self, index: usize, child: &Self) {
         debug_assert!(self.mutable && child.mutable && child.parent().is_none());
         debug_assert!(self.rc.get() > 0 && child.rc.get() > 0);
 
@@ -584,20 +581,19 @@ impl NodeData {
                     Green::Node { ptr } => ptr.replace(ptr::NonNull::from(&*new_green)),
                     Green::Token { .. } => unreachable!(),
                 };
-                match node.parent() {
-                    Some(parent) => match parent.green() {
+                if let Some(parent) = node.parent() {
+                    match parent.green() {
                         NodeOrToken::Node(parent_green) => {
                             new_green =
                                 parent_green.replace_child(node.index() as usize, new_green.into());
                             node = parent;
                         }
                         _ => unreachable!(),
-                    },
-                    None => {
-                        mem::forget(new_green);
-                        let _ = GreenNode::from_raw(old_green);
-                        break;
                     }
+                } else {
+                    mem::forget(new_green);
+                    let _ = GreenNode::from_raw(old_green);
+                    break;
                 }
             }
         }
@@ -605,12 +601,13 @@ impl NodeData {
 }
 
 impl SyntaxNode {
-    pub fn new_root(green: GreenNode) -> SyntaxNode {
+    #[must_use]
+    pub fn new_root(green: GreenNode) -> Self {
         let green = GreenNode::into_raw(green);
         let green = Green::Node {
             ptr: Cell::new(green),
         };
-        SyntaxNode {
+        Self {
             ptr: NodeData::new(
                 None,
                 0,
@@ -622,12 +619,13 @@ impl SyntaxNode {
         }
     }
 
-    pub fn new_root_mut(green: GreenNode) -> SyntaxNode {
+    #[must_use]
+    pub fn new_root_mut(green: GreenNode) -> Self {
         let green = GreenNode::into_raw(green);
         let green = Green::Node {
             ptr: Cell::new(green),
         };
-        SyntaxNode {
+        Self {
             ptr: NodeData::new(
                 None,
                 0,
@@ -641,30 +639,32 @@ impl SyntaxNode {
 
     fn new_child(
         green: &GreenNodeData,
-        parent: SyntaxNode,
+        parent: Self,
         index: u32,
         offset: tombi_text::Offset,
         position: tombi_text::Position,
-    ) -> SyntaxNode {
+    ) -> Self {
         let mutable = parent.data().mutable;
         let green = Green::Node {
             ptr: Cell::new(green.into()),
         };
-        SyntaxNode {
+        Self {
             ptr: NodeData::new(Some(parent), index, offset, position, green, mutable),
         }
     }
 
-    pub fn is_mutable(&self) -> bool {
+    #[must_use]
+    pub const fn is_mutable(&self) -> bool {
         self.data().mutable
     }
 
-    pub fn clone_for_update(&self) -> SyntaxNode {
+    #[must_use]
+    pub fn clone_for_update(&self) -> Self {
         debug_assert!(!self.data().mutable);
         match self.parent() {
             Some(parent) => {
                 let parent = parent.clone_for_update();
-                SyntaxNode::new_child(
+                Self::new_child(
                     self.green_ref(),
                     parent,
                     self.data().index(),
@@ -672,19 +672,21 @@ impl SyntaxNode {
                     self.position(),
                 )
             }
-            None => SyntaxNode::new_root_mut(self.green_ref().to_owned()),
+            None => Self::new_root_mut(self.green_ref().to_owned()),
         }
     }
 
-    pub fn clone_subtree(&self) -> SyntaxNode {
-        SyntaxNode::new_root(self.green().into())
+    #[must_use]
+    pub fn clone_subtree(&self) -> Self {
+        Self::new_root(self.green().into())
     }
 
     #[inline]
-    fn data(&self) -> &NodeData {
+    const fn data(&self) -> &NodeData {
         unsafe { self.ptr.as_ref() }
     }
 
+    #[must_use]
     pub fn replace_with(&self, replacement: GreenNode) -> GreenNode {
         assert_eq!(self.kind(), replacement.kind());
         match &self.parent() {
@@ -699,6 +701,7 @@ impl SyntaxNode {
     }
 
     #[inline]
+    #[must_use]
     pub fn kind(&self) -> SyntaxKind {
         self.data().kind()
     }
@@ -714,31 +717,37 @@ impl SyntaxNode {
     }
 
     #[inline]
+    #[must_use]
     pub fn span(&self) -> tombi_text::Span {
         self.data().span()
     }
 
     #[inline]
+    #[must_use]
     pub fn range(&self) -> tombi_text::Range {
         self.data().range()
     }
 
     #[inline]
-    pub fn index(&self) -> usize {
+    #[must_use]
+    pub const fn index(&self) -> usize {
         self.data().index() as usize
     }
 
     #[inline]
+    #[must_use]
     pub fn text(&self) -> SyntaxText {
         SyntaxText::new(self.clone())
     }
 
     #[inline]
+    #[must_use]
     pub fn green(&self) -> Cow<'_, GreenNodeData> {
         let green_ref = self.green_ref();
-        match self.data().mutable {
-            false => Cow::Borrowed(green_ref),
-            true => Cow::Owned(green_ref.to_owned()),
+        if self.data().mutable {
+            Cow::Owned(green_ref.to_owned())
+        } else {
+            Cow::Borrowed(green_ref)
         }
     }
     #[inline]
@@ -747,33 +756,37 @@ impl SyntaxNode {
     }
 
     #[inline]
-    pub fn parent(&self) -> Option<SyntaxNode> {
+    #[must_use]
+    pub fn parent(&self) -> Option<Self> {
         self.data().parent_node()
     }
 
     #[inline]
-    pub fn ancestors(&self) -> impl Iterator<Item = SyntaxNode> {
-        iter::successors(Some(self.clone()), SyntaxNode::parent)
+    pub fn ancestors(&self) -> impl Iterator<Item = Self> {
+        iter::successors(Some(self.clone()), Self::parent)
     }
 
     #[inline]
+    #[must_use]
     pub fn children(&self) -> SyntaxNodeChildren {
         SyntaxNodeChildren::new(self.clone())
     }
 
     #[inline]
+    #[must_use]
     pub fn children_with_tokens(&self) -> SyntaxElementChildren {
         SyntaxElementChildren::new(self.clone())
     }
 
-    pub fn first_child(&self) -> Option<SyntaxNode> {
+    #[must_use]
+    pub fn first_child(&self) -> Option<Self> {
         self.green_ref()
             .children()
             .raw
             .enumerate()
             .find_map(|(index, child)| {
                 child.as_ref().into_node().map(|green| {
-                    SyntaxNode::new_child(
+                    Self::new_child(
                         green,
                         self.clone(),
                         index as u32,
@@ -784,7 +797,8 @@ impl SyntaxNode {
             })
     }
 
-    pub fn last_child(&self) -> Option<SyntaxNode> {
+    #[must_use]
+    pub fn last_child(&self) -> Option<Self> {
         self.green_ref()
             .children()
             .raw
@@ -792,7 +806,7 @@ impl SyntaxNode {
             .rev()
             .find_map(|(index, child)| {
                 child.as_ref().into_node().map(|green| {
-                    SyntaxNode::new_child(
+                    Self::new_child(
                         green,
                         self.clone(),
                         index as u32,
@@ -803,6 +817,7 @@ impl SyntaxNode {
             })
     }
 
+    #[must_use]
     pub fn first_child_or_token(&self) -> Option<SyntaxElement> {
         self.green_ref().children().raw.next().map(|child| {
             SyntaxElement::new(
@@ -815,6 +830,7 @@ impl SyntaxNode {
         })
     }
 
+    #[must_use]
     pub fn last_child_or_token(&self) -> Option<SyntaxElement> {
         self.green_ref()
             .children()
@@ -832,32 +848,38 @@ impl SyntaxNode {
             })
     }
 
-    pub fn next_sibling(&self) -> Option<SyntaxNode> {
+    #[must_use]
+    pub fn next_sibling(&self) -> Option<Self> {
         self.data().next_sibling()
     }
 
-    pub fn prev_sibling(&self) -> Option<SyntaxNode> {
+    #[must_use]
+    pub fn prev_sibling(&self) -> Option<Self> {
         self.data().prev_sibling()
     }
 
+    #[must_use]
     pub fn next_sibling_or_token(&self) -> Option<SyntaxElement> {
         self.data().next_sibling_or_token()
     }
 
+    #[must_use]
     pub fn prev_sibling_or_token(&self) -> Option<SyntaxElement> {
         self.data().prev_sibling_or_token()
     }
 
+    #[must_use]
     pub fn first_token(&self) -> Option<SyntaxToken> {
         self.first_child_or_token()?.first_token()
     }
 
+    #[must_use]
     pub fn last_token(&self) -> Option<SyntaxToken> {
         self.last_child_or_token()?.last_token()
     }
 
     #[inline]
-    pub fn siblings(&self, direction: Direction) -> impl Iterator<Item = SyntaxNode> {
+    pub fn siblings(&self, direction: Direction) -> impl Iterator<Item = Self> {
         iter::successors(Some(self.clone()), move |node| match direction {
             Direction::Next => node.next_sibling(),
             Direction::Prev => node.prev_sibling(),
@@ -877,7 +899,7 @@ impl SyntaxNode {
     }
 
     #[inline]
-    pub fn descendants(&self) -> impl Iterator<Item = SyntaxNode> {
+    pub fn descendants(&self) -> impl Iterator<Item = Self> {
         self.preorder().filter_map(|event| match event {
             WalkEvent::Enter(node) => Some(node),
             WalkEvent::Leave(_) => None,
@@ -893,15 +915,18 @@ impl SyntaxNode {
     }
 
     #[inline]
+    #[must_use]
     pub fn preorder(&self) -> Preorder {
         Preorder::new(self.clone())
     }
 
     #[inline]
+    #[must_use]
     pub fn preorder_with_tokens(&self) -> PreorderWithTokens {
         PreorderWithTokens::new(self.clone())
     }
 
+    #[must_use]
     pub fn token_at_offset(&self, offset: tombi_text::Offset) -> TokenAtOffset<SyntaxToken> {
         // TODO: this could be faster if we first drill-down to node, and only
         // then switch to token search. We should also replace explicit
@@ -936,6 +961,7 @@ impl SyntaxNode {
         }
     }
 
+    #[must_use]
     pub fn token_at_position(&self, position: tombi_text::Position) -> TokenAtOffset<SyntaxToken> {
         let range = self.range();
         debug_assert!(
@@ -971,6 +997,7 @@ impl SyntaxNode {
         }
     }
 
+    #[must_use]
     pub fn covering_element(&self, span: tombi_text::Span) -> SyntaxElement {
         let mut res: SyntaxElement = self.clone().into();
         loop {
@@ -990,6 +1017,7 @@ impl SyntaxNode {
         }
     }
 
+    #[must_use]
     pub fn child_or_token_at_span(&self, span: tombi_text::Span) -> Option<SyntaxElement> {
         self.green_ref().child_at_span(span - self.offset()).map(
             |(index, relative_offset, relative_position, green)| {
@@ -1020,7 +1048,7 @@ impl SyntaxNode {
 
     pub fn detach(&self) {
         debug_assert!(self.data().mutable, "immutable tree: {self}");
-        self.data().detach()
+        self.data().detach();
     }
 
     fn attach_child(&self, index: usize, child: SyntaxElement) {
@@ -1030,7 +1058,7 @@ impl SyntaxNode {
             NodeOrToken::Node(it) => it.data(),
             NodeOrToken::Token(it) => it.data(),
         };
-        self.data().attach_child(index, data)
+        self.data().attach_child(index, data);
     }
 }
 
@@ -1041,19 +1069,20 @@ impl SyntaxToken {
         index: u32,
         offset: tombi_text::Offset,
         position: tombi_text::Position,
-    ) -> SyntaxToken {
+    ) -> Self {
         let mutable = parent.data().mutable;
         let green = Green::Token { ptr: green.into() };
-        SyntaxToken {
+        Self {
             ptr: NodeData::new(Some(parent), index, offset, position, green, mutable),
         }
     }
 
     #[inline]
-    fn data(&self) -> &NodeData {
+    const fn data(&self) -> &NodeData {
         unsafe { self.ptr.as_ref() }
     }
 
+    #[must_use]
     pub fn replace_with(&self, replacement: GreenToken) -> GreenNode {
         assert_eq!(self.kind(), replacement.kind());
         let parent = self.parent().unwrap();
@@ -1066,46 +1095,52 @@ impl SyntaxToken {
     }
 
     #[inline]
+    #[must_use]
     pub fn kind(&self) -> SyntaxKind {
         self.data().kind()
     }
 
     #[inline]
+    #[must_use]
     pub fn span(&self) -> tombi_text::Span {
         self.data().span()
     }
 
     #[inline]
+    #[must_use]
     pub fn range(&self) -> tombi_text::Range {
         self.data().range()
     }
 
     #[inline]
-    pub fn index(&self) -> usize {
+    #[must_use]
+    pub const fn index(&self) -> usize {
         self.data().index() as usize
     }
 
     #[inline]
+    #[must_use]
     pub fn text(&self) -> &str {
-        match self.data().green().as_token() {
-            Some(it) => it.text(),
-            None => {
-                debug_assert!(
-                    false,
-                    "corrupted tree: a node thinks it is a token: {:?}",
-                    self.data().green().as_node().unwrap().to_string()
-                );
-                ""
-            }
+        if let Some(it) = self.data().green().as_token() {
+            it.text()
+        } else {
+            debug_assert!(
+                false,
+                "corrupted tree: a node thinks it is a token: {:?}",
+                self.data().green().as_node().unwrap().to_string()
+            );
+            ""
         }
     }
 
     #[inline]
+    #[must_use]
     pub fn green(&self) -> &GreenTokenData {
         self.data().green().into_token().unwrap()
     }
 
     #[inline]
+    #[must_use]
     pub fn parent(&self) -> Option<SyntaxNode> {
         self.data().parent_node()
     }
@@ -1115,9 +1150,11 @@ impl SyntaxToken {
         std::iter::successors(self.parent(), SyntaxNode::parent)
     }
 
+    #[must_use]
     pub fn next_sibling_or_token(&self) -> Option<SyntaxElement> {
         self.data().next_sibling_or_token()
     }
+    #[must_use]
     pub fn prev_sibling_or_token(&self) -> Option<SyntaxElement> {
         self.data().prev_sibling_or_token()
     }
@@ -1134,7 +1171,8 @@ impl SyntaxToken {
         })
     }
 
-    pub fn next_token(&self) -> Option<SyntaxToken> {
+    #[must_use]
+    pub fn next_token(&self) -> Option<Self> {
         match self.next_sibling_or_token() {
             Some(element) => element.first_token(),
             None => self
@@ -1143,7 +1181,8 @@ impl SyntaxToken {
                 .and_then(|element| element.first_token()),
         }
     }
-    pub fn prev_token(&self) -> Option<SyntaxToken> {
+    #[must_use]
+    pub fn prev_token(&self) -> Option<Self> {
         match self.prev_sibling_or_token() {
             Some(element) => element.last_token(),
             None => self
@@ -1155,7 +1194,7 @@ impl SyntaxToken {
 
     pub fn detach(&self) {
         debug_assert!(self.data().mutable, "immutable tree: {self}");
-        self.data().detach()
+        self.data().detach();
     }
 }
 
@@ -1166,7 +1205,7 @@ impl SyntaxElement {
         index: u32,
         offset: tombi_text::Offset,
         position: tombi_text::Position,
-    ) -> SyntaxElement {
+    ) -> Self {
         match element {
             NodeOrToken::Node(node) => {
                 SyntaxNode::new_child(node, parent, index, offset, position).into()
@@ -1178,100 +1217,109 @@ impl SyntaxElement {
     }
 
     #[inline]
+    #[must_use]
     pub fn span(&self) -> tombi_text::Span {
         match self {
-            NodeOrToken::Node(it) => it.span(),
-            NodeOrToken::Token(it) => it.span(),
+            Self::Node(it) => it.span(),
+            Self::Token(it) => it.span(),
         }
     }
 
     #[inline]
+    #[must_use]
     pub fn range(&self) -> tombi_text::Range {
         match self {
-            NodeOrToken::Node(it) => it.range(),
-            NodeOrToken::Token(it) => it.range(),
+            Self::Node(it) => it.range(),
+            Self::Token(it) => it.range(),
         }
     }
 
     #[inline]
+    #[must_use]
     pub fn index(&self) -> usize {
         match self {
-            NodeOrToken::Node(it) => it.index(),
-            NodeOrToken::Token(it) => it.index(),
+            Self::Node(it) => it.index(),
+            Self::Token(it) => it.index(),
         }
     }
 
     #[inline]
+    #[must_use]
     pub fn kind(&self) -> SyntaxKind {
         match self {
-            NodeOrToken::Node(it) => it.kind(),
-            NodeOrToken::Token(it) => it.kind(),
+            Self::Node(it) => it.kind(),
+            Self::Token(it) => it.kind(),
         }
     }
 
     #[inline]
+    #[must_use]
     pub fn parent(&self) -> Option<SyntaxNode> {
         match self {
-            NodeOrToken::Node(it) => it.parent(),
-            NodeOrToken::Token(it) => it.parent(),
+            Self::Node(it) => it.parent(),
+            Self::Token(it) => it.parent(),
         }
     }
 
     #[inline]
     pub fn ancestors(&self) -> impl Iterator<Item = SyntaxNode> {
         let first = match self {
-            NodeOrToken::Node(it) => Some(it.clone()),
-            NodeOrToken::Token(it) => it.parent(),
+            Self::Node(it) => Some(it.clone()),
+            Self::Token(it) => it.parent(),
         };
         iter::successors(first, SyntaxNode::parent)
     }
 
+    #[must_use]
     pub fn first_token(&self) -> Option<SyntaxToken> {
         match self {
-            NodeOrToken::Node(it) => it.first_token(),
-            NodeOrToken::Token(it) => Some(it.clone()),
+            Self::Node(it) => it.first_token(),
+            Self::Token(it) => Some(it.clone()),
         }
     }
+    #[must_use]
     pub fn last_token(&self) -> Option<SyntaxToken> {
         match self {
-            NodeOrToken::Node(it) => it.last_token(),
-            NodeOrToken::Token(it) => Some(it.clone()),
+            Self::Node(it) => it.last_token(),
+            Self::Token(it) => Some(it.clone()),
         }
     }
 
-    pub fn next_sibling_or_token(&self) -> Option<SyntaxElement> {
+    #[must_use]
+    pub fn next_sibling_or_token(&self) -> Option<Self> {
         match self {
-            NodeOrToken::Node(it) => it.next_sibling_or_token(),
-            NodeOrToken::Token(it) => it.next_sibling_or_token(),
+            Self::Node(it) => it.next_sibling_or_token(),
+            Self::Token(it) => it.next_sibling_or_token(),
         }
     }
-    pub fn prev_sibling_or_token(&self) -> Option<SyntaxElement> {
+    #[must_use]
+    pub fn prev_sibling_or_token(&self) -> Option<Self> {
         match self {
-            NodeOrToken::Node(it) => it.prev_sibling_or_token(),
-            NodeOrToken::Token(it) => it.prev_sibling_or_token(),
+            Self::Node(it) => it.prev_sibling_or_token(),
+            Self::Token(it) => it.prev_sibling_or_token(),
         }
     }
 
     fn token_at_offset(&self, offset: tombi_text::Offset) -> TokenAtOffset<SyntaxToken> {
         debug_assert!(self.span().start <= offset && offset <= self.span().end);
         match self {
-            NodeOrToken::Token(token) => TokenAtOffset::Single(token.clone()),
-            NodeOrToken::Node(node) => node.token_at_offset(offset),
+            Self::Token(token) => TokenAtOffset::Single(token.clone()),
+            Self::Node(node) => node.token_at_offset(offset),
         }
     }
 
     fn token_at_position(&self, position: tombi_text::Position) -> TokenAtOffset<SyntaxToken> {
         debug_assert!(self.range().start <= position && position <= self.range().end);
         match self {
-            NodeOrToken::Token(token) => TokenAtOffset::Single(token.clone()),
-            NodeOrToken::Node(node) => node.token_at_position(position),
+            Self::Token(token) => TokenAtOffset::Single(token.clone()),
+            Self::Node(node) => node.token_at_position(position),
         }
     }
 
     pub fn detach(&self) {
         match self {
-            NodeOrToken::Node(it) => it.detach(),
-            NodeOrToken::Token(it) => it.detach(),
+            Self::Node(it) => it.detach(),
+            Self::Token(it) => it.detach(),
         }
     }
 }
@@ -1281,7 +1329,7 @@ impl SyntaxElement {
 // Identity semantics for hash & eq
 impl PartialEq for SyntaxNode {
     #[inline]
-    fn eq(&self, other: &SyntaxNode) -> bool {
+    fn eq(&self, other: &Self) -> bool {
         self.data().key() == other.data().key()
     }
 }
@@ -1319,7 +1367,7 @@ impl fmt::Display for SyntaxNode {
 // Identity semantics for hash & eq
 impl PartialEq for SyntaxToken {
     #[inline]
-    fn eq(&self, other: &SyntaxToken) -> bool {
+    fn eq(&self, other: &Self) -> bool {
         self.data().key() == other.data().key()
     }
 }
@@ -1341,15 +1389,15 @@ impl fmt::Display for SyntaxToken {
 
 impl From<SyntaxNode> for SyntaxElement {
     #[inline]
-    fn from(node: SyntaxNode) -> SyntaxElement {
-        NodeOrToken::Node(node)
+    fn from(node: SyntaxNode) -> Self {
+        Self::Node(node)
     }
 }
 
 impl From<SyntaxToken> for SyntaxElement {
     #[inline]
-    fn from(token: SyntaxToken) -> SyntaxElement {
-        NodeOrToken::Token(token)
+    fn from(token: SyntaxToken) -> Self {
+        Self::Token(token)
     }
 }
 
@@ -1363,8 +1411,8 @@ pub struct SyntaxNodeChildren {
 }
 
 impl SyntaxNodeChildren {
-    fn new(parent: SyntaxNode) -> SyntaxNodeChildren {
-        SyntaxNodeChildren {
+    fn new(parent: SyntaxNode) -> Self {
+        Self {
             next: parent.first_child(),
         }
     }
@@ -1385,8 +1433,8 @@ pub struct SyntaxElementChildren {
 }
 
 impl SyntaxElementChildren {
-    fn new(parent: SyntaxNode) -> SyntaxElementChildren {
-        SyntaxElementChildren {
+    fn new(parent: SyntaxNode) -> Self {
+        Self {
             next: parent.first_child_or_token(),
         }
     }
@@ -1408,16 +1456,16 @@ pub struct Preorder {
 }
 
 impl Preorder {
-    fn new(start: SyntaxNode) -> Preorder {
+    fn new(start: SyntaxNode) -> Self {
         let next = Some(WalkEvent::Enter(start.clone()));
-        Preorder {
+        Self {
             start,
             next,
             skip_subtree: false,
         }
     }
 
-    pub fn skip_subtree(&mut self) {
+    pub const fn skip_subtree(&mut self) {
         self.skip_subtree = true;
     }
 
@@ -1426,7 +1474,7 @@ impl Preorder {
         self.next = self.next.take().map(|next| match next {
             WalkEvent::Enter(first_child) => WalkEvent::Leave(first_child.parent().unwrap()),
             WalkEvent::Leave(parent) => WalkEvent::Leave(parent),
-        })
+        });
     }
 }
 
@@ -1467,16 +1515,16 @@ pub struct PreorderWithTokens {
 }
 
 impl PreorderWithTokens {
-    fn new(start: SyntaxNode) -> PreorderWithTokens {
+    fn new(start: SyntaxNode) -> Self {
         let next = Some(WalkEvent::Enter(start.clone().into()));
-        PreorderWithTokens {
+        Self {
             start: start.into(),
             next,
             skip_subtree: false,
         }
     }
 
-    pub fn skip_subtree(&mut self) {
+    pub const fn skip_subtree(&mut self) {
         self.skip_subtree = true;
     }
 
@@ -1485,7 +1533,7 @@ impl PreorderWithTokens {
         self.next = self.next.take().map(|next| match next {
             WalkEvent::Enter(first_child) => WalkEvent::Leave(first_child.parent().unwrap().into()),
             WalkEvent::Leave(parent) => WalkEvent::Leave(parent),
-        })
+        });
     }
 }
 

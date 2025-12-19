@@ -10,6 +10,7 @@ pub enum MatchResult {
     ExcludeMatched,
 }
 
+#[must_use]
 pub fn matches_file_patterns(
     text_document_path: &Path,
     config_path: Option<&Path>,
@@ -28,7 +29,7 @@ pub fn matches_file_patterns(
     // Check include patterns first
     if let Some(include) = files.include.as_ref() {
         let mut matches_include = false;
-        for include_pattern in include.iter() {
+        for include_pattern in include {
             if glob_match(include_pattern, path_for_patterns.as_ref()) {
                 matches_include = true;
                 break;
@@ -41,7 +42,7 @@ pub fn matches_file_patterns(
 
     // Check exclude patterns
     if let Some(exclude) = files.exclude.as_ref() {
-        for exclude_pattern in exclude.iter() {
+        for exclude_pattern in exclude {
             if glob_match(exclude_pattern, path_for_patterns.as_ref()) {
                 return MatchResult::ExcludeMatched;
             }
@@ -63,12 +64,12 @@ fn relative_document_text_path<'a>(
             Err(_) => config_path.to_path_buf(),
         };
 
-        if let Some(config_dir) = config_pathbuf.parent() {
-            if text_document_absolute_path.starts_with(config_dir) {
-                // Use relative path from config directory
-                if let Ok(rel_path) = text_document_absolute_path.strip_prefix(config_dir) {
-                    return rel_path.to_string_lossy();
-                }
+        if let Some(config_dir) = config_pathbuf.parent()
+            && text_document_absolute_path.starts_with(config_dir)
+        {
+            // Use relative path from config directory
+            if let Ok(rel_path) = text_document_absolute_path.strip_prefix(config_dir) {
+                return rel_path.to_string_lossy();
             }
         }
     }

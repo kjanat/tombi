@@ -28,25 +28,29 @@ where
     K: Hash + Eq,
 {
     /// Creates an empty Map
+    #[must_use]
     pub fn new() -> Self {
-        Map {
+        Self {
             inner: IndexMap::new(),
         }
     }
 
     /// Creates an empty Map with the specified capacity
+    #[must_use]
     pub fn with_capacity(capacity: usize) -> Self {
-        Map {
+        Self {
             inner: IndexMap::with_capacity(capacity),
         }
     }
 
     /// Returns the number of elements in the map
+    #[must_use]
     pub fn len(&self) -> usize {
         self.inner.len()
     }
 
     /// Returns true if the map contains no elements
+    #[must_use]
     pub fn is_empty(&self) -> bool {
         self.inner.is_empty()
     }
@@ -104,17 +108,19 @@ where
         self.inner.values_mut()
     }
 
-    /// Returns a reference to the underlying IndexMap
-    pub fn as_inner(&self) -> &IndexMap<K, V> {
+    /// Returns a reference to the underlying `IndexMap`
+    #[must_use]
+    pub const fn as_inner(&self) -> &IndexMap<K, V> {
         &self.inner
     }
 
-    /// Returns a mutable reference to the underlying IndexMap
-    pub fn as_inner_mut(&mut self) -> &mut IndexMap<K, V> {
+    /// Returns a mutable reference to the underlying `IndexMap`
+    pub const fn as_inner_mut(&mut self) -> &mut IndexMap<K, V> {
         &mut self.inner
     }
 
-    /// Consumes the Map and returns the underlying IndexMap
+    /// Consumes the Map and returns the underlying `IndexMap`
+    #[must_use]
     pub fn into_inner(self) -> IndexMap<K, V> {
         self.inner
     }
@@ -130,6 +136,7 @@ where
 
 impl Map<String, Value> {
     /// Returns a reference to the value corresponding to the string key
+    #[must_use]
     pub fn get_str(&self, key: &str) -> Option<&Value> {
         self.inner.get(key)
     }
@@ -186,7 +193,7 @@ where
     K: Hash + Eq,
 {
     fn from_iter<T: IntoIterator<Item = (K, V)>>(iter: T) -> Self {
-        Map {
+        Self {
             inner: IndexMap::from_iter(iter),
         }
     }

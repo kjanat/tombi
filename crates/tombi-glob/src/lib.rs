@@ -13,6 +13,7 @@ pub use file_match::{MatchResult, matches_file_patterns};
 pub use file_search::{FileInputType, FileSearch, search_pattern_matched_paths};
 pub use walk_dir::WalkDir;
 
+#[must_use]
 pub fn get_format_options(
     config: &tombi_config::Config,
     text_document_path: Option<&Path>,
@@ -21,14 +22,14 @@ pub fn get_format_options(
     if let Some(text_document_path) = text_document_path {
         // Check overrides
         if let Some(overrides) = config.overrides() {
-            for override_item in overrides.iter() {
+            for override_item in overrides {
                 if matches_override_files(text_document_path, config_path, &override_item.files) {
                     // Check if format is enabled
                     if let Some(format) = &override_item.format {
-                        if let Some(enabled) = &format.enabled {
-                            if !enabled.value() {
-                                return None;
-                            }
+                        if let Some(enabled) = &format.enabled
+                            && !enabled.value()
+                        {
+                            return None;
                         }
                         return Some(config.format(Some(format)));
                     }
@@ -41,6 +42,7 @@ pub fn get_format_options(
     Some(config.format(None))
 }
 
+#[must_use]
 pub fn get_lint_options(
     config: &tombi_config::Config,
     text_document_path: Option<&Path>,
@@ -49,14 +51,14 @@ pub fn get_lint_options(
     if let Some(text_document_path) = text_document_path {
         // Check overrides
         if let Some(overrides) = config.overrides() {
-            for override_item in overrides.iter() {
+            for override_item in overrides {
                 if matches_override_files(text_document_path, config_path, &override_item.files) {
                     // Check if lint is enabled
                     if let Some(lint) = &override_item.lint {
-                        if let Some(enabled) = &lint.enabled {
-                            if !enabled.value() {
-                                return None;
-                            }
+                        if let Some(enabled) = &lint.enabled
+                            && !enabled.value()
+                        {
+                            return None;
                         }
                         return Some(config.lint(Some(lint)));
                     }
@@ -85,7 +87,7 @@ fn matches_override_files(
 
     // Check include patterns first
     let mut matches_include = false;
-    for include_pattern in files.include.iter() {
+    for include_pattern in &files.include {
         if glob_match(include_pattern, path_for_patterns.as_ref()) {
             matches_include = true;
             break;
@@ -97,7 +99,7 @@ fn matches_override_files(
 
     // Check exclude patterns
     if let Some(exclude) = &files.exclude {
-        for exclude_pattern in exclude.iter() {
+        for exclude_pattern in exclude {
             if glob_match(exclude_pattern, path_for_patterns.as_ref()) {
                 return false;
             }
@@ -119,12 +121,12 @@ fn relative_document_text_path<'a>(
             Err(_) => config_path.to_path_buf(),
         };
 
-        if let Some(config_dir) = config_pathbuf.parent() {
-            if text_document_absolute_path.starts_with(config_dir) {
-                // Use relative path from config directory
-                if let Ok(rel_path) = text_document_absolute_path.strip_prefix(config_dir) {
-                    return rel_path.to_string_lossy();
-                }
+        if let Some(config_dir) = config_pathbuf.parent()
+            && text_document_absolute_path.starts_with(config_dir)
+        {
+            // Use relative path from config directory
+            if let Ok(rel_path) = text_document_absolute_path.strip_prefix(config_dir) {
+                return rel_path.to_string_lossy();
             }
         }
     }

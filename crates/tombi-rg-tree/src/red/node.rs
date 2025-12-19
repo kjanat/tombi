@@ -49,64 +49,75 @@ impl<L: Language> fmt::Display for RedNode<L> {
 }
 
 impl<L: Language> RedNode<L> {
-    pub fn new_root(green: GreenNode) -> RedNode<L> {
-        RedNode::from(cursor::SyntaxNode::new_root(green))
+    #[must_use]
+    pub fn new_root(green: GreenNode) -> Self {
+        Self::from(cursor::SyntaxNode::new_root(green))
     }
-    pub fn new_root_mut(green: GreenNode) -> RedNode<L> {
-        RedNode::from(cursor::SyntaxNode::new_root_mut(green))
+    #[must_use]
+    pub fn new_root_mut(green: GreenNode) -> Self {
+        Self::from(cursor::SyntaxNode::new_root_mut(green))
     }
 
     /// Returns a green tree, equal to the green tree this node
     /// belongs to, except with this node substituted. The complexity
     /// of the operation is proportional to the depth of the tree.
+    #[must_use]
     pub fn replace_with(&self, replacement: GreenNode) -> GreenNode {
         self.raw.replace_with(replacement)
     }
 
+    #[must_use]
     pub fn kind(&self) -> L::Kind {
         L::kind_from_raw(self.raw.kind())
     }
 
+    #[must_use]
     pub fn span(&self) -> tombi_text::Span {
         self.raw.span()
     }
 
+    #[must_use]
     pub fn range(&self) -> tombi_text::Range {
         self.raw.range()
     }
 
+    #[must_use]
     pub fn index(&self) -> usize {
         self.raw.index()
     }
 
+    #[must_use]
     pub fn text(&self) -> SyntaxText {
         self.raw.text()
     }
 
+    #[must_use]
     pub fn green(&self) -> Cow<'_, GreenNodeData> {
         self.raw.green()
     }
 
-    pub fn parent(&self) -> Option<RedNode<L>> {
+    pub fn parent(&self) -> Option<Self> {
         self.raw.parent().map(Self::from)
     }
 
-    pub fn ancestors(&self) -> impl Iterator<Item = RedNode<L>> {
-        self.raw.ancestors().map(RedNode::from)
+    pub fn ancestors(&self) -> impl Iterator<Item = Self> {
+        self.raw.ancestors().map(Self::from)
     }
 
+    #[must_use]
     pub fn children(&self) -> RedNodeChildren<L> {
         self.raw.children().into()
     }
 
+    #[must_use]
     pub fn children_with_tokens(&self) -> RedElementChildren<L> {
         self.raw.children_with_tokens().into()
     }
 
-    pub fn first_child(&self) -> Option<RedNode<L>> {
+    pub fn first_child(&self) -> Option<Self> {
         self.raw.first_child().map(Self::from)
     }
-    pub fn last_child(&self) -> Option<RedNode<L>> {
+    pub fn last_child(&self) -> Option<Self> {
         self.raw.last_child().map(Self::from)
     }
 
@@ -117,10 +128,10 @@ impl<L: Language> RedNode<L> {
         self.raw.last_child_or_token().map(NodeOrToken::from)
     }
 
-    pub fn next_sibling(&self) -> Option<RedNode<L>> {
+    pub fn next_sibling(&self) -> Option<Self> {
         self.raw.next_sibling().map(Self::from)
     }
-    pub fn prev_sibling(&self) -> Option<RedNode<L>> {
+    pub fn prev_sibling(&self) -> Option<Self> {
         self.raw.prev_sibling().map(Self::from)
     }
 
@@ -140,8 +151,8 @@ impl<L: Language> RedNode<L> {
         self.raw.last_token().map(RedToken::from)
     }
 
-    pub fn siblings(&self, direction: Direction) -> impl Iterator<Item = RedNode<L>> {
-        self.raw.siblings(direction).map(RedNode::from)
+    pub fn siblings(&self, direction: Direction) -> impl Iterator<Item = Self> {
+        self.raw.siblings(direction).map(Self::from)
     }
 
     pub fn siblings_with_tokens(
@@ -153,8 +164,8 @@ impl<L: Language> RedNode<L> {
             .map(RedElement::from)
     }
 
-    pub fn descendants(&self) -> impl Iterator<Item = RedNode<L>> {
-        self.raw.descendants().map(RedNode::from)
+    pub fn descendants(&self) -> impl Iterator<Item = Self> {
+        self.raw.descendants().map(Self::from)
     }
 
     pub fn descendants_with_tokens(&self) -> impl Iterator<Item = RedElement<L>> {
@@ -163,12 +174,14 @@ impl<L: Language> RedNode<L> {
 
     /// Traverse the subtree rooted at the current node (including the current
     /// node) in preorder, excluding tokens.
+    #[must_use]
     pub fn preorder(&self) -> Preorder<L> {
         self.raw.preorder().into()
     }
 
     /// Traverse the subtree rooted at the current node (including the current
     /// node) in preorder, including tokens.
+    #[must_use]
     pub fn preorder_with_tokens(&self) -> RedPreorderWithTokens<L> {
         self.raw.preorder_with_tokens().into()
     }
@@ -187,6 +200,7 @@ impl<L: Language> RedNode<L> {
     /// contains the span. If the span is empty and is contained in two leaf
     /// nodes, either one can be returned. Precondition: span must be contained
     /// within the current node
+    #[must_use]
     pub fn covering_element(&self, span: tombi_text::Span) -> RedElement<L> {
         NodeOrToken::from(self.raw.covering_element(span))
     }
@@ -204,20 +218,23 @@ impl<L: Language> RedNode<L> {
     ///
     /// The parent of the returned node will be `None`, the start offset will be
     /// zero, but, otherwise, it'll be equivalent to the source node.
-    pub fn clone_subtree(&self) -> RedNode<L> {
-        RedNode::from(self.raw.clone_subtree())
+    #[must_use]
+    pub fn clone_subtree(&self) -> Self {
+        Self::from(self.raw.clone_subtree())
     }
 
-    pub fn clone_for_update(&self) -> RedNode<L> {
-        RedNode::from(self.raw.clone_for_update())
+    #[must_use]
+    pub fn clone_for_update(&self) -> Self {
+        Self::from(self.raw.clone_for_update())
     }
 
+    #[must_use]
     pub fn is_mutable(&self) -> bool {
         self.raw.is_mutable()
     }
 
     pub fn detach(&self) {
-        self.raw.detach()
+        self.raw.detach();
     }
 
     pub fn splice_children(&self, to_delete: Range<usize>, to_insert: Vec<RedElement<L>>) {
@@ -225,13 +242,13 @@ impl<L: Language> RedNode<L> {
             .into_iter()
             .map(cursor::SyntaxElement::from)
             .collect_vec();
-        self.raw.splice_children(to_delete, to_insert)
+        self.raw.splice_children(to_delete, to_insert);
     }
 }
 
 impl<L: Language> From<cursor::SyntaxNode> for RedNode<L> {
-    fn from(raw: cursor::SyntaxNode) -> RedNode<L> {
-        RedNode {
+    fn from(raw: cursor::SyntaxNode) -> Self {
+        Self {
             raw,
             _p: PhantomData,
         }
@@ -239,7 +256,7 @@ impl<L: Language> From<cursor::SyntaxNode> for RedNode<L> {
 }
 
 impl<L: Language> From<RedNode<L>> for cursor::SyntaxNode {
-    fn from(node: RedNode<L>) -> cursor::SyntaxNode {
+    fn from(node: RedNode<L>) -> Self {
         node.raw
     }
 }

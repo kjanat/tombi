@@ -22,7 +22,8 @@ pub enum ValueNode {
 }
 
 impl ValueNode {
-    pub fn range(&self) -> Range {
+    #[must_use]
+    pub const fn range(&self) -> Range {
         match self {
             Self::Null(node) => node.range,
             Self::Bool(node) => node.range,
@@ -34,37 +35,44 @@ impl ValueNode {
     }
 
     /// Check if the node is null
-    pub fn is_null(&self) -> bool {
+    #[must_use]
+    pub const fn is_null(&self) -> bool {
         matches!(self, Self::Null(_))
     }
 
     /// Check if the node is a boolean
-    pub fn is_bool(&self) -> bool {
+    #[must_use]
+    pub const fn is_bool(&self) -> bool {
         matches!(self, Self::Bool(_))
     }
 
     /// Check if the node is a number
-    pub fn is_number(&self) -> bool {
+    #[must_use]
+    pub const fn is_number(&self) -> bool {
         matches!(self, Self::Number(_))
     }
 
     /// Check if the node is a string
-    pub fn is_string(&self) -> bool {
+    #[must_use]
+    pub const fn is_string(&self) -> bool {
         matches!(self, Self::String(_))
     }
 
     /// Check if the node is an array
-    pub fn is_array(&self) -> bool {
+    #[must_use]
+    pub const fn is_array(&self) -> bool {
         matches!(self, Self::Array(_))
     }
 
     /// Check if the node is an object
-    pub fn is_object(&self) -> bool {
+    #[must_use]
+    pub const fn is_object(&self) -> bool {
         matches!(self, Self::Object(_))
     }
 
     /// Get as boolean value
-    pub fn as_bool(&self) -> Option<bool> {
+    #[must_use]
+    pub const fn as_bool(&self) -> Option<bool> {
         match self {
             Self::Bool(node) => Some(node.value),
             _ => None,
@@ -72,7 +80,8 @@ impl ValueNode {
     }
 
     /// Get as float value
-    pub fn as_f64(&self) -> Option<f64> {
+    #[must_use]
+    pub const fn as_f64(&self) -> Option<f64> {
         match self {
             Self::Number(node) => node.value.as_f64(),
             _ => None,
@@ -80,7 +89,8 @@ impl ValueNode {
     }
 
     /// Get as unsigned integer value
-    pub fn as_u64(&self) -> Option<u64> {
+    #[must_use]
+    pub const fn as_u64(&self) -> Option<u64> {
         match self {
             Self::Number(node) => node.value.as_u64(),
             _ => None,
@@ -88,7 +98,8 @@ impl ValueNode {
     }
 
     /// Get as integer number value
-    pub fn as_i64(&self) -> Option<i64> {
+    #[must_use]
+    pub const fn as_i64(&self) -> Option<i64> {
         match self {
             Self::Number(node) => node.value.as_i64(),
             _ => None,
@@ -96,6 +107,7 @@ impl ValueNode {
     }
 
     /// Get as string reference
+    #[must_use]
     pub fn as_str(&self) -> Option<&str> {
         match self {
             Self::String(node) => Some(&node.value),
@@ -104,7 +116,8 @@ impl ValueNode {
     }
 
     /// Get as array reference
-    pub fn as_array(&self) -> Option<&ArrayNode> {
+    #[must_use]
+    pub const fn as_array(&self) -> Option<&ArrayNode> {
         match self {
             Self::Array(node) => Some(node),
             _ => None,
@@ -112,24 +125,25 @@ impl ValueNode {
     }
 
     /// Get as mutable array reference
-    pub fn as_array_mut(&mut self) -> Option<&mut ArrayNode> {
+    pub const fn as_array_mut(&mut self) -> Option<&mut ArrayNode> {
         match self {
             Self::Array(node) => Some(node),
             _ => None,
         }
     }
 
-    /// Get as ObjectNode if this node contains an object
-    pub fn as_object(&self) -> Option<&ObjectNode> {
+    /// Get as `ObjectNode` if this node contains an object
+    #[must_use]
+    pub const fn as_object(&self) -> Option<&ObjectNode> {
         match self {
             Self::Object(node) => Some(node),
             _ => None,
         }
     }
 
-    pub fn as_object_mut(&mut self) -> Option<&mut ObjectNode> {
+    pub const fn as_object_mut(&mut self) -> Option<&mut ObjectNode> {
         match self {
-            ValueNode::Object(o) => Some(o),
+            Self::Object(o) => Some(o),
             _ => None,
         }
     }
@@ -154,7 +168,7 @@ impl std::str::FromStr for ValueNode {
 }
 
 /// A JSON null value with source code position information
-#[derive(Debug, Clone, PartialEq)]
+#[derive(Debug, Clone, PartialEq, Eq)]
 pub struct NullNode {
     /// The position of the null value in the source code
     pub range: Range,
@@ -167,7 +181,7 @@ impl std::fmt::Display for NullNode {
 }
 
 /// A JSON boolean value with source code position information
-#[derive(Debug, Clone, PartialEq)]
+#[derive(Debug, Clone, PartialEq, Eq)]
 pub struct BoolNode {
     /// The boolean value
     pub value: bool,
@@ -248,15 +262,18 @@ pub struct ArrayNode {
 
 impl ArrayNode {
     #[inline]
-    pub fn len(&self) -> usize {
+    #[must_use]
+    pub const fn len(&self) -> usize {
         self.items.len()
     }
 
     #[inline]
-    pub fn is_empty(&self) -> bool {
+    #[must_use]
+    pub const fn is_empty(&self) -> bool {
         self.items.is_empty()
     }
 
+    #[must_use]
     pub fn get(&self, index: usize) -> Option<&ValueNode> {
         self.items.get(index)
     }
@@ -267,7 +284,10 @@ impl std::fmt::Display for ArrayNode {
         write!(
             f,
             "[{}]",
-            self.items.iter().map(|item| item.to_string()).join(", ")
+            self.items
+                .iter()
+                .map(std::string::ToString::to_string)
+                .join(", ")
         )
     }
 }
@@ -282,16 +302,19 @@ pub struct ObjectNode {
 }
 
 impl ObjectNode {
+    #[must_use]
     pub fn get(&self, key: &str) -> Option<&ValueNode> {
         self.properties.get(key)
     }
 
     #[inline]
+    #[must_use]
     pub fn len(&self) -> usize {
         self.properties.len()
     }
 
     #[inline]
+    #[must_use]
     pub fn is_empty(&self) -> bool {
         self.properties.is_empty()
     }
@@ -330,14 +353,12 @@ impl std::fmt::Display for ObjectNode {
 impl From<ValueNode> for Value {
     fn from(node: ValueNode) -> Self {
         match node {
-            ValueNode::Null(_) => Value::Null,
-            ValueNode::Bool(node) => Value::Bool(node.value),
-            ValueNode::Number(node) => Value::Number(node.value),
-            ValueNode::String(node) => Value::String(node.value),
-            ValueNode::Array(node) => {
-                Value::Array(node.items.into_iter().map(Into::into).collect())
-            }
-            ValueNode::Object(node) => Value::Object(
+            ValueNode::Null(_) => Self::Null,
+            ValueNode::Bool(node) => Self::Bool(node.value),
+            ValueNode::Number(node) => Self::Number(node.value),
+            ValueNode::String(node) => Self::String(node.value),
+            ValueNode::Array(node) => Self::Array(node.items.into_iter().map(Into::into).collect()),
+            ValueNode::Object(node) => Self::Object(
                 node.properties
                     .into_iter()
                     .map(|(k, v)| (k.value, v.into()))
@@ -357,7 +378,10 @@ impl std::fmt::Display for ValueNode {
             Self::Array(node) => write!(
                 f,
                 "[{}]",
-                node.items.iter().map(|item| item.to_string()).join(", ")
+                node.items
+                    .iter()
+                    .map(std::string::ToString::to_string)
+                    .join(", ")
             ),
             Self::Object(node) => write!(
                 f,
@@ -374,12 +398,12 @@ impl std::fmt::Display for ValueNode {
 impl From<&ValueNode> for Value {
     fn from(node: &ValueNode) -> Self {
         match node {
-            ValueNode::Null(_) => Value::Null,
-            ValueNode::Bool(node) => Value::Bool(node.value),
-            ValueNode::Number(node) => Value::Number(node.value.clone()),
-            ValueNode::String(node) => Value::String(node.value.clone()),
-            ValueNode::Array(node) => Value::Array(node.items.iter().map(Into::into).collect()),
-            ValueNode::Object(node) => Value::Object(
+            ValueNode::Null(_) => Self::Null,
+            ValueNode::Bool(node) => Self::Bool(node.value),
+            ValueNode::Number(node) => Self::Number(node.value.clone()),
+            ValueNode::String(node) => Self::String(node.value.clone()),
+            ValueNode::Array(node) => Self::Array(node.items.iter().map(Into::into).collect()),
+            ValueNode::Object(node) => Self::Object(
                 node.properties
                     .iter()
                     .map(|(k, v)| (k.value.clone(), v.into()))
@@ -391,15 +415,15 @@ impl From<&ValueNode> for Value {
 
 impl From<ArrayNode> for Value {
     fn from(node: ArrayNode) -> Self {
-        let values: Vec<Value> = node.items.into_iter().map(Into::into).collect();
-        Value::Array(values)
+        let values: Vec<Self> = node.items.into_iter().map(Into::into).collect();
+        Self::Array(values)
     }
 }
 
 impl From<&ArrayNode> for Value {
     fn from(node: &ArrayNode) -> Self {
-        let values: Vec<Value> = node.items.iter().map(Into::into).collect();
-        Value::Array(values)
+        let values: Vec<Self> = node.items.iter().map(Into::into).collect();
+        Self::Array(values)
     }
 }
 
@@ -408,10 +432,10 @@ impl From<ObjectNode> for Value {
         // Use IndexMap as an intermediate step
         let mut map = Object::new();
         for (key, value_node) in node.properties {
-            map.insert(key.value, Value::from(value_node));
+            map.insert(key.value, Self::from(value_node));
         }
         // Convert IndexMap to Value
-        Value::Object(map)
+        Self::Object(map)
     }
 }
 
@@ -420,9 +444,9 @@ impl From<&ObjectNode> for Value {
         // Use IndexMap as an intermediate step
         let mut map = Object::new();
         for (key, value_node) in &node.properties {
-            map.insert(key.value.clone(), Value::from(value_node));
+            map.insert(key.value.clone(), Self::from(value_node));
         }
         // Convert IndexMap to Value
-        Value::Object(map)
+        Self::Object(map)
     }
 }

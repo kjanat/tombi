@@ -116,41 +116,41 @@ pub async fn get_hover_keys_with_range(
     let mut hover_range = None;
 
     for node in ancestors_at_position(root.syntax(), position) {
-        if let Some(array) = tombi_ast::Array::cast(node.to_owned()) {
+        if let Some(array) = tombi_ast::Array::cast(node.clone()) {
             for (value, comma) in array.values_with_comma() {
                 if hover_range.is_none() {
                     let mut range = value.range();
                     if let Some(comma) = comma {
-                        range += comma.range()
-                    };
+                        range += comma.range();
+                    }
                     if range.contains(position) {
                         hover_range = Some(range);
                     }
                 }
             }
-        } else if let Some(inline_table) = tombi_ast::InlineTable::cast(node.to_owned()) {
+        } else if let Some(inline_table) = tombi_ast::InlineTable::cast(node.clone()) {
             for (key_value, comma) in inline_table.key_values_with_comma() {
                 if hover_range.is_none() {
                     let mut range = key_value.range();
                     if let Some(comma) = comma {
-                        range += comma.range()
-                    };
+                        range += comma.range();
+                    }
                     if range.contains(position) {
                         hover_range = Some(range);
                     }
                 }
             }
-        };
+        }
 
-        let keys = if let Some(kv) = tombi_ast::KeyValue::cast(node.to_owned()) {
+        let keys = if let Some(kv) = tombi_ast::KeyValue::cast(node.clone()) {
             if hover_range.is_none() {
                 if let Some(inline_table) = tombi_ast::InlineTable::cast(node.parent().unwrap()) {
                     for (key_value, comma) in inline_table.key_values_with_comma() {
                         if hover_range.is_none() {
                             let mut range = key_value.range();
                             if let Some(comma) = comma {
-                                range += comma.range()
-                            };
+                                range += comma.range();
+                            }
                             if range.contains(position) {
                                 hover_range = Some(range);
                                 break;
@@ -162,94 +162,92 @@ pub async fn get_hover_keys_with_range(
                 }
             }
             kv.keys()
-        } else if let Some(table) = tombi_ast::Table::cast(node.to_owned()) {
+        } else if let Some(table) = tombi_ast::Table::cast(node.clone()) {
             let header = table.header();
-            if let Some(header) = &header {
-                if hover_range.is_none()
-                    && (header
-                        .keys()
-                        .last()
-                        .is_none_or(|key| key.syntax().range().contains(position))
-                        || table
-                            .leading_comments()
-                            .any(|comment| comment.syntax().range().contains(position))
-                        || table
-                            .trailing_comment()
-                            .is_some_and(|comment| comment.syntax().range().contains(position))
-                        || table
-                            .key_values_begin_dangling_comments()
-                            .into_iter()
-                            .any(|comments| {
-                                comments
-                                    .into_iter()
-                                    .any(|comment| comment.syntax().range().contains(position))
-                            })
-                        || table
-                            .key_values_end_dangling_comments()
-                            .into_iter()
-                            .any(|comments| {
-                                comments
-                                    .into_iter()
-                                    .any(|comment| comment.syntax().range().contains(position))
-                            }))
+            if let Some(header) = &header
+                && hover_range.is_none()
+                && (header
+                    .keys()
+                    .last()
+                    .is_none_or(|key| key.syntax().range().contains(position))
+                    || table
+                        .leading_comments()
+                        .any(|comment| comment.syntax().range().contains(position))
+                    || table
+                        .trailing_comment()
+                        .is_some_and(|comment| comment.syntax().range().contains(position))
+                    || table
+                        .key_values_begin_dangling_comments()
+                        .into_iter()
+                        .any(|comments| {
+                            comments
+                                .into_iter()
+                                .any(|comment| comment.syntax().range().contains(position))
+                        })
+                    || table
+                        .key_values_end_dangling_comments()
+                        .into_iter()
+                        .any(|comments| {
+                            comments
+                                .into_iter()
+                                .any(|comment| comment.syntax().range().contains(position))
+                        }))
+            {
+                let mut range = table.syntax().range();
+                if let Some(max_end) = table
+                    .sub_tables()
+                    .map(|subtable| subtable.syntax().range().end)
+                    .max()
                 {
-                    let mut range = table.syntax().range();
-                    if let Some(max_end) = table
-                        .sub_tables()
-                        .map(|subtable| subtable.syntax().range().end)
-                        .max()
-                    {
-                        range.end = max_end;
-                    }
-                    hover_range = Some(range);
+                    range.end = max_end;
                 }
+                hover_range = Some(range);
             }
 
             header
-        } else if let Some(array_of_table) = tombi_ast::ArrayOfTable::cast(node.to_owned()) {
+        } else if let Some(array_of_table) = tombi_ast::ArrayOfTable::cast(node.clone()) {
             let header = array_of_table.header();
-            if let Some(header) = &header {
-                if hover_range.is_none()
-                    && (header
-                        .keys()
-                        .last()
-                        .is_none_or(|key| key.syntax().range().contains(position))
-                        || array_of_table
-                            .leading_comments()
-                            .any(|comment| comment.syntax().range().contains(position))
-                        || array_of_table
-                            .trailing_comment()
-                            .is_some_and(|comment| comment.syntax().range().contains(position))
-                        || array_of_table
-                            .key_values_begin_dangling_comments()
-                            .into_iter()
-                            .any(|comments| {
-                                comments
-                                    .into_iter()
-                                    .any(|comment| comment.syntax().range().contains(position))
-                            })
-                        || array_of_table
-                            .key_values_end_dangling_comments()
-                            .into_iter()
-                            .any(|comments| {
-                                comments
-                                    .into_iter()
-                                    .any(|comment| comment.syntax().range().contains(position))
-                            }))
+            if let Some(header) = &header
+                && hover_range.is_none()
+                && (header
+                    .keys()
+                    .last()
+                    .is_none_or(|key| key.syntax().range().contains(position))
+                    || array_of_table
+                        .leading_comments()
+                        .any(|comment| comment.syntax().range().contains(position))
+                    || array_of_table
+                        .trailing_comment()
+                        .is_some_and(|comment| comment.syntax().range().contains(position))
+                    || array_of_table
+                        .key_values_begin_dangling_comments()
+                        .into_iter()
+                        .any(|comments| {
+                            comments
+                                .into_iter()
+                                .any(|comment| comment.syntax().range().contains(position))
+                        })
+                    || array_of_table
+                        .key_values_end_dangling_comments()
+                        .into_iter()
+                        .any(|comments| {
+                            comments
+                                .into_iter()
+                                .any(|comment| comment.syntax().range().contains(position))
+                        }))
+            {
+                let mut range = array_of_table.syntax().range();
+                if let Some(max_end) = array_of_table
+                    .sub_tables()
+                    .map(|subtable| subtable.syntax().range().end)
+                    .max()
                 {
-                    let mut range = array_of_table.syntax().range();
-                    if let Some(max_end) = array_of_table
-                        .sub_tables()
-                        .map(|subtable| subtable.syntax().range().end)
-                        .max()
-                    {
-                        range.end = max_end;
-                    }
-                    hover_range = Some(range);
+                    range.end = max_end;
                 }
+                hover_range = Some(range);
             }
             header
-        } else if let Some(root) = tombi_ast::Root::cast(node.to_owned()) {
+        } else if let Some(root) = tombi_ast::Root::cast(node.clone()) {
             if hover_range.is_none()
                 && (root
                     .key_values_begin_dangling_comments()
@@ -301,7 +299,10 @@ pub async fn get_hover_keys_with_range(
         };
 
         if hover_range.is_none() {
-            hover_range = keys.iter().map(|key| key.range()).reduce(|k1, k2| k1 + k2);
+            hover_range = keys
+                .iter()
+                .map(tombi_document_tree::Key::range)
+                .reduce(|k1, k2| k1 + k2);
         }
 
         keys_vec.push(keys);

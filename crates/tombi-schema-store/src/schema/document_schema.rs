@@ -20,6 +20,7 @@ pub struct DocumentSchema {
 }
 
 impl DocumentSchema {
+    #[must_use]
     pub fn new(object: tombi_json::ObjectNode, schema_uri: SchemaUri) -> Self {
         let toml_version = object.get(X_TOMBI_TOML_VERSION).and_then(|obj| match obj {
             tombi_json::ValueNode::String(version) => TomlVersion::from_str(&version.value).ok(),
@@ -80,6 +81,7 @@ impl DocumentSchema {
         }
     }
 
+    #[must_use]
     pub fn toml_version(&self) -> Option<TomlVersion> {
         self.toml_version.inspect(|version| {
             tracing::trace!(

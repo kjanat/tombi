@@ -24,45 +24,40 @@ pub async fn get_document_comment_directive_completion_contents(
     text_document_uri: &Uri,
 ) -> Option<Vec<CompletionContent>> {
     let comment_text = comment.syntax().text();
-    if let Some(colon_pos) = comment_text.find(':') {
-        if comment_text[1..colon_pos]
+    if let Some(colon_pos) = comment_text.find(':')
+        && comment_text[1..colon_pos].chars().all(char::is_whitespace)
+    {
+        let comment_range = comment.syntax().range();
+        let mut prefix_range = comment_range;
+        prefix_range.end.column = comment_range.start.column + 1 + colon_pos as u32;
+
+        let directive_len = comment_text[colon_pos + 1..]
             .chars()
-            .all(|c| c.is_whitespace())
+            .take_while(|c| !c.is_whitespace())
+            .collect_vec()
+            .len();
+        let mut directive_range = prefix_range;
+        directive_range.end.column += directive_len as u32;
+
+        if directive_range.contains(position) {
+            return Some(document_comment_directive_completion_contents(
+                root,
+                position,
+                comment_range,
+                text_document_uri,
+            ));
+        }
+
+        if let Some(comment_directive_context) = comment
+            .get_tombi_document_directive()
+            .and_then(|directive| directive.get_context(position))
+            && let Some(completions) = get_tombi_comment_directive_content_completion_contents(
+                comment_directive_context,
+                TombiDocumentDirectiveContent::comment_directive_schema_url(),
+            )
+            .await
         {
-            let comment_range = comment.syntax().range();
-            let mut prefix_range = comment_range;
-            prefix_range.end.column = comment_range.start.column + 1 + colon_pos as u32;
-
-            let directive_len = comment_text[colon_pos + 1..]
-                .chars()
-                .take_while(|c| !c.is_whitespace())
-                .collect_vec()
-                .len();
-            let mut directive_range = prefix_range;
-            directive_range.end.column += directive_len as u32;
-
-            if directive_range.contains(position) {
-                return Some(document_comment_directive_completion_contents(
-                    root,
-                    position,
-                    comment_range,
-                    text_document_uri,
-                ));
-            }
-
-            if let Some(comment_directive_context) = comment
-                .get_tombi_document_directive()
-                .and_then(|directive| directive.get_context(position))
-            {
-                if let Some(completions) = get_tombi_comment_directive_content_completion_contents(
-                    comment_directive_context,
-                    TombiDocumentDirectiveContent::comment_directive_schema_url(),
-                )
-                .await
-                {
-                    return Some(completions);
-                }
-            }
+            return Some(completions);
         }
     }
 

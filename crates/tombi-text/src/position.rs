@@ -15,10 +15,11 @@ pub struct Position {
 }
 
 impl Position {
-    pub const MAX: Position = Position::new(Line::MAX, Column::MAX);
-    pub const MIN: Position = Position::new(Line::MIN, Column::MIN);
+    pub const MAX: Self = Self::new(Line::MAX, Column::MAX);
+    pub const MIN: Self = Self::new(Line::MIN, Column::MIN);
 
     #[inline]
+    #[must_use]
     pub const fn new(line: Line, column: Column) -> Self {
         Self {
             line,
@@ -28,6 +29,7 @@ impl Position {
     }
 
     #[inline]
+    #[must_use]
     pub fn add_text(&self, text: &str) -> Self {
         (*self) + RelativePosition::of(text)
     }
@@ -81,7 +83,7 @@ impl From<(Line, Column)> for Position {
 }
 
 impl Add<RelativePosition> for Position {
-    type Output = Position;
+    type Output = Self;
 
     #[inline]
     fn add(self, rhs: RelativePosition) -> Self::Output {
@@ -91,7 +93,7 @@ impl Add<RelativePosition> for Position {
         } else {
             rhs.column
         };
-        Position::new(line, column)
+        Self::new(line, column)
     }
 }
 
@@ -107,11 +109,11 @@ impl AddAssign<RelativePosition> for Position {
     }
 }
 
-impl Sub<Position> for Position {
+impl Sub<Self> for Position {
     type Output = RelativePosition;
 
     #[inline]
-    fn sub(self, rhs: Position) -> Self::Output {
+    fn sub(self, rhs: Self) -> Self::Output {
         if rhs > self {
             tracing::warn!(
                 "Invalid tombi_text::Position: rhs: {:?} > self: {:?}",

@@ -5,12 +5,14 @@ pub struct Float {
 
 impl Float {
     #[inline]
-    pub fn new(value: f64) -> Self {
+    #[must_use]
+    pub const fn new(value: f64) -> Self {
         Self { value }
     }
 
     #[inline]
-    pub fn value(&self) -> f64 {
+    #[must_use]
+    pub const fn value(&self) -> f64 {
         self.value
     }
 }

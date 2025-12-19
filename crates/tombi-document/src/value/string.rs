@@ -8,16 +8,19 @@ pub struct String {
 
 impl String {
     #[inline]
-    pub fn new(kind: StringKind, value: std::string::String) -> Self {
+    #[must_use]
+    pub const fn new(kind: StringKind, value: std::string::String) -> Self {
         Self { kind, value }
     }
 
     #[inline]
-    pub fn kind(&self) -> StringKind {
+    #[must_use]
+    pub const fn kind(&self) -> StringKind {
         self.kind
     }
 
     #[inline]
+    #[must_use]
     pub fn value(&self) -> &str {
         &self.value
     }

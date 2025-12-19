@@ -6,9 +6,9 @@ use tombi_config::{
 
 /// Parse the TOML text into a `Config` struct.
 ///
-/// When executing [crate::from_str_async], it is necessary to obtain the Config to determine the TOML version.
-/// If [crate::from_str_async] is used to parse the Config, it will cause a stack overflow due to circular references.
-/// Therefore, [crate::config::from_str], which does not use schema_store and is not async, is called to prevent stack overflow.
+/// When executing [`crate::from_str_async`], it is necessary to obtain the Config to determine the TOML version.
+/// If [`crate::from_str_async`] is used to parse the Config, it will cause a stack overflow due to circular references.
+/// Therefore, [`crate::config::from_str`], which does not use `schema_store` and is not async, is called to prevent stack overflow.
 ///
 /// This function is not public and is only used internally.
 pub(crate) fn from_str(
@@ -110,7 +110,7 @@ pub fn try_from_path<P: AsRef<std::path::Path>>(
 pub fn try_from_uri(config_uri: &tombi_uri::Uri) -> Result<Option<Config>, tombi_config::Error> {
     match config_uri.scheme() {
         "file" => {
-            let config_path = tombi_uri::Uri::to_file_path(config_uri).map_err(|_| {
+            let config_path = tombi_uri::Uri::to_file_path(config_uri).map_err(|()| {
                 tombi_config::Error::ConfigUriParseFailed {
                     config_uri: config_uri.clone(),
                 }
@@ -156,7 +156,7 @@ pub fn load_with_path_and_level(
                     None => {
                         tracing::debug!("No [tool.tombi] found in {:?}", &pyproject_toml_path);
                     }
-                };
+                }
             }
 
             if !current_dir.pop() {
@@ -206,7 +206,7 @@ fn get_user_or_system_tombi_config_path_and_level() -> Option<(std::path::PathBu
 
     if let Some(home_dir) = dirs::home_dir() {
         // 2. ~/.config/tombi/config.toml
-        let mut config_path = home_dir.clone();
+        let mut config_path = home_dir;
         config_path.push(".config");
         config_path.push("tombi");
         config_path.push(CONFIG_TOML_FILENAME);

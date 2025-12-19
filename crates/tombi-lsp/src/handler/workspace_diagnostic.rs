@@ -38,14 +38,14 @@ async fn collect_workspace_diagnostic_targets(backend: &Backend) -> Vec<tombi_ur
             continue;
         }
 
-        if let Some(home_dir) = &home_dir {
-            if &workspace_config.workspace_folder_path == home_dir {
-                tracing::debug!(
-                    "Skip diagnostics for workspace folder matching $HOME: {:?}",
-                    workspace_config.workspace_folder_path
-                );
-                continue;
-            }
+        if let Some(home_dir) = &home_dir
+            && &workspace_config.workspace_folder_path == home_dir
+        {
+            tracing::debug!(
+                "Skip diagnostics for workspace folder matching $HOME: {:?}",
+                workspace_config.workspace_folder_path
+            );
+            continue;
         }
 
         let files_options = workspace_config.config.files.clone().unwrap_or_default();
@@ -91,7 +91,7 @@ async fn publish_workspace_diagnostics(backend: &Backend, text_document_uri: tom
     backend
         .client
         .publish_diagnostics(text_document_uri.into(), diagnostics, version)
-        .await
+        .await;
 }
 
 /// Check if workspace diagnostic is enabled for the given workspace config
@@ -108,12 +108,11 @@ fn is_workspace_diagnostic_enabled(workspace_config: &WorkspaceConfig) -> bool {
 }
 
 pub async fn upsert_document_source(backend: &Backend, text_document_uri: tombi_uri::Uri) -> bool {
-    let text_document_path = match text_document_uri.to_file_path() {
-        Ok(text_document_path) => text_document_path,
-        Err(_) => {
-            tracing::warn!("Watcher event for non-file URI: {text_document_uri}");
-            return false;
-        }
+    let text_document_path = if let Ok(text_document_path) = text_document_uri.to_file_path() {
+        text_document_path
+    } else {
+        tracing::warn!("Watcher event for non-file URI: {text_document_uri}");
+        return false;
     };
 
     let Ok(content) = tokio::fs::read_to_string(&text_document_path).await else {

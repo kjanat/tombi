@@ -21,22 +21,29 @@ pub enum ErrorKind {
 
 impl Error {
     #[inline]
-    pub fn new(kind: ErrorKind, (span, range): (tombi_text::Span, tombi_text::Range)) -> Self {
+    #[must_use]
+    pub const fn new(
+        kind: ErrorKind,
+        (span, range): (tombi_text::Span, tombi_text::Range),
+    ) -> Self {
         Self { kind, span, range }
     }
 
     #[inline]
-    pub fn kind(&self) -> ErrorKind {
+    #[must_use]
+    pub const fn kind(&self) -> ErrorKind {
         self.kind
     }
 
     #[inline]
-    pub fn span(&self) -> tombi_text::Span {
+    #[must_use]
+    pub const fn span(&self) -> tombi_text::Span {
         self.span
     }
 
     #[inline]
-    pub fn range(&self) -> tombi_text::Range {
+    #[must_use]
+    pub const fn range(&self) -> tombi_text::Range {
         self.range
     }
 }

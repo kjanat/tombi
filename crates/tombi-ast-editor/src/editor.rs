@@ -15,7 +15,8 @@ pub struct Editor<'a> {
 }
 
 impl<'a> Editor<'a> {
-    pub fn new(
+    #[must_use]
+    pub const fn new(
         root: tombi_ast::Root,
         source_path: Option<&'a std::path::Path>,
         schema_context: &'a SchemaContext<'a>,

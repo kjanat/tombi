@@ -43,7 +43,9 @@ async fn check_dotted_keys_out_of_order(
 
     if comment_directive
         .as_ref()
-        .and_then(|comment_directive| comment_directive.table_keys_order_disabled())
+        .and_then(
+            tombi_comment_directive::value::TombiValueDirectiveContent::table_keys_order_disabled,
+        )
         .unwrap_or(false)
     {
         return;
@@ -95,7 +97,7 @@ async fn check_dotted_keys_out_of_order(
             .windows(2)
             .any(|window| window[0].0 + 1 != window[1].0)
         {
-            out_of_order_ranges.extend(positions.iter().map(|(_, range)| *range))
+            out_of_order_ranges.extend(positions.iter().map(|(_, range)| *range));
         }
     }
 

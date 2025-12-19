@@ -7,10 +7,7 @@ pub trait FromLsp<Input> {
 }
 
 impl FromLsp<tower_lsp::lsp_types::Position> for crate::Position {
-    fn from_lsp(
-        source: tower_lsp::lsp_types::Position,
-        line_index: &crate::LineIndex,
-    ) -> crate::Position {
+    fn from_lsp(source: tower_lsp::lsp_types::Position, line_index: &crate::LineIndex) -> Self {
         let column = line_index
             .line_text(source.line)
             .map(|line_text| {
@@ -20,15 +17,12 @@ impl FromLsp<tower_lsp::lsp_types::Position> for crate::Position {
             })
             .unwrap_or_default();
 
-        crate::Position::new(source.line, column)
+        Self::new(source.line, column)
     }
 }
 
 impl FromLsp<crate::Position> for tower_lsp::lsp_types::Position {
-    fn from_lsp(
-        source: crate::Position,
-        line_index: &crate::LineIndex,
-    ) -> tower_lsp::lsp_types::Position {
+    fn from_lsp(source: crate::Position, line_index: &crate::LineIndex) -> Self {
         let character = line_index
             .line_text(source.line)
             .map(|line_text| {
@@ -39,7 +33,7 @@ impl FromLsp<crate::Position> for tower_lsp::lsp_types::Position {
             })
             .unwrap_or_default();
 
-        tower_lsp::lsp_types::Position {
+        Self {
             line: source.line,
             character,
         }
@@ -47,11 +41,8 @@ impl FromLsp<crate::Position> for tower_lsp::lsp_types::Position {
 }
 
 impl FromLsp<tower_lsp::lsp_types::Range> for crate::Range {
-    fn from_lsp(
-        source: tower_lsp::lsp_types::Range,
-        line_index: &crate::LineIndex,
-    ) -> crate::Range {
-        crate::Range::new(
+    fn from_lsp(source: tower_lsp::lsp_types::Range, line_index: &crate::LineIndex) -> Self {
+        Self::new(
             crate::Position::from_lsp(source.start, line_index),
             crate::Position::from_lsp(source.end, line_index),
         )
@@ -59,11 +50,8 @@ impl FromLsp<tower_lsp::lsp_types::Range> for crate::Range {
 }
 
 impl FromLsp<crate::Range> for tower_lsp::lsp_types::Range {
-    fn from_lsp(
-        source: crate::Range,
-        line_index: &crate::LineIndex,
-    ) -> tower_lsp::lsp_types::Range {
-        tower_lsp::lsp_types::Range {
+    fn from_lsp(source: crate::Range, line_index: &crate::LineIndex) -> Self {
+        Self {
             start: source.start.into_lsp(line_index),
             end: source.end.into_lsp(line_index),
         }

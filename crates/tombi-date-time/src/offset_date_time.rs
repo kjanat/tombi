@@ -7,10 +7,12 @@ pub struct OffsetDateTime {
 
 impl OffsetDateTime {
     #[cfg(feature = "serde")]
-    pub fn type_name() -> &'static str {
+    #[must_use]
+    pub const fn type_name() -> &'static str {
         "offset date time"
     }
 
+    #[must_use]
     pub fn from_ymd_hms(
         year: u16,
         month: u8,
@@ -23,7 +25,8 @@ impl OffsetDateTime {
         Self::from_ymd_hms_milli(year, month, day, hour, minute, second, 0, offset)
     }
 
-    pub fn from_ymd_hms_milli(
+    #[must_use]
+    pub const fn from_ymd_hms_milli(
         year: u16,
         month: u8,
         day: u8,
@@ -45,35 +48,43 @@ impl OffsetDateTime {
         }
     }
 
-    pub fn year(&self) -> u16 {
+    #[must_use]
+    pub const fn year(&self) -> u16 {
         self.date.year
     }
 
-    pub fn month(&self) -> u8 {
+    #[must_use]
+    pub const fn month(&self) -> u8 {
         self.date.month
     }
 
-    pub fn day(&self) -> u8 {
+    #[must_use]
+    pub const fn day(&self) -> u8 {
         self.date.day
     }
 
-    pub fn hour(&self) -> u8 {
+    #[must_use]
+    pub const fn hour(&self) -> u8 {
         self.time.hour
     }
 
-    pub fn minute(&self) -> u8 {
+    #[must_use]
+    pub const fn minute(&self) -> u8 {
         self.time.minute
     }
 
-    pub fn second(&self) -> u8 {
+    #[must_use]
+    pub const fn second(&self) -> u8 {
         self.time.second
     }
 
-    pub fn nanosecond(&self) -> u32 {
+    #[must_use]
+    pub const fn nanosecond(&self) -> u32 {
         self.time.nanosecond
     }
 
-    pub fn offset(&self) -> crate::TimeZoneOffset {
+    #[must_use]
+    pub const fn offset(&self) -> crate::TimeZoneOffset {
         self.offset
     }
 }
@@ -140,7 +151,7 @@ impl serde::ser::Serialize for OffsetDateTime {
 
 #[cfg(feature = "serde")]
 impl<'de> serde::de::Deserialize<'de> for OffsetDateTime {
-    fn deserialize<D>(deserializer: D) -> Result<OffsetDateTime, D::Error>
+    fn deserialize<D>(deserializer: D) -> Result<Self, D::Error>
     where
         D: serde::de::Deserializer<'de>,
     {
@@ -152,7 +163,7 @@ impl<'de> serde::de::Deserialize<'de> for OffsetDateTime {
                 date: Some(date),
                 time: Some(time),
                 offset: Some(offset),
-            } => Ok(OffsetDateTime { date, time, offset }),
+            } => Ok(Self { date, time, offset }),
             datetime => Err(serde::de::Error::invalid_type(
                 serde::de::Unexpected::Other(datetime.type_name()),
                 &Self::type_name(),

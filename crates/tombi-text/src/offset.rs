@@ -32,16 +32,17 @@ impl fmt::Debug for Offset {
 }
 
 impl Offset {
-    pub const MAX: Offset = Offset {
+    pub const MAX: Self = Self {
         raw: RawTextSize::MAX,
     };
 
-    pub const MIN: Offset = Offset { raw: 0 };
+    pub const MIN: Self = Self { raw: 0 };
 
     /// Creates a new instance of `Offset` from a raw `u32`.
     #[inline]
-    pub const fn new(raw: u32) -> Offset {
-        Offset { raw }
+    #[must_use]
+    pub const fn new(raw: u32) -> Self {
+        Self { raw }
     }
 
     /// The text size of some primitive text-like object.
@@ -59,7 +60,8 @@ impl Offset {
     /// assert_eq!(str_size, Offset::from(13));
     /// ```
     #[inline]
-    pub fn of(text: &str) -> Offset {
+    #[must_use]
+    pub const fn of(text: &str) -> Self {
         Self::new(text.len() as RawTextSize)
     }
 }
@@ -69,18 +71,20 @@ impl Offset {
 impl Offset {
     /// Checked addition. Returns `None` if overflow occurred.
     #[inline]
-    pub const fn checked_add(self, rhs: Offset) -> Option<Offset> {
+    #[must_use]
+    pub const fn checked_add(self, rhs: Self) -> Option<Self> {
         match self.raw.checked_add(rhs.raw) {
-            Some(raw) => Some(Offset { raw }),
+            Some(raw) => Some(Self { raw }),
             None => None,
         }
     }
 
     /// Checked subtraction. Returns `None` if overflow occurred.
     #[inline]
-    pub const fn checked_sub(self, rhs: Offset) -> Option<Offset> {
+    #[must_use]
+    pub const fn checked_sub(self, rhs: Self) -> Option<Self> {
         match self.raw.checked_sub(rhs.raw) {
-            Some(raw) => Some(Offset { raw }),
+            Some(raw) => Some(Self { raw }),
             None => None,
         }
     }
@@ -89,7 +93,7 @@ impl Offset {
 impl From<u32> for Offset {
     #[inline]
     fn from(raw: u32) -> Self {
-        Offset { raw }
+        Self { raw }
     }
 }
 
@@ -111,72 +115,72 @@ impl TryFrom<usize> for Offset {
 impl From<Offset> for usize {
     #[inline]
     fn from(value: Offset) -> Self {
-        value.raw as usize
+        value.raw as Self
     }
 }
 
 impl Add<crate::RawOffset> for Offset {
-    type Output = Offset;
+    type Output = Self;
 
     #[inline]
     fn add(self, rhs: crate::RawOffset) -> Self::Output {
-        Offset::new(self.raw + rhs)
+        Self::new(self.raw + rhs)
     }
 }
 
 impl Add for Offset {
-    type Output = Offset;
+    type Output = Self;
 
     #[inline]
-    fn add(self, rhs: crate::Offset) -> Self::Output {
-        Offset::new(self.raw + rhs.raw)
+    fn add(self, rhs: Self) -> Self::Output {
+        Self::new(self.raw + rhs.raw)
     }
 }
 
 impl Sub for Offset {
-    type Output = Offset;
+    type Output = Self;
 
     #[inline]
-    fn sub(self, rhs: crate::Offset) -> Self::Output {
-        Offset::new(self.raw - rhs.raw)
+    fn sub(self, rhs: Self) -> Self::Output {
+        Self::new(self.raw - rhs.raw)
     }
 }
 
 impl Sub<crate::RawOffset> for Offset {
-    type Output = Offset;
+    type Output = Self;
 
     #[inline]
     fn sub(self, rhs: crate::RawOffset) -> Self::Output {
-        Offset::new(self.raw - rhs)
+        Self::new(self.raw - rhs)
     }
 }
 
 impl<A> AddAssign<A> for Offset
 where
-    Offset: Add<A, Output = Offset>,
+    Self: Add<A, Output = Self>,
 {
     #[inline]
     fn add_assign(&mut self, rhs: A) {
-        *self = *self + rhs
+        *self = *self + rhs;
     }
 }
 
 impl<S> SubAssign<S> for Offset
 where
-    Offset: Sub<S, Output = Offset>,
+    Self: Sub<S, Output = Self>,
 {
     #[inline]
     fn sub_assign(&mut self, rhs: S) {
-        *self = *self - rhs
+        *self = *self - rhs;
     }
 }
 
 impl<A> iter::Sum<A> for Offset
 where
-    Offset: Add<A, Output = Offset>,
+    Self: Add<A, Output = Self>,
 {
     #[inline]
-    fn sum<I: Iterator<Item = A>>(iter: I) -> Offset {
+    fn sum<I: Iterator<Item = A>>(iter: I) -> Self {
         iter.fold(0.into(), Add::add)
     }
 }

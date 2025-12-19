@@ -4,7 +4,11 @@ mod lexed;
 mod token;
 
 use cursor::Cursor;
-use error::ErrorKind::*;
+use error::ErrorKind::{
+    InvalidBasicString, InvalidKey, InvalidLineBreak, InvalidLiteralString, InvalidLocalDate,
+    InvalidLocalDateTime, InvalidLocalTime, InvalidMultilineBasicString,
+    InvalidMultilineLiteralString, InvalidNumber, InvalidOffsetDateTime, InvalidToken,
+};
 pub use error::{Error, ErrorKind};
 pub use lexed::Lexed;
 pub use token::Token;
@@ -70,6 +74,7 @@ pub fn lex(source: &str) -> Lexed {
     lexed
 }
 
+#[must_use]
 pub fn lex_document_header_comments(source: &str) -> Lexed {
     let mut lexed = Lexed::default();
     let mut was_joint = false;
@@ -585,17 +590,17 @@ impl Cursor<'_> {
 }
 
 #[inline]
-fn is_whitespace(c: char) -> bool {
+const fn is_whitespace(c: char) -> bool {
     matches!(c, ' ' | '\t')
 }
 
 #[inline]
-fn is_line_break(c: char) -> bool {
+const fn is_line_break(c: char) -> bool {
     matches!(c, '\r' | '\n')
 }
 
 #[inline]
-fn is_token_separator(c: char) -> bool {
+const fn is_token_separator(c: char) -> bool {
     matches!(
         c,
         '{' | '}' | '[' | ']' | ',' | '=' | ' ' | '\t' | '\r' | '\n' | '#' | '\0'
@@ -603,7 +608,7 @@ fn is_token_separator(c: char) -> bool {
 }
 
 #[inline]
-fn is_token_separator_with_dot(c: char) -> bool {
+const fn is_token_separator_with_dot(c: char) -> bool {
     matches!(
         c,
         '{' | '}' | '[' | ']' | ',' | '.' | '=' | ' ' | '\t' | '\r' | '\n' | '#' | '\0'

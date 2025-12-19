@@ -3,11 +3,13 @@ pub struct LocalTime(crate::private::Time);
 
 impl LocalTime {
     #[cfg(feature = "serde")]
-    pub fn type_name() -> &'static str {
+    #[must_use]
+    pub const fn type_name() -> &'static str {
         "local time"
     }
 
-    pub fn from_hms(hour: u8, minute: u8, second: u8) -> Self {
+    #[must_use]
+    pub const fn from_hms(hour: u8, minute: u8, second: u8) -> Self {
         Self(crate::private::Time {
             hour,
             minute,
@@ -16,6 +18,7 @@ impl LocalTime {
         })
     }
 
+    #[must_use]
     pub fn from_hms_milli(hour: u8, minute: u8, second: u8, millisecond: u32) -> Self {
         debug_assert!(millisecond < 1_000);
 
@@ -27,6 +30,7 @@ impl LocalTime {
         })
     }
 
+    #[must_use]
     pub fn from_hms_nano(hour: u8, minute: u8, second: u8, nanosecond: u32) -> Self {
         debug_assert!(nanosecond < 1_000_000_000);
 
@@ -38,19 +42,23 @@ impl LocalTime {
         })
     }
 
-    pub fn hour(&self) -> u8 {
+    #[must_use]
+    pub const fn hour(&self) -> u8 {
         self.0.hour
     }
 
-    pub fn minute(&self) -> u8 {
+    #[must_use]
+    pub const fn minute(&self) -> u8 {
         self.0.minute
     }
 
-    pub fn second(&self) -> u8 {
+    #[must_use]
+    pub const fn second(&self) -> u8 {
         self.0.second
     }
 
-    pub fn nanosecond(&self) -> u32 {
+    #[must_use]
+    pub const fn nanosecond(&self) -> u32 {
         self.0.nanosecond
     }
 }
@@ -89,7 +97,7 @@ impl serde::ser::Serialize for LocalTime {
 
 #[cfg(feature = "serde")]
 impl<'de> serde::de::Deserialize<'de> for LocalTime {
-    fn deserialize<D>(deserializer: D) -> Result<LocalTime, D::Error>
+    fn deserialize<D>(deserializer: D) -> Result<Self, D::Error>
     where
         D: serde::de::Deserializer<'de>,
     {
@@ -101,7 +109,7 @@ impl<'de> serde::de::Deserialize<'de> for LocalTime {
                 date: None,
                 time: Some(time),
                 offset: None,
-            } => Ok(LocalTime(time)),
+            } => Ok(Self(time)),
             datetime => Err(serde::de::Error::invalid_type(
                 serde::de::Unexpected::Other(datetime.type_name()),
                 &Self::type_name(),

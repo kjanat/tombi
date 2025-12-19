@@ -87,17 +87,7 @@ pub async fn handle_formatting(
     .await
     {
         Ok(formatted) => {
-            if document_source.text() != formatted {
-                let edits = compute_text_edits(
-                    document_source.text(),
-                    &formatted,
-                    document_source.line_index(),
-                );
-                tracing::debug!(?edits);
-                document_source.set_text(formatted, toml_version);
-
-                return Ok(Some(edits));
-            } else {
+            if document_source.text() == formatted {
                 tracing::debug!("no change");
                 backend
                     .client
@@ -107,6 +97,16 @@ pub async fn handle_formatting(
                         version: document_source.version,
                     })
                     .await;
+            } else {
+                let edits = compute_text_edits(
+                    document_source.text(),
+                    &formatted,
+                    document_source.line_index(),
+                );
+                tracing::debug!(?edits);
+                document_source.set_text(formatted, toml_version);
+
+                return Ok(Some(edits));
             }
         }
         Err(diagnostics) => {
@@ -130,7 +130,7 @@ pub async fn handle_formatting(
 }
 
 /// Computes incremental text edits between old and new text
-/// Returns a vector of TextEdit objects representing the minimal changes needed
+/// Returns a vector of `TextEdit` objects representing the minimal changes needed
 /// Uses a grapheme-aware prefix/suffix diff so edits stay minimal and on character boundaries
 fn compute_text_edits(
     old_text: &str,

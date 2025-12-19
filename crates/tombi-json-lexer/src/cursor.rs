@@ -8,10 +8,10 @@ pub struct Cursor<'a> {
     token_start_position: tombi_text::Position,
 }
 
-pub(crate) const EOF_CHAR: char = '\0';
+pub const EOF_CHAR: char = '\0';
 
 impl<'a> Cursor<'a> {
-    pub fn new(input: &'a str) -> Cursor<'a> {
+    pub fn new(input: &'a str) -> Self {
         let chars = input.chars();
         let current = chars.clone().next().unwrap_or(EOF_CHAR);
 
@@ -26,7 +26,7 @@ impl<'a> Cursor<'a> {
     }
 
     #[inline]
-    pub(crate) fn current(&self) -> char {
+    pub(crate) const fn current(&self) -> char {
         self.current_char
     }
 

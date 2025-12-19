@@ -22,9 +22,9 @@ pub enum FileInputType {
 impl<T: AsRef<str>> From<&[T]> for FileInputType {
     fn from(files: &[T]) -> Self {
         match files.len() {
-            0 => FileInputType::Project,
-            1 if files[0].as_ref() == "-" => FileInputType::Stdin,
-            _ => FileInputType::Files,
+            0 => Self::Project,
+            1 if files[0].as_ref() == "-" => Self::Stdin,
+            _ => Self::Files,
         }
     }
 }
@@ -43,11 +43,11 @@ impl FileSearch {
         let files_options = config.files.clone().unwrap_or_default();
 
         match FileInputType::from(files) {
-            FileInputType::Stdin => FileSearch::Stdin,
+            FileInputType::Stdin => Self::Stdin,
             FileInputType::Project => {
                 tracing::debug!("Searching for TOML files using configured patterns...");
 
-                FileSearch::Files(search_pattern_matched_paths(root, files_options).await)
+                Self::Files(search_pattern_matched_paths(root, files_options).await)
             }
             FileInputType::Files => {
                 tracing::debug!("Searching for TOML files using user input patterns...");
@@ -82,22 +82,24 @@ impl FileSearch {
                     }
                 }
 
-                FileSearch::Files(matched_paths)
+                Self::Files(matched_paths)
             }
         }
     }
 
-    pub fn len(&self) -> usize {
+    #[must_use]
+    pub const fn len(&self) -> usize {
         match self {
-            FileSearch::Stdin => 1,
-            FileSearch::Files(files) => files.len(),
+            Self::Stdin => 1,
+            Self::Files(files) => files.len(),
         }
     }
 
-    pub fn is_empty(&self) -> bool {
+    #[must_use]
+    pub const fn is_empty(&self) -> bool {
         match self {
-            FileSearch::Stdin => false,
-            FileSearch::Files(files) => files.is_empty(),
+            Self::Stdin => false,
+            Self::Files(files) => files.is_empty(),
         }
     }
 }

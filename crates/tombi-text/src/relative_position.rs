@@ -14,6 +14,7 @@ pub struct RelativePosition {
 }
 
 impl RelativePosition {
+    #[must_use]
     pub fn of(text: &str) -> Self {
         let mut line = 0;
         let mut column = 0;
@@ -73,10 +74,10 @@ impl From<crate::Position> for RelativePosition {
 }
 
 impl Add for RelativePosition {
-    type Output = RelativePosition;
+    type Output = Self;
 
     #[inline]
-    fn add(self, rhs: RelativePosition) -> Self::Output {
+    fn add(self, rhs: Self) -> Self::Output {
         Self {
             line: self.line + rhs.line,
             column: if rhs.line == 0 {
@@ -90,7 +91,7 @@ impl Add for RelativePosition {
 
 impl AddAssign for RelativePosition {
     #[inline]
-    fn add_assign(&mut self, rhs: RelativePosition) {
+    fn add_assign(&mut self, rhs: Self) {
         self.line += rhs.line;
         if rhs.line == 0 {
             self.column += rhs.column;

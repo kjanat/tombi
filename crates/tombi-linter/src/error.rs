@@ -9,7 +9,8 @@ pub struct Error {
 
 impl Error {
     #[inline]
-    pub fn code(&self) -> &'static str {
+    #[must_use]
+    pub const fn code(&self) -> &'static str {
         match self.kind {}
     }
 }
@@ -20,6 +21,6 @@ impl tombi_diagnostic::SetDiagnostics for Error {
             self.kind.to_string(),
             self.code(),
             self.range,
-        ))
+        ));
     }
 }

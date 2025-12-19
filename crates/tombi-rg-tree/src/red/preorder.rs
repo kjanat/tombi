@@ -8,8 +8,8 @@ pub struct Preorder<L: Language> {
 }
 
 impl<L: Language> Preorder<L> {
-    pub fn skip_subtree(&mut self) {
-        self.raw.skip_subtree()
+    pub const fn skip_subtree(&mut self) {
+        self.raw.skip_subtree();
     }
 }
 
@@ -35,8 +35,8 @@ pub struct RedPreorderWithTokens<L: Language> {
 }
 
 impl<L: Language> RedPreorderWithTokens<L> {
-    pub fn skip_subtree(&mut self) {
-        self.raw.skip_subtree()
+    pub const fn skip_subtree(&mut self) {
+        self.raw.skip_subtree();
     }
 }
 

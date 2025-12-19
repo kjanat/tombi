@@ -9,6 +9,7 @@ pub struct SyntaxTreeBuilder<E> {
 }
 
 impl<E> SyntaxTreeBuilder<E> {
+    #[must_use]
     pub fn finish(self) -> (tombi_rg_tree::GreenNode, Vec<E>) {
         let green = self.inner.finish();
         (green, self.errors)
@@ -34,8 +35,8 @@ impl<E> SyntaxTreeBuilder<E> {
 }
 
 impl<E> Default for SyntaxTreeBuilder<E> {
-    fn default() -> SyntaxTreeBuilder<E> {
-        SyntaxTreeBuilder {
+    fn default() -> Self {
+        Self {
             inner: tombi_rg_tree::GreenNodeBuilder::new(),
             errors: Vec::new(),
         }

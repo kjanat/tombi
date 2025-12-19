@@ -23,26 +23,23 @@ pub fn lower(grammar: &Grammar) -> AstSrc {
     for &node in &nodes {
         let name = grammar[node].name.clone();
         let rule = &grammar[node].rule;
-        match lower_enum(grammar, rule) {
-            Some(variants) => {
-                let enum_src = AstEnumSrc {
-                    doc: Vec::new(),
-                    name,
-                    traits: Vec::new(),
-                    variants,
-                };
-                res.enums.push(enum_src);
-            }
-            None => {
-                let mut fields = Vec::new();
-                lower_rule(&mut fields, grammar, None, rule);
-                res.nodes.push(AstNodeSrc {
-                    doc: Vec::new(),
-                    name,
-                    traits: Vec::new(),
-                    fields,
-                });
-            }
+        if let Some(variants) = lower_enum(grammar, rule) {
+            let enum_src = AstEnumSrc {
+                doc: Vec::new(),
+                name,
+                traits: Vec::new(),
+                variants,
+            };
+            res.enums.push(enum_src);
+        } else {
+            let mut fields = Vec::new();
+            lower_rule(&mut fields, grammar, None, rule);
+            res.nodes.push(AstNodeSrc {
+                doc: Vec::new(),
+                name,
+                traits: Vec::new(),
+                fields,
+            });
         }
     }
     res.nodes.sort_by_key(|it| it.name.clone());
@@ -148,7 +145,7 @@ fn lower_rule(acc: &mut Vec<Field>, grammar: &Grammar, label: Option<&String>, r
         }
         Rule::Seq(rules) | Rule::Alt(rules) => {
             for rule in rules {
-                lower_rule(acc, grammar, label, rule)
+                lower_rule(acc, grammar, label, rule);
             }
         }
         Rule::Opt(rule) => lower_rule(acc, grammar, label, rule),

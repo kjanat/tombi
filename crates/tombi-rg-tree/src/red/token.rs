@@ -39,30 +39,37 @@ impl<L: Language> RedToken<L> {
     /// Returns a green tree, equal to the green tree this token
     /// belongs to, except with this token substituted. The complexity
     /// of the operation is proportional to the depth of the tree.
+    #[must_use]
     pub fn replace_with(&self, new_token: GreenToken) -> GreenNode {
         self.raw.replace_with(new_token)
     }
 
+    #[must_use]
     pub fn kind(&self) -> L::Kind {
         L::kind_from_raw(self.raw.kind())
     }
 
+    #[must_use]
     pub fn span(&self) -> tombi_text::Span {
         self.raw.span()
     }
 
+    #[must_use]
     pub fn range(&self) -> tombi_text::Range {
         self.raw.range()
     }
 
+    #[must_use]
     pub fn index(&self) -> usize {
         self.raw.index()
     }
 
+    #[must_use]
     pub fn text(&self) -> &str {
         self.raw.text()
     }
 
+    #[must_use]
     pub fn green(&self) -> &GreenTokenData {
         self.raw.green()
     }
@@ -93,22 +100,22 @@ impl<L: Language> RedToken<L> {
     }
 
     /// Next token in the tree (i.e, not necessary a sibling).
-    pub fn next_token(&self) -> Option<RedToken<L>> {
-        self.raw.next_token().map(RedToken::from)
+    pub fn next_token(&self) -> Option<Self> {
+        self.raw.next_token().map(Self::from)
     }
     /// Previous token in the tree (i.e, not necessary a sibling).
-    pub fn prev_token(&self) -> Option<RedToken<L>> {
-        self.raw.prev_token().map(RedToken::from)
+    pub fn prev_token(&self) -> Option<Self> {
+        self.raw.prev_token().map(Self::from)
     }
 
     pub fn detach(&self) {
-        self.raw.detach()
+        self.raw.detach();
     }
 }
 
 impl<L: Language> From<cursor::SyntaxToken> for RedToken<L> {
-    fn from(raw: cursor::SyntaxToken) -> RedToken<L> {
-        RedToken {
+    fn from(raw: cursor::SyntaxToken) -> Self {
+        Self {
             raw,
             _p: PhantomData,
         }
@@ -116,7 +123,7 @@ impl<L: Language> From<cursor::SyntaxToken> for RedToken<L> {
 }
 
 impl<L: Language> From<RedToken<L>> for cursor::SyntaxToken {
-    fn from(token: RedToken<L>) -> cursor::SyntaxToken {
+    fn from(token: RedToken<L>) -> Self {
         token.raw
     }
 }

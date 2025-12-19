@@ -1,12 +1,19 @@
-use tombi_syntax::{SyntaxKind, SyntaxKind::*, T};
+use tombi_syntax::{
+    SyntaxKind,
+    SyntaxKind::{
+        BARE_KEY, BASIC_STRING, BOOLEAN, COMMENT, EOF, FLOAT, INTEGER_DEC, LINE_BREAK,
+        LITERAL_STRING, LOCAL_DATE,
+    },
+    T,
+};
 
-pub(crate) const TS_LINE_END: TokenSet = TokenSet::new(&[LINE_BREAK, EOF]);
-pub(crate) const TS_COMMEMT_OR_LINE_END: TokenSet = TokenSet::new(&[COMMENT, LINE_BREAK, EOF]);
-pub(crate) const TS_NEXT_SECTION: TokenSet = TokenSet::new(&[T!['['], T!("[["), EOF]);
-pub(crate) const TS_DANGLING_COMMENTS_KINDS: TokenSet = TokenSet::new(&[COMMENT, LINE_BREAK]);
-pub(crate) const TS_LEADING_COMMENTS_KINDS: TokenSet = TokenSet::new(&[COMMENT, LINE_BREAK]);
-pub(crate) const TS_TAILING_COMMENT_KINDS: TokenSet = TokenSet::new(&[COMMENT]);
-pub(crate) const TS_KEY_FIRST: TokenSet = TokenSet::new(&[
+pub const TS_LINE_END: TokenSet = TokenSet::new(&[LINE_BREAK, EOF]);
+pub const TS_COMMEMT_OR_LINE_END: TokenSet = TokenSet::new(&[COMMENT, LINE_BREAK, EOF]);
+pub const TS_NEXT_SECTION: TokenSet = TokenSet::new(&[T!['['], T!("[["), EOF]);
+pub const TS_DANGLING_COMMENTS_KINDS: TokenSet = TokenSet::new(&[COMMENT, LINE_BREAK]);
+pub const TS_LEADING_COMMENTS_KINDS: TokenSet = TokenSet::new(&[COMMENT, LINE_BREAK]);
+pub const TS_TAILING_COMMENT_KINDS: TokenSet = TokenSet::new(&[COMMENT]);
+pub const TS_KEY_FIRST: TokenSet = TokenSet::new(&[
     // name = "Tom"
     BARE_KEY,
     // "127.0.0.1" = "value"
@@ -25,10 +32,10 @@ pub(crate) const TS_KEY_FIRST: TokenSet = TokenSet::new(&[
 
 /// A bit-set of `SyntaxKind`s
 #[derive(Clone, Copy)]
-pub(crate) struct TokenSet([u64; 3]);
+pub struct TokenSet([u64; 3]);
 
 impl TokenSet {
-    pub(crate) const fn new(kinds: &[SyntaxKind]) -> TokenSet {
+    pub(crate) const fn new(kinds: &[SyntaxKind]) -> Self {
         let mut res = [0; 3];
         let mut i = 0;
         while i < kinds.len() {
@@ -37,7 +44,7 @@ impl TokenSet {
             res[idx] |= 1 << (discriminant % 64);
             i += 1;
         }
-        TokenSet(res)
+        Self(res)
     }
 
     pub(crate) const fn contains(&self, kind: SyntaxKind) -> bool {

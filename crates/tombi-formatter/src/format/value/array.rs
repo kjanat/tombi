@@ -26,7 +26,7 @@ impl Format for WithAlignmentHint<'_, tombi_ast::Array> {
     }
 }
 
-pub(crate) fn exceeds_line_width(
+pub fn exceeds_line_width(
     node: &tombi_ast::Array,
     f: &mut crate::Formatter,
 ) -> Result<bool, std::fmt::Error> {

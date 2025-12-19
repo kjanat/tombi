@@ -23,7 +23,9 @@ pub async fn inline_table_keys_order<'a>(
 
     if comment_directive
         .as_ref()
-        .and_then(|c| c.table_keys_order_disabled())
+        .and_then(
+            tombi_comment_directive::value::TombiValueDirectiveContent::table_keys_order_disabled,
+        )
         .unwrap_or(false)
     {
         return Vec::with_capacity(0);
@@ -37,8 +39,7 @@ pub async fn inline_table_keys_order<'a>(
 
     let is_last_comma = key_values_with_comma
         .last()
-        .map(|(_, comma)| comma.is_some())
-        .unwrap_or(false);
+        .is_some_and(|(_, comma)| comma.is_some());
 
     let old = std::ops::RangeInclusive::new(
         SyntaxElement::Node(key_values_with_comma.first().unwrap().0.syntax().clone()),
@@ -67,16 +68,13 @@ pub async fn inline_table_keys_order<'a>(
         return Vec::with_capacity(0);
     };
 
-    if let Some((_, comma)) = sorted_key_values_with_comma.last_mut() {
-        if !is_last_comma {
-            if let Some(new_last_comma) = comma {
-                if new_last_comma.trailing_comment().is_none()
-                    && new_last_comma.leading_comments().next().is_none()
-                {
-                    *comma = None;
-                }
-            }
-        }
+    if let Some((_, comma)) = sorted_key_values_with_comma.last_mut()
+        && !is_last_comma
+        && let Some(new_last_comma) = comma
+        && new_last_comma.trailing_comment().is_none()
+        && new_last_comma.leading_comments().next().is_none()
+    {
+        *comma = None;
     }
 
     for (value, comma) in &sorted_key_values_with_comma {

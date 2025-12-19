@@ -22,12 +22,13 @@ pub enum EncodingKind {
 
 impl EncodingKind {
     /// Returns the number of code units it takes to encode `text` in this encoding.
+    #[must_use]
     pub fn measure(&self, text: &str) -> Column {
         match self {
-            EncodingKind::Utf8 => text.len() as Column,
-            EncodingKind::Utf16 => text.encode_utf16().count() as Column,
-            EncodingKind::Utf32 => text.chars().count() as Column,
-            EncodingKind::GraphemeCluster => text.graphemes(true).count() as Column,
+            Self::Utf8 => text.len() as Column,
+            Self::Utf16 => text.encode_utf16().count() as Column,
+            Self::Utf32 => text.chars().count() as Column,
+            Self::GraphemeCluster => text.graphemes(true).count() as Column,
         }
     }
 }
@@ -38,9 +39,9 @@ impl TryFrom<&tower_lsp::lsp_types::PositionEncodingKind> for EncodingKind {
         use tower_lsp::lsp_types::PositionEncodingKind;
 
         match kind {
-            kind if *kind == PositionEncodingKind::UTF8 => Ok(EncodingKind::Utf8),
-            kind if *kind == PositionEncodingKind::UTF16 => Ok(EncodingKind::Utf16),
-            kind if *kind == PositionEncodingKind::UTF32 => Ok(EncodingKind::Utf32),
+            kind if *kind == PositionEncodingKind::UTF8 => Ok(Self::Utf8),
+            kind if *kind == PositionEncodingKind::UTF16 => Ok(Self::Utf16),
+            kind if *kind == PositionEncodingKind::UTF32 => Ok(Self::Utf32),
             _ => Err(()),
         }
     }
@@ -48,12 +49,12 @@ impl TryFrom<&tower_lsp::lsp_types::PositionEncodingKind> for EncodingKind {
 
 impl From<EncodingKind> for tower_lsp::lsp_types::PositionEncodingKind {
     fn from(encoding: EncodingKind) -> Self {
-        use tower_lsp::lsp_types::PositionEncodingKind;
+        
 
         match encoding {
-            EncodingKind::Utf8 => PositionEncodingKind::UTF8,
-            EncodingKind::Utf16 => PositionEncodingKind::UTF16,
-            EncodingKind::Utf32 => PositionEncodingKind::UTF32,
+            EncodingKind::Utf8 => Self::UTF8,
+            EncodingKind::Utf16 => Self::UTF16,
+            EncodingKind::Utf32 => Self::UTF32,
             EncodingKind::GraphemeCluster => unreachable!(
                 "Cannot convert EncodingKind::GraphemeCluster to PositionEncodingKind: GraphemeCluster is not supported by LSP"
             ),

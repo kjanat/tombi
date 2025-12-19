@@ -17,8 +17,8 @@ pub enum TimeZoneOffset {
 impl std::fmt::Display for TimeZoneOffset {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
         match *self {
-            TimeZoneOffset::Z => write!(f, "Z"),
-            TimeZoneOffset::Custom { mut minutes } => {
+            Self::Z => write!(f, "Z"),
+            Self::Custom { mut minutes } => {
                 let mut sign = '+';
                 if minutes < 0 {
                     minutes *= -1;

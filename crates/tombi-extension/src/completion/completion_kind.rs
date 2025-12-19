@@ -17,7 +17,8 @@ pub enum CompletionKind {
 }
 
 impl CompletionKind {
-    pub fn is_literal(&self) -> bool {
+    #[must_use]
+    pub const fn is_literal(&self) -> bool {
         matches!(
             self,
             Self::Boolean
@@ -37,21 +38,21 @@ impl From<CompletionKind> for tower_lsp::lsp_types::CompletionItemKind {
         // NOTE: All TOML completions are CompletionItemKind::VALUE,
         //       but some are assigned different types to make it easier to distinguish by symbols.
         match kind {
-            CompletionKind::Boolean => tower_lsp::lsp_types::CompletionItemKind::ENUM_MEMBER,
-            CompletionKind::Integer => tower_lsp::lsp_types::CompletionItemKind::VALUE,
-            CompletionKind::Float => tower_lsp::lsp_types::CompletionItemKind::VALUE,
-            CompletionKind::String => tower_lsp::lsp_types::CompletionItemKind::TEXT,
+            CompletionKind::Boolean => Self::ENUM_MEMBER,
+            CompletionKind::Integer => Self::VALUE,
+            CompletionKind::Float => Self::VALUE,
+            CompletionKind::String => Self::TEXT,
             // NOTE: Event is related to time
-            CompletionKind::OffsetDateTime => tower_lsp::lsp_types::CompletionItemKind::EVENT,
-            CompletionKind::LocalDateTime => tower_lsp::lsp_types::CompletionItemKind::EVENT,
-            CompletionKind::LocalDate => tower_lsp::lsp_types::CompletionItemKind::EVENT,
-            CompletionKind::LocalTime => tower_lsp::lsp_types::CompletionItemKind::EVENT,
-            CompletionKind::Array => tower_lsp::lsp_types::CompletionItemKind::STRUCT,
-            CompletionKind::Table => tower_lsp::lsp_types::CompletionItemKind::STRUCT,
-            CompletionKind::Key => tower_lsp::lsp_types::CompletionItemKind::FIELD,
+            CompletionKind::OffsetDateTime => Self::EVENT,
+            CompletionKind::LocalDateTime => Self::EVENT,
+            CompletionKind::LocalDate => Self::EVENT,
+            CompletionKind::LocalTime => Self::EVENT,
+            CompletionKind::Array => Self::STRUCT,
+            CompletionKind::Table => Self::STRUCT,
+            CompletionKind::Key => Self::FIELD,
             // NOTE: To give a writing taste close to method chaining
-            CompletionKind::MagicTrigger => tower_lsp::lsp_types::CompletionItemKind::METHOD,
-            CompletionKind::CommentDirective => tower_lsp::lsp_types::CompletionItemKind::KEYWORD,
+            CompletionKind::MagicTrigger => Self::METHOD,
+            CompletionKind::CommentDirective => Self::KEYWORD,
         }
     }
 }

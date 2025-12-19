@@ -14,11 +14,12 @@ pub enum VerbosityLevel {
 
 impl VerbosityLevel {
     /// Convert to tracing log level filter
-    pub fn log_level_filter(self) -> tracing_subscriber::filter::LevelFilter {
+    #[must_use]
+    pub const fn log_level_filter(self) -> tracing_subscriber::filter::LevelFilter {
         match self {
-            VerbosityLevel::Default => tracing_subscriber::filter::LevelFilter::INFO,
-            VerbosityLevel::Verbose => tracing_subscriber::filter::LevelFilter::DEBUG,
-            VerbosityLevel::VeryVerbose => tracing_subscriber::filter::LevelFilter::TRACE,
+            Self::Default => tracing_subscriber::filter::LevelFilter::INFO,
+            Self::Verbose => tracing_subscriber::filter::LevelFilter::DEBUG,
+            Self::VeryVerbose => tracing_subscriber::filter::LevelFilter::TRACE,
         }
     }
 }
@@ -40,7 +41,8 @@ pub struct Verbosity {
 
 impl Verbosity {
     /// Get the verbosity level
-    pub fn verbosity_level(&self) -> VerbosityLevel {
+    #[must_use]
+    pub const fn verbosity_level(&self) -> VerbosityLevel {
         match self.verbose {
             0 => VerbosityLevel::Default,
             1 => VerbosityLevel::Verbose,
@@ -49,6 +51,7 @@ impl Verbosity {
     }
 
     /// Get the log level filter
+    #[must_use]
     pub fn log_level_filter(&self) -> tracing_subscriber::filter::LevelFilter {
         self.verbosity_level().log_level_filter()
     }

@@ -14,7 +14,7 @@ type HashMap<K, V> = hashbrown::HashMap<K, V, BuildHasherDefault<FxHasher>>;
 #[derive(Debug)]
 struct NoHash<T>(T);
 
-/// Interner for GreenTokens and GreenNodes
+/// Interner for `GreenTokens` and `GreenNodes`
 // XXX: the impl is a bit tricky. As usual when writing interners, we want to
 // store all values in one HashSet.
 //
@@ -54,15 +54,15 @@ fn node_hash(node: &GreenNodeData) -> u64 {
             NodeOrToken::Node(it) => node_hash(it),
             NodeOrToken::Token(it) => token_hash(it),
         }
-        .hash(&mut h)
+        .hash(&mut h);
     }
     h.finish()
 }
 
-fn element_id(elem: GreenElementRef<'_>) -> *const () {
+const fn element_id(elem: GreenElementRef<'_>) -> *const () {
     match elem {
-        NodeOrToken::Node(it) => it as *const GreenNodeData as *const (),
-        NodeOrToken::Token(it) => it as *const GreenTokenData as *const (),
+        NodeOrToken::Node(it) => std::ptr::from_ref::<GreenNodeData>(it).cast::<()>(),
+        NodeOrToken::Token(it) => std::ptr::from_ref::<GreenTokenData>(it).cast::<()>(),
     }
 }
 

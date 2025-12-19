@@ -11,6 +11,7 @@ impl Default for HttpClient {
 }
 
 impl HttpClient {
+    #[must_use]
     pub fn new() -> Self {
         Self(
             reqwest::Client::builder()

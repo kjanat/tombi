@@ -146,25 +146,23 @@ fn edit_recursive<'a: 'b, 'b>(
                         .write()
                         .await
                         .get_mut(&key_schema_accessor)
-                    {
-                        if let Ok(Some(current_schema)) = property_schema
+                        && let Ok(Some(current_schema)) = property_schema
                             .resolve(
                                 current_schema.schema_uri.clone(),
                                 current_schema.definitions.clone(),
                                 schema_context.store,
                             )
                             .await
-                        {
-                            return edit_recursive(
-                                value,
-                                edit_fn,
-                                key_accessors,
-                                accessors,
-                                Some(current_schema.into_owned()),
-                                schema_context,
-                            )
-                            .await;
-                        }
+                    {
+                        return edit_recursive(
+                            value,
+                            edit_fn,
+                            key_accessors,
+                            accessors,
+                            Some(current_schema.into_owned()),
+                            schema_context,
+                        )
+                        .await;
                     }
 
                     if let Some(pattern_properties) = &table_schema.pattern_properties {
@@ -175,15 +173,11 @@ fn edit_recursive<'a: 'b, 'b>(
                             },
                         ) in pattern_properties.write().await.iter_mut()
                         {
-                            let pattern = match regex::Regex::new(property_key) {
-                                Ok(pattern) => pattern,
-                                Err(_) => {
-                                    tracing::warn!(
-                                        "Invalid regex pattern property: {}",
-                                        property_key
-                                    );
-                                    continue;
-                                }
+                            let pattern = if let Ok(pattern) = regex::Regex::new(property_key) {
+                                pattern
+                            } else {
+                                tracing::warn!("Invalid regex pattern property: {}", property_key);
+                                continue;
                             };
 
                             if pattern.is_match(key_text) {
@@ -237,7 +231,7 @@ fn edit_recursive<'a: 'b, 'b>(
                                 schema_context,
                             )
                             .await;
-                        };
+                        }
                     }
                 }
                 ValueSchema::Array(array_schema) => {
@@ -261,7 +255,7 @@ fn edit_recursive<'a: 'b, 'b>(
                                 schema_context,
                             )
                             .await;
-                        };
+                        }
                     }
                 }
                 _ => {}

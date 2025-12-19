@@ -339,9 +339,7 @@ pub fn run() -> Result<(), anyhow::Error> {
             .join(tombi_uri::comment_directive_schemastore_hostname!())
             .join("tombi-key-directive.json"),
         serde_json::to_string_pretty(
-            &generator
-                .clone()
-                .into_root_schema_for::<TombiKeyDirectiveContent>(),
+            &generator.into_root_schema_for::<TombiKeyDirectiveContent>(),
         )? + "\n",
     )?;
 

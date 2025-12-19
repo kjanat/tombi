@@ -1,7 +1,14 @@
-use tombi_syntax::{SyntaxKind::*, T};
+use tombi_syntax::{
+    SyntaxKind::{
+        BARE_KEY, BASIC_STRING, BOOLEAN, FLOAT, INTEGER_BIN, INTEGER_DEC, INTEGER_HEX, INTEGER_OCT,
+        INVALID_TOKEN, KEY_VALUE, KEYS, LINE_BREAK, LITERAL_STRING, LOCAL_DATE, LOCAL_DATE_TIME,
+        LOCAL_TIME, MULTI_LINE_BASIC_STRING, MULTI_LINE_LITERAL_STRING, OFFSET_DATE_TIME,
+    },
+    T,
+};
 
 use super::{Parse, key::eat_key, leading_comments, peek_leading_comments, trailing_comment};
-use crate::{ErrorKind::*, parser::Parser, token_set::TS_COMMEMT_OR_LINE_END};
+use crate::{ErrorKind::ExpectedValue, parser::Parser, token_set::TS_COMMEMT_OR_LINE_END};
 
 impl Parse for tombi_ast::Value {
     fn parse(p: &mut Parser<'_>) {

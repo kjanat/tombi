@@ -1,14 +1,14 @@
 use itertools::EitherOrBoth;
 use itertools::Itertools;
 
-/// Iterator which breaks an identifier into various [VersionChunk]s.
+/// Iterator which breaks an identifier into various [`VersionChunk`]s.
 struct VersionChunkIter<'a> {
     ident: &'a str,
     start: usize,
 }
 
 impl<'a> VersionChunkIter<'a> {
-    pub(crate) fn new(ident: &'a str) -> Self {
+    pub(crate) const fn new(ident: &'a str) -> Self {
         Self { ident, start: 0 }
     }
 
@@ -175,6 +175,7 @@ enum MoreLeadingZeros {
 /// Compare two identifiers based on the version sorting algorithm described in [the style guide]
 ///
 /// [the style guide]: https://doc.rust-lang.org/nightly/style-guide/#sorting
+#[must_use]
 pub fn version_sort(a: &str, b: &str) -> std::cmp::Ordering {
     let iter_a = VersionChunkIter::new(a);
     let iter_b = VersionChunkIter::new(b);
@@ -205,9 +206,11 @@ pub fn version_sort(a: &str, b: &str) -> std::cmp::Ordering {
                 (_, VersionChunk::Underscore | VersionChunk::Hyphen) => {
                     return std::cmp::Ordering::Greater;
                 }
-                (VersionChunk::Str(ca), VersionChunk::Str(cb))
-                | (VersionChunk::Str(ca), VersionChunk::Number { source: cb, .. })
-                | (VersionChunk::Number { source: ca, .. }, VersionChunk::Str(cb)) => {
+                (
+                    VersionChunk::Str(ca) | VersionChunk::Number { source: ca, .. },
+                    VersionChunk::Str(cb),
+                )
+                | (VersionChunk::Str(ca), VersionChunk::Number { source: cb, .. }) => {
                     match ca.cmp(cb) {
                         std::cmp::Ordering::Equal => {
                             continue;

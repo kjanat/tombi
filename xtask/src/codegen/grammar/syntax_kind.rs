@@ -27,7 +27,7 @@ pub fn generate_syntax_kind() -> Result<String, anyhow::Error> {
         .collect_vec();
     let attr_punctuations = PUNCTUATIONS
         .iter()
-        .map(|item| item.to_attr_token())
+        .map(super::syntax_kind_src::PunctuationItem::to_attr_token)
         .collect_vec();
 
     let attr_literals = LITERALS

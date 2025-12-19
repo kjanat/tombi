@@ -22,6 +22,7 @@ impl Default for Document {
 }
 
 impl Document {
+    #[must_use]
     pub fn new() -> Self {
         Self(Table::new(TableKind::Table))
     }
@@ -80,7 +81,7 @@ impl<'de> serde::Deserialize<'de> for Document {
         D: serde::Deserializer<'de>,
     {
         let table = Table::deserialize(deserializer)?;
-        Ok(Document(table))
+        Ok(Self(table))
     }
 }
 

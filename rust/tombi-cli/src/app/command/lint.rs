@@ -44,7 +44,7 @@ pub fn run(args: Args) -> Result<(), crate::Error> {
     match success_num {
         0 => {
             if error_num == 0 {
-                eprintln!("No files linted")
+                eprintln!("No files linted");
             }
         }
         1 => eprintln!("1 file linted successfully"),
@@ -80,7 +80,7 @@ where
     let schema_store =
         tombi_schema_store::SchemaStore::new_with_options(tombi_schema_store::Options {
             offline: args.common.offline.then_some(true),
-            strict: schema_options.and_then(|schema_options| schema_options.strict()),
+            strict: schema_options.and_then(tombi_config::SchemaOverviewOptions::strict),
             cache: Some(tombi_cache::Options {
                 no_cache: args.common.no_cache.then_some(true),
                 ..Default::default()

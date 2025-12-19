@@ -22,10 +22,10 @@ pub async fn handle_folding_range(
 
     let folding_ranges = create_folding_ranges(document_source.ast());
 
-    if !folding_ranges.is_empty() {
-        Ok(Some(folding_ranges))
-    } else {
+    if folding_ranges.is_empty() {
         Ok(None)
+    } else {
+        Ok(Some(folding_ranges))
     }
 }
 
@@ -33,7 +33,7 @@ fn create_folding_ranges(root: &tombi_ast::Root) -> Vec<FoldingRange> {
     let mut ranges: Vec<FoldingRange> = vec![];
 
     for node in root.syntax().descendants() {
-        if let Some(key_value) = tombi_ast::KeyValue::cast(node.to_owned()) {
+        if let Some(key_value) = tombi_ast::KeyValue::cast(node.clone()) {
             for folding_range in [key_value
                 .leading_comments()
                 .collect_vec()
@@ -43,7 +43,7 @@ fn create_folding_ranges(root: &tombi_ast::Root) -> Vec<FoldingRange> {
             {
                 ranges.push(folding_range);
             }
-        } else if let Some(table) = tombi_ast::Table::cast(node.to_owned()) {
+        } else if let Some(table) = tombi_ast::Table::cast(node.clone()) {
             for folding_range in [
                 table
                     .header_leading_comments()
@@ -62,7 +62,7 @@ fn create_folding_ranges(root: &tombi_ast::Root) -> Vec<FoldingRange> {
             {
                 ranges.push(folding_range);
             }
-        } else if let Some(array_of_table) = tombi_ast::ArrayOfTable::cast(node.to_owned()) {
+        } else if let Some(array_of_table) = tombi_ast::ArrayOfTable::cast(node.clone()) {
             for folding_range in [
                 array_of_table
                     .header_leading_comments()
@@ -81,7 +81,7 @@ fn create_folding_ranges(root: &tombi_ast::Root) -> Vec<FoldingRange> {
             {
                 ranges.push(folding_range);
             }
-        } else if let Some(boolean) = tombi_ast::Boolean::cast(node.to_owned()) {
+        } else if let Some(boolean) = tombi_ast::Boolean::cast(node.clone()) {
             for folding_range in [boolean
                 .leading_comments()
                 .collect_vec()
@@ -91,7 +91,7 @@ fn create_folding_ranges(root: &tombi_ast::Root) -> Vec<FoldingRange> {
             {
                 ranges.push(folding_range);
             }
-        } else if let Some(integer_bin) = tombi_ast::IntegerBin::cast(node.to_owned()) {
+        } else if let Some(integer_bin) = tombi_ast::IntegerBin::cast(node.clone()) {
             for folding_range in [integer_bin
                 .leading_comments()
                 .collect_vec()
@@ -101,7 +101,7 @@ fn create_folding_ranges(root: &tombi_ast::Root) -> Vec<FoldingRange> {
             {
                 ranges.push(folding_range);
             }
-        } else if let Some(integer_oct) = tombi_ast::IntegerOct::cast(node.to_owned()) {
+        } else if let Some(integer_oct) = tombi_ast::IntegerOct::cast(node.clone()) {
             for folding_range in [integer_oct
                 .leading_comments()
                 .collect_vec()
@@ -111,7 +111,7 @@ fn create_folding_ranges(root: &tombi_ast::Root) -> Vec<FoldingRange> {
             {
                 ranges.push(folding_range);
             }
-        } else if let Some(integer_dec) = tombi_ast::IntegerDec::cast(node.to_owned()) {
+        } else if let Some(integer_dec) = tombi_ast::IntegerDec::cast(node.clone()) {
             for folding_range in [integer_dec
                 .leading_comments()
                 .collect_vec()
@@ -121,7 +121,7 @@ fn create_folding_ranges(root: &tombi_ast::Root) -> Vec<FoldingRange> {
             {
                 ranges.push(folding_range);
             }
-        } else if let Some(integer_hex) = tombi_ast::IntegerHex::cast(node.to_owned()) {
+        } else if let Some(integer_hex) = tombi_ast::IntegerHex::cast(node.clone()) {
             for folding_range in [integer_hex
                 .leading_comments()
                 .collect_vec()
@@ -131,7 +131,7 @@ fn create_folding_ranges(root: &tombi_ast::Root) -> Vec<FoldingRange> {
             {
                 ranges.push(folding_range);
             }
-        } else if let Some(float) = tombi_ast::Float::cast(node.to_owned()) {
+        } else if let Some(float) = tombi_ast::Float::cast(node.clone()) {
             for folding_range in [float
                 .leading_comments()
                 .collect_vec()
@@ -141,7 +141,7 @@ fn create_folding_ranges(root: &tombi_ast::Root) -> Vec<FoldingRange> {
             {
                 ranges.push(folding_range);
             }
-        } else if let Some(basic_string) = tombi_ast::BasicString::cast(node.to_owned()) {
+        } else if let Some(basic_string) = tombi_ast::BasicString::cast(node.clone()) {
             for folding_range in [basic_string
                 .leading_comments()
                 .collect_vec()
@@ -151,7 +151,7 @@ fn create_folding_ranges(root: &tombi_ast::Root) -> Vec<FoldingRange> {
             {
                 ranges.push(folding_range);
             }
-        } else if let Some(literal_string) = tombi_ast::LiteralString::cast(node.to_owned()) {
+        } else if let Some(literal_string) = tombi_ast::LiteralString::cast(node.clone()) {
             for folding_range in [literal_string
                 .leading_comments()
                 .collect_vec()
@@ -162,7 +162,7 @@ fn create_folding_ranges(root: &tombi_ast::Root) -> Vec<FoldingRange> {
                 ranges.push(folding_range);
             }
         } else if let Some(multi_line_basic_string) =
-            tombi_ast::MultiLineBasicString::cast(node.to_owned())
+            tombi_ast::MultiLineBasicString::cast(node.clone())
         {
             for folding_range in [
                 multi_line_basic_string
@@ -177,7 +177,7 @@ fn create_folding_ranges(root: &tombi_ast::Root) -> Vec<FoldingRange> {
                 ranges.push(folding_range);
             }
         } else if let Some(multi_line_literal_string) =
-            tombi_ast::MultiLineLiteralString::cast(node.to_owned())
+            tombi_ast::MultiLineLiteralString::cast(node.clone())
         {
             for folding_range in [
                 multi_line_literal_string
@@ -191,7 +191,7 @@ fn create_folding_ranges(root: &tombi_ast::Root) -> Vec<FoldingRange> {
             {
                 ranges.push(folding_range);
             }
-        } else if let Some(offset_date_time) = tombi_ast::OffsetDateTime::cast(node.to_owned()) {
+        } else if let Some(offset_date_time) = tombi_ast::OffsetDateTime::cast(node.clone()) {
             for folding_range in [offset_date_time
                 .leading_comments()
                 .collect_vec()
@@ -201,7 +201,7 @@ fn create_folding_ranges(root: &tombi_ast::Root) -> Vec<FoldingRange> {
             {
                 ranges.push(folding_range);
             }
-        } else if let Some(local_date_time) = tombi_ast::LocalDateTime::cast(node.to_owned()) {
+        } else if let Some(local_date_time) = tombi_ast::LocalDateTime::cast(node.clone()) {
             for folding_range in [local_date_time
                 .leading_comments()
                 .collect_vec()
@@ -211,7 +211,7 @@ fn create_folding_ranges(root: &tombi_ast::Root) -> Vec<FoldingRange> {
             {
                 ranges.push(folding_range);
             }
-        } else if let Some(local_date) = tombi_ast::LocalDate::cast(node.to_owned()) {
+        } else if let Some(local_date) = tombi_ast::LocalDate::cast(node.clone()) {
             for folding_range in [local_date
                 .leading_comments()
                 .collect_vec()
@@ -221,7 +221,7 @@ fn create_folding_ranges(root: &tombi_ast::Root) -> Vec<FoldingRange> {
             {
                 ranges.push(folding_range);
             }
-        } else if let Some(local_time) = tombi_ast::LocalTime::cast(node.to_owned()) {
+        } else if let Some(local_time) = tombi_ast::LocalTime::cast(node.clone()) {
             for folding_range in [local_time
                 .leading_comments()
                 .collect_vec()
@@ -231,7 +231,7 @@ fn create_folding_ranges(root: &tombi_ast::Root) -> Vec<FoldingRange> {
             {
                 ranges.push(folding_range);
             }
-        } else if let Some(array) = tombi_ast::Array::cast(node.to_owned()) {
+        } else if let Some(array) = tombi_ast::Array::cast(node.clone()) {
             for folding_range in [
                 array
                     .leading_comments()
@@ -263,7 +263,7 @@ fn create_folding_ranges(root: &tombi_ast::Root) -> Vec<FoldingRange> {
                     ranges.push(folding_range);
                 }
             }
-        } else if let Some(inline_table) = tombi_ast::InlineTable::cast(node.to_owned()) {
+        } else if let Some(inline_table) = tombi_ast::InlineTable::cast(node.clone()) {
             for folding_range in [
                 inline_table
                     .leading_comments()
@@ -295,7 +295,7 @@ fn create_folding_ranges(root: &tombi_ast::Root) -> Vec<FoldingRange> {
                     ranges.push(folding_range);
                 }
             }
-        } else if let Some(root) = tombi_ast::Root::cast(node.to_owned()) {
+        } else if let Some(root) = tombi_ast::Root::cast(node.clone()) {
             for folding_range in [
                 root.key_values_begin_dangling_comments()
                     .get_comment_folding_range(),
@@ -347,7 +347,10 @@ trait GetCommentFoldingRange {
 
 impl GetRegionFoldingRange for tombi_ast::Table {
     fn get_folding_range(&self) -> Option<tombi_text::Range> {
-        use tombi_syntax::{SyntaxKind::*, T};
+        use tombi_syntax::{
+            SyntaxKind::{LINE_BREAK, WHITESPACE},
+            T,
+        };
 
         let children_with_tokens = self.syntax().children_with_tokens().collect_vec();
         let first_child = children_with_tokens
@@ -374,7 +377,10 @@ impl GetRegionFoldingRange for tombi_ast::Table {
 
 impl GetRegionFoldingRange for tombi_ast::ArrayOfTable {
     fn get_folding_range(&self) -> Option<tombi_text::Range> {
-        use tombi_syntax::{SyntaxKind::*, T};
+        use tombi_syntax::{
+            SyntaxKind::{LINE_BREAK, WHITESPACE},
+            T,
+        };
 
         let children_with_tokens = self.syntax().children_with_tokens().collect_vec();
         let first_child = children_with_tokens
@@ -431,10 +437,10 @@ impl GetRegionFoldingRange for tombi_ast::MultiLineBasicString {
         let token = self.token()?;
         let range = token.range();
 
-        if range.start.line != range.end.line {
-            Some(range)
-        } else {
+        if range.start.line == range.end.line {
             None
+        } else {
+            Some(range)
         }
     }
 }
@@ -444,10 +450,10 @@ impl GetRegionFoldingRange for tombi_ast::MultiLineLiteralString {
         let token = self.token()?;
         let range = token.range();
 
-        if range.start.line != range.end.line {
-            Some(range)
-        } else {
+        if range.start.line == range.end.line {
             None
+        } else {
+            Some(range)
         }
     }
 }

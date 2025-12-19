@@ -11,30 +11,34 @@ pub struct Parsed<T> {
 }
 
 impl<T> Parsed<T> {
-    pub fn new(green_tree: tombi_rg_tree::GreenNode, errors: Vec<crate::Error>) -> Parsed<T> {
-        Parsed {
+    #[must_use]
+    pub fn new(green_tree: tombi_rg_tree::GreenNode, errors: Vec<crate::Error>) -> Self {
+        Self {
             green_tree,
             errors,
             _ty: PhantomData,
         }
     }
 
+    #[must_use]
     pub fn syntax_node(&self) -> SyntaxNode {
         SyntaxNode::new_root(self.green_tree.clone())
     }
 
+    #[must_use]
     pub fn into_syntax_node(self) -> SyntaxNode {
         SyntaxNode::new_root(self.green_tree)
     }
 
+    #[must_use]
     pub fn into_syntax_node_mut(self) -> SyntaxNode {
         SyntaxNode::new_root_mut(self.green_tree)
     }
 }
 
 impl<T> Clone for Parsed<T> {
-    fn clone(&self) -> Parsed<T> {
-        Parsed {
+    fn clone(&self) -> Self {
+        Self {
             green_tree: self.green_tree.clone(),
             errors: self.errors.clone(),
             _ty: PhantomData,
@@ -44,6 +48,7 @@ impl<T> Clone for Parsed<T> {
 
 impl<T: AstNode> Parsed<T> {
     /// Converts this parse result into a parse result for an untyped syntax tree.
+    #[must_use]
     pub fn into_syntax(self) -> Parsed<SyntaxNode> {
         Parsed {
             green_tree: self.green_tree,
@@ -58,12 +63,14 @@ impl<T: AstNode> Parsed<T> {
     ///
     /// Panics if the root node cannot be casted into the typed ast node
     /// (e.g. if it's an `ERROR` node).
+    #[must_use]
     pub fn tree(&self) -> T {
         T::cast(self.syntax_node()).unwrap()
     }
 }
 
 impl Parsed<SyntaxNode> {
+    #[must_use]
     pub fn cast<N: AstNode>(self) -> Option<Parsed<N>> {
         if N::cast(self.syntax_node()).is_some() {
             Some(Parsed {
@@ -76,6 +83,7 @@ impl Parsed<SyntaxNode> {
         }
     }
 
+    #[must_use]
     pub fn into_node_and_errors<N: AstNode>(self) -> (N, Vec<crate::Error>) {
         let Some(parsed) = self.cast::<N>() else {
             unreachable!("TOML node is always a valid AST node even if source is empty.")
@@ -85,6 +93,7 @@ impl Parsed<SyntaxNode> {
     }
 
     #[inline]
+    #[must_use]
     pub fn into_root_and_errors(self) -> (tombi_ast::Root, Vec<crate::Error>) {
         self.into_node_and_errors::<tombi_ast::Root>()
     }

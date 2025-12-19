@@ -17,15 +17,17 @@ pub use store::SchemaStore;
 pub use tombi_accessor::{Accessor, AccessorContext, AccessorKeyKind, Accessors, KeyContext};
 pub use value_type::ValueType;
 
+#[must_use]
 pub fn get_schema_name(schema_uri: &tombi_uri::Uri) -> Option<&str> {
-    if let Some(path) = schema_uri.path().split('/').next_back() {
-        if !path.is_empty() {
-            return Some(path);
-        }
+    if let Some(path) = schema_uri.path().split('/').next_back()
+        && !path.is_empty()
+    {
+        return Some(path);
     }
     schema_uri.host_str()
 }
 
+#[must_use]
 pub fn get_tombi_schemastore_content(schema_uri: &tombi_uri::Uri) -> Option<&'static str> {
     if schema_uri.scheme() != "tombi" {
         return None;

@@ -11,62 +11,71 @@ pub enum Number {
 
 impl Number {
     /// Creates a Number from a i64 value
-    pub fn from_i64(value: i64) -> Self {
-        Number::Integer(value)
+    #[must_use]
+    pub const fn from_i64(value: i64) -> Self {
+        Self::Integer(value)
     }
 
     /// Creates a Number from a u64 value
+    #[must_use]
     pub fn from_u64(value: u64) -> Self {
-        debug_assert!(value <= i64::MAX as u64);
+        debug_assert!(i64::try_from(value).is_ok());
 
-        Number::Integer(value as i64)
+        Self::Integer(value as i64)
     }
 
     /// Creates a Number from a f64 value
+    #[must_use]
     pub fn from_f64(value: f64) -> Self {
         // Convert whole numbers to integers if possible
         if value.fract() == 0.0 && value >= i64::MIN as f64 && value <= i64::MAX as f64 {
-            Number::Integer(value as i64)
+            Self::Integer(value as i64)
         } else {
-            Number::Float(value)
+            Self::Float(value)
         }
     }
 
     /// Check if the number is an integer
-    pub fn is_i64(&self) -> bool {
-        matches!(self, Number::Integer(_))
+    #[must_use]
+    pub const fn is_i64(&self) -> bool {
+        matches!(self, Self::Integer(_))
     }
 
-    pub fn is_u64(&self) -> bool {
-        matches!(self, Number::Integer(i) if *i >= 0)
+    #[must_use]
+    pub const fn is_u64(&self) -> bool {
+        matches!(self, Self::Integer(i) if *i >= 0)
     }
 
     /// Check if the number is a floating point
-    pub fn is_f64(&self) -> bool {
-        matches!(self, Number::Float(_))
+    #[must_use]
+    pub const fn is_f64(&self) -> bool {
+        matches!(self, Self::Float(_))
     }
 
     /// Get as i64 value if possible
-    pub fn as_i64(&self) -> Option<i64> {
+    #[must_use]
+    pub const fn as_i64(&self) -> Option<i64> {
         match self {
-            Number::Integer(i) => Some(*i),
+            Self::Integer(i) => Some(*i),
             _ => None,
         }
     }
 
     /// Get as u64 value if possible
-    pub fn as_u64(&self) -> Option<u64> {
+    #[must_use]
+    pub const fn as_u64(&self) -> Option<u64> {
         match self {
-            Number::Integer(i) if *i >= 0 => Some(*i as u64),
+            Self::Integer(i) if *i >= 0 => Some(*i as u64),
             _ => None,
         }
     }
 
     /// Get as f64 value
-    pub fn as_f64(&self) -> Option<f64> {
+    #[must_use]
+    pub const fn as_f64(&self) -> Option<f64> {
         match self {
-            Number::Float(f) => Some(*f),
-            Number::Integer(i) => Some(*i as f64),
+            Self::Float(f) => Some(*f),
+            Self::Integer(i) => Some(*i as f64),
         }
     }
 }
@@ -74,8 +83,8 @@ impl Number {
 impl fmt::Display for Number {
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
         match self {
-            Number::Integer(i) => write!(f, "{i}"),
-            Number::Float(v) => {
+            Self::Integer(i) => write!(f, "{i}"),
+            Self::Float(v) => {
                 // Ensure that whole number floats are displayed with .0
                 if v.fract() == 0.0 {
                     write!(f, "{v}.0")
@@ -89,65 +98,65 @@ impl fmt::Display for Number {
 
 impl From<i8> for Number {
     fn from(i: i8) -> Self {
-        Number::Integer(i as i64)
+        Self::Integer(i64::from(i))
     }
 }
 
 impl From<i16> for Number {
     fn from(i: i16) -> Self {
-        Number::Integer(i as i64)
+        Self::Integer(i64::from(i))
     }
 }
 
 impl From<i32> for Number {
     fn from(i: i32) -> Self {
-        Number::Integer(i as i64)
+        Self::Integer(i64::from(i))
     }
 }
 
 impl From<i64> for Number {
     fn from(i: i64) -> Self {
-        Number::Integer(i)
+        Self::Integer(i)
     }
 }
 
 impl From<u8> for Number {
     fn from(u: u8) -> Self {
-        Number::Integer(u as i64)
+        Self::Integer(i64::from(u))
     }
 }
 
 impl From<u16> for Number {
     fn from(u: u16) -> Self {
-        Number::Integer(u as i64)
+        Self::Integer(i64::from(u))
     }
 }
 
 impl From<u32> for Number {
     fn from(u: u32) -> Self {
-        Number::Integer(u as i64)
+        Self::Integer(i64::from(u))
     }
 }
 
 impl From<u64> for Number {
     fn from(u: u64) -> Self {
-        if u <= i64::MAX as u64 {
-            Number::Integer(u as i64)
+        if i64::try_from(u).is_ok() {
+            Self::Integer(u as i64)
         } else {
-            Number::Float(u as f64)
+            Self::Float(u as f64)
         }
     }
 }
 
 impl From<f32> for Number {
     fn from(f: f32) -> Self {
-        Number::from_f64(f as f64)
+        Self::from_f64(f64::from(f))
     }
 }
 
 impl From<f64> for Number {
     fn from(f: f64) -> Self {
-        Number::from_f64(f)
+        Self::from_f64(f)
     }
 }
 
@@ -158,8 +167,8 @@ impl serde::Serialize for Number {
         S: serde::Serializer,
     {
         match self {
-            Number::Integer(i) => serializer.serialize_i64(*i),
-            Number::Float(f) => serializer.serialize_f64(*f),
+            Self::Integer(i) => serializer.serialize_i64(*i),
+            Self::Float(f) => serializer.serialize_f64(*f),
         }
     }
 }
@@ -184,7 +193,7 @@ impl<'de> serde::Deserialize<'de> for Number {
             }
 
             fn visit_u64<E>(self, value: u64) -> Result<Self::Value, E> {
-                if value <= i64::MAX as u64 {
+                if i64::try_from(value).is_ok() {
                     Ok(Number::Integer(value as i64))
                 } else {
                     Ok(Number::Float(value as f64))

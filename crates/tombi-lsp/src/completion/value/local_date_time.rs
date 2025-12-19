@@ -36,15 +36,13 @@ impl FindCompletionContents for tombi_document_tree::LocalDateTime {
                     LocalDateTimeCommonFormatRules,
                     LocalDateTimeCommonLintRules,
                 >(self.comment_directives(), position, accessors)
-            {
-                if let Some(completions) = get_tombi_comment_directive_content_completion_contents(
+                && let Some(completions) = get_tombi_comment_directive_content_completion_contents(
                     comment_directive_context,
                     schema_uri,
                 )
                 .await
-                {
-                    return completions;
-                }
+            {
+                return completions;
             }
 
             Vec::with_capacity(0)
@@ -75,7 +73,7 @@ impl FindCompletionContents for LocalDateTimeSchema {
             let schema_uri = current_schema.map(|schema| schema.schema_uri.as_ref());
 
             if let Some(const_value) = &self.const_value {
-                let label = const_value.to_string();
+                let label = const_value.clone();
                 let edit = CompletionEdit::new_literal(&label, position, completion_hint);
                 completion_items.push(CompletionContent::new_const_value(
                     CompletionKind::LocalDateTime,
@@ -91,7 +89,7 @@ impl FindCompletionContents for LocalDateTimeSchema {
 
             if let Some(enumerate) = &self.enumerate {
                 for item in enumerate {
-                    let label = item.to_string();
+                    let label = item.clone();
                     let edit = CompletionEdit::new_literal(&label, position, completion_hint);
                     completion_items.push(CompletionContent::new_enumerate_value(
                         CompletionKind::LocalDateTime,
@@ -106,7 +104,7 @@ impl FindCompletionContents for LocalDateTimeSchema {
             }
 
             if let Some(default) = &self.default {
-                let label = default.to_string();
+                let label = default.clone();
                 let edit = CompletionEdit::new_literal(&label, position, completion_hint);
                 completion_items.push(CompletionContent::new_default_value(
                     CompletionKind::LocalDateTime,
@@ -144,7 +142,7 @@ pub fn type_hint_local_date_time(
             chrono::LocalResult::Single(today) => today,
             _ => today,
         };
-    };
+    }
 
     let label = today.format("%Y-%m-%dT%H:%M:%S%.3f").to_string();
     let edit = CompletionEdit::new_selectable_literal(&label, position, completion_hint);

@@ -24,11 +24,7 @@ impl TombiExtension {
 
         let env = binary_settings
             .and_then(|binary_settings| binary_settings.env.as_ref())
-            .map(|env| {
-                env.into_iter()
-                    .map(|(k, v)| (k.to_string(), v.to_string()))
-                    .collect()
-            })
+            .map(|env| env.iter().map(|(k, v)| (k.clone(), v.clone())).collect())
             .unwrap_or_default();
 
         if let Some(path) = binary_settings.and_then(|binary_settings| binary_settings.path.clone())
@@ -75,14 +71,14 @@ impl TombiExtension {
             });
         }
 
-        if let Some(path) = &self.cached_binary_path {
-            if fs::metadata(path).is_ok_and(|stat| stat.is_file()) {
-                return Ok(zed::Command {
-                    command: path.clone(),
-                    args,
-                    env,
-                });
-            }
+        if let Some(path) = &self.cached_binary_path
+            && fs::metadata(path).is_ok_and(|stat| stat.is_file())
+        {
+            return Ok(zed::Command {
+                command: path.clone(),
+                args,
+                env,
+            });
         }
 
         zed::set_language_server_installation_status(
@@ -145,16 +141,13 @@ impl TombiExtension {
                 _ => zed::DownloadedFileType::Gzip,
             };
 
-            match platform {
-                zed::Os::Windows => {
-                    zed::download_file(&asset.download_url, &version_dir, file_kind)
-                        .map_err(|e| format!("failed to download file: {e}"))?;
-                }
-                _ => {
-                    zed::download_file(&asset.download_url, &binary_path, file_kind)
-                        .map_err(|e| format!("failed to download file: {e}"))?;
-                    zed::make_file_executable(&binary_path)?;
-                }
+            if platform == zed::Os::Windows {
+                zed::download_file(&asset.download_url, &version_dir, file_kind)
+                    .map_err(|e| format!("failed to download file: {e}"))?;
+            } else {
+                zed::download_file(&asset.download_url, &binary_path, file_kind)
+                    .map_err(|e| format!("failed to download file: {e}"))?;
+                zed::make_file_executable(&binary_path)?;
             }
 
             let entries = fs::read_dir(".")
@@ -199,7 +192,7 @@ impl zed::Extension for TombiExtension {
     ) -> Result<Option<zed_extension_api::serde_json::Value>> {
         let settings = LspSettings::for_worktree(server_id.as_ref(), worktree)
             .ok()
-            .and_then(|lsp_settings| lsp_settings.initialization_options.clone())
+            .and_then(|lsp_settings| lsp_settings.initialization_options)
             .unwrap_or_default();
         Ok(Some(settings))
     }
@@ -211,7 +204,7 @@ impl zed::Extension for TombiExtension {
     ) -> Result<Option<zed_extension_api::serde_json::Value>> {
         let settings = LspSettings::for_worktree(server_id.as_ref(), worktree)
             .ok()
-            .and_then(|lsp_settings| lsp_settings.settings.clone())
+            .and_then(|lsp_settings| lsp_settings.settings)
             .unwrap_or_default();
         Ok(Some(settings))
     }

@@ -83,16 +83,19 @@ pub struct Error {
 }
 
 impl Error {
-    pub fn new(kind: ErrorKind, range: tombi_text::Range) -> Self {
+    #[must_use]
+    pub const fn new(kind: ErrorKind, range: tombi_text::Range) -> Self {
         Self { kind, range }
     }
 
-    pub fn kind(&self) -> ErrorKind {
+    #[must_use]
+    pub const fn kind(&self) -> ErrorKind {
         self.kind
     }
 
     #[inline]
-    pub fn code(&self) -> &'static str {
+    #[must_use]
+    pub const fn code(&self) -> &'static str {
         match self.kind {
             ErrorKind::InvalidKey => "invalid-key",
             ErrorKind::InvalidBasicString => "invalid-basic-string",
@@ -121,11 +124,13 @@ impl Error {
         }
     }
 
+    #[must_use]
     pub fn to_message(&self) -> String {
         self.kind.to_string()
     }
 
-    pub fn range(&self) -> tombi_text::Range {
+    #[must_use]
+    pub const fn range(&self) -> tombi_text::Range {
         self.range
     }
 }

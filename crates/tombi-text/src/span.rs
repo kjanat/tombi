@@ -33,13 +33,14 @@ impl std::fmt::Display for Span {
 }
 
 impl Span {
-    pub const MAX: Span = Span::new(Offset::MAX, Offset::MAX);
-    pub const MIN: Span = Span::new(Offset::MIN, Offset::MIN);
+    pub const MAX: Self = Self::new(Offset::MAX, Offset::MAX);
+    pub const MIN: Self = Self::new(Offset::MIN, Offset::MIN);
 
     #[inline]
-    pub const fn new(start: Offset, end: Offset) -> Span {
+    #[must_use]
+    pub const fn new(start: Offset, end: Offset) -> Self {
         debug_assert!(start.raw <= end.raw);
-        Span {
+        Self {
             start,
             end,
             _align: PointerAlign([0; 0]),
@@ -62,8 +63,9 @@ impl Span {
     /// assert_eq!(&text[span], "23456")
     /// ```
     #[inline]
-    pub const fn at(offset: Offset, len: RawOffset) -> Span {
-        Span::new(offset, Offset::new(offset.raw + len))
+    #[must_use]
+    pub const fn at(offset: Offset, len: RawOffset) -> Self {
+        Self::new(offset, Offset::new(offset.raw + len))
     }
 
     /// Create a zero-length span at the specified offset (`offset..offset`).
@@ -79,12 +81,14 @@ impl Span {
     /// assert_eq!(span, Span::new(point, point));
     /// ```
     #[inline]
-    pub const fn empty(offset: Offset) -> Span {
-        Span::new(offset, offset)
+    #[must_use]
+    pub const fn empty(offset: Offset) -> Self {
+        Self::new(offset, offset)
     }
 
     /// The size of this span.
     #[inline]
+    #[must_use]
     pub const fn len(self) -> RawOffset {
         // HACK for const fn: math on primitives only
         self.end.raw - self.start.raw
@@ -92,6 +96,7 @@ impl Span {
 
     /// Check if this span is empty.
     #[inline]
+    #[must_use]
     pub const fn is_empty(self) -> bool {
         // HACK for const fn: math on primitives only
         self.start.raw == self.end.raw
@@ -112,6 +117,7 @@ impl Span {
     /// assert!(!span.contains(end));
     /// ```
     #[inline]
+    #[must_use]
     pub fn contains(self, offset: Offset) -> bool {
         self.start <= offset && offset < self.end
     }
@@ -131,6 +137,7 @@ impl Span {
     /// assert!(span.contains_inclusive(end));
     /// ```
     #[inline]
+    #[must_use]
     pub fn contains_inclusive(self, offset: Offset) -> bool {
         self.start <= offset && offset <= self.end
     }
@@ -151,7 +158,8 @@ impl Span {
     /// assert!(smaller.contains_span(smaller));
     /// ```
     #[inline]
-    pub fn contains_span(self, other: Span) -> bool {
+    #[must_use]
+    pub fn contains_span(self, other: Self) -> bool {
         self.start <= other.start && other.end <= self.end
     }
 
@@ -171,13 +179,14 @@ impl Span {
     /// );
     /// ```
     #[inline]
-    pub fn intersect(self, other: Span) -> Option<Span> {
+    #[must_use]
+    pub fn intersect(self, other: Self) -> Option<Self> {
         let start = std::cmp::max(self.start, other.start);
         let end = std::cmp::min(self.end, other.end);
         if end < start {
             return None;
         }
-        Some(Span::new(start, end))
+        Some(Self::new(start, end))
     }
 
     /// Extends the span to cover `other` as well.
@@ -195,10 +204,11 @@ impl Span {
     /// );
     /// ```
     #[inline]
-    pub fn cover(self, other: Span) -> Span {
+    #[must_use]
+    pub fn cover(self, other: Self) -> Self {
         let start = std::cmp::min(self.start, other.start);
         let end = std::cmp::max(self.end, other.end);
-        Span::new(start, end)
+        Self::new(start, end)
     }
 
     /// Extends the span to cover `other` offsets as well.
@@ -213,8 +223,9 @@ impl Span {
     /// )
     /// ```
     #[inline]
-    pub fn cover_offset(self, offset: Offset) -> Span {
-        self.cover(Span::empty(offset))
+    #[must_use]
+    pub fn cover_offset(self, offset: Offset) -> Self {
+        self.cover(Self::empty(offset))
     }
 
     /// Add an offset to this span.
@@ -226,8 +237,9 @@ impl Span {
     /// The unchecked version (`Add::add`) will _always_ panic on overflow,
     /// in contrast to primitive integers, which check in debug mode only.
     #[inline]
-    pub fn checked_add(self, offset: Offset) -> Option<Span> {
-        Some(Span::new(
+    #[must_use]
+    pub fn checked_add(self, offset: Offset) -> Option<Self> {
+        Some(Self::new(
             self.start.checked_add(offset)?,
             self.end.checked_add(offset)?,
         ))
@@ -242,8 +254,9 @@ impl Span {
     /// The unchecked version (`Sub::sub`) will _always_ panic on overflow,
     /// in contrast to primitive integers, which check in debug mode only.
     #[inline]
-    pub fn checked_sub(self, offset: Offset) -> Option<Span> {
-        Some(Span::new(
+    #[must_use]
+    pub fn checked_sub(self, offset: Offset) -> Option<Self> {
+        Some(Self::new(
             self.start.checked_sub(offset)?,
             self.end.checked_sub(offset)?,
         ))
@@ -283,7 +296,8 @@ impl Span {
     /// assert_eq!(a.ordering(b), Ordering::Greater);
     /// ```
     #[inline]
-    pub fn ordering(self, other: Span) -> Ordering {
+    #[must_use]
+    pub fn ordering(self, other: Self) -> Ordering {
         if self.end <= other.start {
             Ordering::Less
         } else if other.end <= self.start {
@@ -305,9 +319,9 @@ impl Span {
 }
 
 impl Index<Span> for str {
-    type Output = str;
+    type Output = Self;
     #[inline]
-    fn index(&self, index: Span) -> &str {
+    fn index(&self, index: Span) -> &Self {
         &self[Range::<usize>::from(index)]
     }
 }
@@ -322,7 +336,7 @@ impl Index<Span> for String {
 
 impl IndexMut<Span> for str {
     #[inline]
-    fn index_mut(&mut self, index: Span) -> &mut str {
+    fn index_mut(&mut self, index: Span) -> &mut Self {
         &mut self[Range::<usize>::from(index)]
     }
 }
@@ -372,7 +386,7 @@ impl std::hash::Hash for Span {
 impl From<(crate::RawTextSize, crate::RawTextSize)> for Span {
     #[inline]
     fn from((start, end): (crate::RawTextSize, crate::RawTextSize)) -> Self {
-        Span::new(start.into(), end.into())
+        Self::new(start.into(), end.into())
     }
 }
 
@@ -409,26 +423,26 @@ macro_rules! ops {
 }
 
 impl Add<Offset> for Span {
-    type Output = Span;
+    type Output = Self;
     #[inline]
-    fn add(self, offset: Offset) -> Span {
+    fn add(self, offset: Offset) -> Self {
         self.checked_add(offset).expect("Span +offset overflowed")
     }
 }
 
 impl Sub<Offset> for Span {
-    type Output = Span;
+    type Output = Self;
     #[inline]
-    fn sub(self, offset: Offset) -> Span {
+    fn sub(self, offset: Offset) -> Self {
         self.checked_sub(offset).expect("Span -offset overflowed")
     }
 }
 
-impl Add<Span> for Span {
-    type Output = Span;
+impl Add<Self> for Span {
+    type Output = Self;
     #[inline]
-    fn add(self, other: Span) -> Span {
-        Span::new(self.start, other.end)
+    fn add(self, other: Self) -> Self {
+        Self::new(self.start, other.end)
     }
 }
 
@@ -437,21 +451,21 @@ ops!(impl Sub for Span by fn sub = -);
 
 impl<A> AddAssign<A> for Span
 where
-    Span: Add<A, Output = Span>,
+    Self: Add<A, Output = Self>,
 {
     #[inline]
     fn add_assign(&mut self, rhs: A) {
-        *self = *self + rhs
+        *self = *self + rhs;
     }
 }
 
 impl<S> SubAssign<S> for Span
 where
-    Span: Sub<S, Output = Span>,
+    Self: Sub<S, Output = Self>,
 {
     #[inline]
     fn sub_assign(&mut self, rhs: S) {
-        *self = *self - rhs
+        *self = *self - rhs;
     }
 }
 

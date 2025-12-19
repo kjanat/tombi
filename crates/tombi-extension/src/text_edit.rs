@@ -9,11 +9,8 @@ pub struct TextEdit {
 }
 
 impl tombi_text::FromLsp<TextEdit> for tower_lsp::lsp_types::TextEdit {
-    fn from_lsp(
-        source: TextEdit,
-        line_index: &tombi_text::LineIndex,
-    ) -> tower_lsp::lsp_types::TextEdit {
-        tower_lsp::lsp_types::TextEdit {
+    fn from_lsp(source: TextEdit, line_index: &tombi_text::LineIndex) -> Self {
+        Self {
             range: source.range.into_lsp(line_index),
             new_text: source.new_text,
         }

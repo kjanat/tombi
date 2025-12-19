@@ -13,7 +13,7 @@ pub struct AssociateSchemaParams {
 ///
 /// This function is used to associate a schema URL with a file match pattern in the TOML Language Server.
 ///
-/// In VSCode Extension, contributors can use this to associate a schema with specific files
+/// In `VSCode` Extension, contributors can use this to associate a schema with specific files
 /// by providing a regex match pattern.
 ///
 /// ```json

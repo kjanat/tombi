@@ -37,7 +37,7 @@ fn decode_test(
     let mut options = vec![];
     if verbosity.verbosity_level() != VerbosityLevel::Default {
         options.push("-v");
-    };
+    }
 
     match xshell::cmd!(
         sh,

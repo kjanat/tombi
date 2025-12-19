@@ -29,21 +29,22 @@ pub enum CompletionContentPriority {
 }
 
 impl CompletionContentPriority {
+    #[must_use]
     pub fn as_prefix(&self) -> String {
         match self {
-            CompletionContentPriority::Custom(value) => value.to_string(),
+            Self::Custom(value) => value.clone(),
             // NOTE: Completion candidates provided by extensions are assigned priority numbers starting from 50,
             //       allowing them to be placed above basic features.
-            CompletionContentPriority::Default => "50".to_string(),
-            CompletionContentPriority::Const => "51".to_string(),
-            CompletionContentPriority::Enum => "52".to_string(),
-            CompletionContentPriority::Key => "53".to_string(),
-            CompletionContentPriority::OptionalKey => "54".to_string(),
-            CompletionContentPriority::AdditionalKey => "55".to_string(),
-            CompletionContentPriority::TypeHint => "56".to_string(),
-            CompletionContentPriority::TypeHintKey => "57".to_string(),
-            CompletionContentPriority::TypeHintTrue => "58".to_string(),
-            CompletionContentPriority::TypeHintFalse => "59".to_string(),
+            Self::Default => "50".to_string(),
+            Self::Const => "51".to_string(),
+            Self::Enum => "52".to_string(),
+            Self::Key => "53".to_string(),
+            Self::OptionalKey => "54".to_string(),
+            Self::AdditionalKey => "55".to_string(),
+            Self::TypeHint => "56".to_string(),
+            Self::TypeHintKey => "57".to_string(),
+            Self::TypeHintTrue => "58".to_string(),
+            Self::TypeHintFalse => "59".to_string(),
         }
     }
 }
@@ -72,6 +73,7 @@ pub struct CompletionContent {
 }
 
 impl CompletionContent {
+    #[must_use]
     pub fn new_const_value(
         kind: CompletionKind,
         label: String,
@@ -82,7 +84,7 @@ impl CompletionContent {
         deprecated: Option<bool>,
     ) -> Self {
         Self {
-            label: label.clone(),
+            label,
             kind,
             emoji_icon: None,
             priority: CompletionContentPriority::Const,
@@ -97,6 +99,7 @@ impl CompletionContent {
         }
     }
 
+    #[must_use]
     pub fn new_enumerate_value(
         kind: CompletionKind,
         label: String,
@@ -107,7 +110,7 @@ impl CompletionContent {
         deprecated: Option<bool>,
     ) -> Self {
         Self {
-            label: label.clone(),
+            label,
             kind,
             emoji_icon: None,
             priority: CompletionContentPriority::Enum,
@@ -122,6 +125,7 @@ impl CompletionContent {
         }
     }
 
+    #[must_use]
     pub fn new_default_value(
         kind: CompletionKind,
         label: String,
@@ -170,6 +174,7 @@ impl CompletionContent {
         }
     }
 
+    #[must_use]
     pub fn new_type_hint_boolean(
         value: bool,
         edit: Option<CompletionEdit>,
@@ -218,6 +223,7 @@ impl CompletionContent {
         }
     }
 
+    #[must_use]
     pub fn new_type_hint_inline_table(
         position: tombi_text::Position,
         schema_uri: Option<&SchemaUri>,
@@ -239,6 +245,7 @@ impl CompletionContent {
         }
     }
 
+    #[must_use]
     pub fn new_type_hint_key(
         key_name: &str,
         key_range: tombi_text::Range,
@@ -263,6 +270,7 @@ impl CompletionContent {
         }
     }
 
+    #[must_use]
     pub fn new_type_hint_empty_key(
         position: tombi_text::Position,
         schema_uri: Option<&SchemaUri>,
@@ -288,6 +296,7 @@ impl CompletionContent {
         }
     }
 
+    #[must_use]
     pub fn new_key(
         key_name: &str,
         position: tombi_text::Position,
@@ -299,9 +308,7 @@ impl CompletionContent {
         completion_hint: Option<CompletionHint>,
     ) -> Self {
         let label = key_name.to_string();
-        let required = required_keys
-            .map(|required_keys| required_keys.contains(&label))
-            .unwrap_or_default();
+        let required = required_keys.is_some_and(|required_keys| required_keys.contains(&label));
 
         let key_range = match completion_hint {
             Some(
@@ -330,6 +337,7 @@ impl CompletionContent {
         }
     }
 
+    #[must_use]
     pub fn new_pattern_key(
         key_label: Option<&str>,
         patterns: &[String],
@@ -344,14 +352,14 @@ impl CompletionContent {
             emoji_icon: None,
             priority: CompletionContentPriority::AdditionalKey,
             detail: Some("Pattern Key".to_string()),
-            documentation: if !patterns.is_empty() {
+            documentation: if patterns.is_empty() {
+                None
+            } else {
                 let mut documentation = "Allowed Patterns:\n\n".to_string();
                 for pattern in patterns {
                     documentation.push_str(&format!("- `{pattern}`\n"));
                 }
                 Some(documentation)
-            } else {
-                None
             },
             filter_text: None,
             edit: CompletionEdit::new_additional_key(
@@ -366,6 +374,7 @@ impl CompletionContent {
         }
     }
 
+    #[must_use]
     pub fn new_additional_key(
         key_label: Option<&str>,
         position: tombi_text::Position,
@@ -394,6 +403,7 @@ impl CompletionContent {
         }
     }
 
+    #[must_use]
     pub fn new_magic_triggers(
         key: &str,
         position: tombi_text::Position,
@@ -450,6 +460,7 @@ impl CompletionContent {
         }
     }
 
+    #[must_use]
     pub fn with_position(mut self, position: tombi_text::Position) -> Self {
         self.edit = self.edit.map(|edit| edit.with_position(position));
         self
@@ -457,10 +468,7 @@ impl CompletionContent {
 }
 
 impl FromLsp<CompletionContent> for tower_lsp::lsp_types::CompletionItem {
-    fn from_lsp(
-        source: CompletionContent,
-        line_index: &tombi_text::LineIndex,
-    ) -> tower_lsp::lsp_types::CompletionItem {
+    fn from_lsp(source: CompletionContent, line_index: &tombi_text::LineIndex) -> Self {
         const SECTION_SEPARATOR: &str = "-----";
 
         let sorted_text = format!("{}_{}", source.priority.as_prefix(), &source.label);
@@ -521,7 +529,7 @@ impl FromLsp<CompletionContent> for tower_lsp::lsp_types::CompletionItem {
                 Some(tower_lsp::lsp_types::CompletionItemLabelDetails {
                     detail: None,
                     description: Some(match &source.detail {
-                        Some(detail) => detail.to_string(),
+                        Some(detail) => detail.clone(),
                         None => "Const".to_string(),
                     }),
                 })
@@ -530,7 +538,7 @@ impl FromLsp<CompletionContent> for tower_lsp::lsp_types::CompletionItem {
                 Some(tower_lsp::lsp_types::CompletionItemLabelDetails {
                     detail: None,
                     description: Some(match &source.detail {
-                        Some(detail) => detail.to_string(),
+                        Some(detail) => detail.clone(),
                         None => "Enum".to_string(),
                     }),
                 })
@@ -571,7 +579,7 @@ impl FromLsp<CompletionContent> for tower_lsp::lsp_types::CompletionItem {
             details
         });
 
-        tower_lsp::lsp_types::CompletionItem {
+        Self {
             label: source.label,
             label_details,
             kind: Some(source.kind.into()),

@@ -29,7 +29,7 @@ pub enum Error {
 
 impl de::Error for Error {
     fn custom<T: fmt::Display>(msg: T) -> Self {
-        Error::Custom(msg.to_string())
+        Self::Custom(msg.to_string())
     }
 }
 
@@ -42,7 +42,7 @@ where
     from_value_node(value_node)
 }
 
-/// Deserialize a ValueNode from a reader
+/// Deserialize a `ValueNode` from a reader
 pub fn from_reader<R, T>(reader: R) -> Result<T, Error>
 where
     R: Read,
@@ -64,7 +64,8 @@ pub struct ValueNodeDeserializer<'de> {
 }
 
 impl ValueNodeDeserializer<'_> {
-    pub fn new(node: ValueNode) -> Self {
+    #[must_use]
+    pub const fn new(node: ValueNode) -> Self {
         ValueNodeDeserializer {
             node,
             _marker: PhantomData,
@@ -554,8 +555,8 @@ struct TreeEnumAccess {
 }
 
 impl TreeEnumAccess {
-    fn new(variant: String, value: Option<ValueNode>) -> Self {
-        TreeEnumAccess { variant, value }
+    const fn new(variant: String, value: Option<ValueNode>) -> Self {
+        Self { variant, value }
     }
 }
 

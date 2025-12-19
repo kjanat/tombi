@@ -12,6 +12,7 @@ pub struct LineIndex<'a> {
 
 impl<'a> LineIndex<'a> {
     /// Computes the line index for `text`.
+    #[must_use]
     pub fn new(text: &'a str, encoding_kind: EncodingKind) -> Self {
         let mut lines = Vec::new();
         let mut start: usize = 0;
@@ -48,16 +49,19 @@ impl<'a> LineIndex<'a> {
     }
 
     /// Returns the number of lines tracked by the index.
-    pub fn len(&self) -> usize {
+    #[must_use]
+    pub const fn len(&self) -> usize {
         self.lines.len()
     }
 
     /// Returns true if no lines are tracked.
-    pub fn is_empty(&self) -> bool {
+    #[must_use]
+    pub const fn is_empty(&self) -> bool {
         self.lines.is_empty()
     }
 
     /// Returns the span for the line at `line_idx`, if it exists.
+    #[must_use]
     pub fn line_text(&self, line_idx: crate::Line) -> Option<&'a str> {
         self.lines
             .get(line_idx as usize)
@@ -72,7 +76,7 @@ impl<'a> LineIndex<'a> {
 
 #[inline]
 fn offset_from_usize(value: usize) -> Offset {
-    debug_assert!(value <= u32::MAX as usize, "text is too long to index");
+    debug_assert!(u32::try_from(value).is_ok(), "text is too long to index");
     Offset::new(value as u32)
 }
 

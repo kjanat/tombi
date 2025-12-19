@@ -5,12 +5,14 @@ pub struct Boolean {
 
 impl Boolean {
     #[inline]
-    pub fn new(value: bool) -> Self {
+    #[must_use]
+    pub const fn new(value: bool) -> Self {
         Self { value }
     }
 
     #[inline]
-    pub fn value(&self) -> bool {
+    #[must_use]
+    pub const fn value(&self) -> bool {
         self.value
     }
 }

@@ -8,11 +8,14 @@ mod root;
 mod table;
 mod value;
 
-use support::*;
+use support::{
+    begin_dangling_comments, end_dangling_comments, leading_comments, peek_leading_comments,
+    trailing_comment,
+};
 
 use crate::{parser::Parser, token_set::TS_LINE_END};
 
-pub(crate) trait Parse {
+pub trait Parse {
     fn parse(p: &mut Parser<'_>);
 }
 
@@ -26,7 +29,7 @@ pub fn invalid_line(p: &mut Parser<'_>, kind: crate::ErrorKind) {
 
 mod support {
     use crate::{
-        SyntaxKind::*,
+        SyntaxKind::{COMMENT, EOF, LINE_BREAK, WHITESPACE},
         token_set::{
             TS_DANGLING_COMMENTS_KINDS, TS_LEADING_COMMENTS_KINDS, TS_TAILING_COMMENT_KINDS,
         },

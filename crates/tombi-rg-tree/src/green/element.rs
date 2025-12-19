@@ -7,44 +7,45 @@ use crate::{
 };
 
 pub(super) type GreenElement = NodeOrToken<GreenNode, GreenToken>;
-pub(crate) type GreenElementRef<'a> = NodeOrToken<&'a GreenNodeData, &'a GreenTokenData>;
+pub type GreenElementRef<'a> = NodeOrToken<&'a GreenNodeData, &'a GreenTokenData>;
 
 impl From<GreenNode> for GreenElement {
     #[inline]
-    fn from(node: GreenNode) -> GreenElement {
-        NodeOrToken::Node(node)
+    fn from(node: GreenNode) -> Self {
+        Self::Node(node)
     }
 }
 
 impl<'a> From<&'a GreenNode> for GreenElementRef<'a> {
     #[inline]
-    fn from(node: &'a GreenNode) -> GreenElementRef<'a> {
+    fn from(node: &'a GreenNode) -> Self {
         NodeOrToken::Node(node)
     }
 }
 
 impl From<GreenToken> for GreenElement {
     #[inline]
-    fn from(token: GreenToken) -> GreenElement {
-        NodeOrToken::Token(token)
+    fn from(token: GreenToken) -> Self {
+        Self::Token(token)
     }
 }
 
 impl From<Cow<'_, GreenNodeData>> for GreenElement {
     #[inline]
     fn from(cow: Cow<'_, GreenNodeData>) -> Self {
-        NodeOrToken::Node(cow.into_owned())
+        Self::Node(cow.into_owned())
     }
 }
 
 impl<'a> From<&'a GreenToken> for GreenElementRef<'a> {
     #[inline]
-    fn from(token: &'a GreenToken) -> GreenElementRef<'a> {
+    fn from(token: &'a GreenToken) -> Self {
         NodeOrToken::Token(token)
     }
 }
 
 impl GreenElementRef<'_> {
+    #[must_use]
     pub fn to_owned(self) -> GreenElement {
         match self {
             NodeOrToken::Node(it) => NodeOrToken::Node(it.to_owned()),
@@ -56,17 +57,20 @@ impl GreenElementRef<'_> {
 impl GreenElement {
     /// Returns kind of this element.
     #[inline]
+    #[must_use]
     pub fn kind(&self) -> SyntaxKind {
         self.as_deref().kind()
     }
 
     /// Returns the length of the text covered by this element.
     #[inline]
+    #[must_use]
     pub fn text_len(&self) -> tombi_text::RelativeOffset {
         self.as_deref().text_len()
     }
 
     #[inline]
+    #[must_use]
     pub fn text_relative_position(&self) -> tombi_text::RelativePosition {
         self.as_deref().text_relative_position()
     }
@@ -75,6 +79,7 @@ impl GreenElement {
 impl GreenElementRef<'_> {
     /// Returns kind of this element.
     #[inline]
+    #[must_use]
     pub fn kind(&self) -> SyntaxKind {
         match self {
             NodeOrToken::Node(it) => it.kind(),
@@ -84,6 +89,7 @@ impl GreenElementRef<'_> {
 
     /// Returns the length of the text covered by this element.
     #[inline]
+    #[must_use]
     pub fn text_len(self) -> tombi_text::RawOffset {
         match self {
             NodeOrToken::Node(it) => it.text_len(),
@@ -92,6 +98,7 @@ impl GreenElementRef<'_> {
     }
 
     #[inline]
+    #[must_use]
     pub fn text_relative_position(self) -> tombi_text::RelativePosition {
         match self {
             NodeOrToken::Node(it) => it.text_relative_position(),

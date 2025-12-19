@@ -1,4 +1,4 @@
-#[derive(Debug, Default, Clone, PartialEq)]
+#[derive(Debug, Default, Clone, PartialEq, Eq)]
 pub struct IntegerSchema {
     pub title: Option<String>,
     pub description: Option<String>,
@@ -16,35 +16,55 @@ pub struct IntegerSchema {
 }
 
 impl IntegerSchema {
+    #[must_use]
     pub fn new(object: &tombi_json::ObjectNode) -> Self {
         Self {
             title: object
                 .get("title")
-                .and_then(|v| v.as_str().map(|s| s.to_string())),
+                .and_then(|v| v.as_str().map(std::string::ToString::to_string)),
             description: object
                 .get("description")
-                .and_then(|v| v.as_str().map(|s| s.to_string())),
-            minimum: object.get("minimum").and_then(|v| v.as_i64()),
-            maximum: object.get("maximum").and_then(|v| v.as_i64()),
-            exclusive_minimum: object.get("exclusiveMinimum").and_then(|v| v.as_i64()),
-            exclusive_maximum: object.get("exclusiveMaximum").and_then(|v| v.as_i64()),
-            multiple_of: object.get("multipleOf").and_then(|v| v.as_i64()),
-            enumerate: object
-                .get("enum")
-                .and_then(|v| v.as_array())
-                .map(|v| v.items.iter().filter_map(|v| v.as_i64()).collect()),
-            default: object.get("default").and_then(|v| v.as_i64()),
-            const_value: object.get("const").and_then(|v| v.as_i64()),
-            examples: object
-                .get("examples")
-                .and_then(|v| v.as_array())
-                .map(|v| v.items.iter().filter_map(|v| v.as_i64()).collect()),
-            deprecated: object.get("deprecated").and_then(|v| v.as_bool()),
+                .and_then(|v| v.as_str().map(std::string::ToString::to_string)),
+            minimum: object
+                .get("minimum")
+                .and_then(tombi_json::ValueNode::as_i64),
+            maximum: object
+                .get("maximum")
+                .and_then(tombi_json::ValueNode::as_i64),
+            exclusive_minimum: object
+                .get("exclusiveMinimum")
+                .and_then(tombi_json::ValueNode::as_i64),
+            exclusive_maximum: object
+                .get("exclusiveMaximum")
+                .and_then(tombi_json::ValueNode::as_i64),
+            multiple_of: object
+                .get("multipleOf")
+                .and_then(tombi_json::ValueNode::as_i64),
+            enumerate: object.get("enum").and_then(|v| v.as_array()).map(|v| {
+                v.items
+                    .iter()
+                    .filter_map(tombi_json::ValueNode::as_i64)
+                    .collect()
+            }),
+            default: object
+                .get("default")
+                .and_then(tombi_json::ValueNode::as_i64),
+            const_value: object.get("const").and_then(tombi_json::ValueNode::as_i64),
+            examples: object.get("examples").and_then(|v| v.as_array()).map(|v| {
+                v.items
+                    .iter()
+                    .filter_map(tombi_json::ValueNode::as_i64)
+                    .collect()
+            }),
+            deprecated: object
+                .get("deprecated")
+                .and_then(tombi_json::ValueNode::as_bool),
             range: object.range,
         }
     }
 
-    pub fn value_type(&self) -> crate::ValueType {
+    #[must_use]
+    pub const fn value_type(&self) -> crate::ValueType {
         crate::ValueType::Integer
     }
 }

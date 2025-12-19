@@ -23,10 +23,10 @@ pub struct DocumentSource {
     /// AST generation errors (empty if no errors)
     ast_errors: Vec<tombi_diagnostic::Diagnostic>,
 
-    /// Parsed DocumentTree (always exists)
+    /// Parsed `DocumentTree` (always exists)
     document_tree: tombi_document_tree::DocumentTree,
 
-    /// DocumentTree generation errors (empty if no errors)
+    /// `DocumentTree` generation errors (empty if no errors)
     document_tree_errors: Vec<tombi_diagnostic::Diagnostic>,
 }
 
@@ -104,12 +104,12 @@ impl DocumentSource {
         }
     }
 
-    pub fn line_index(&self) -> &LineIndex<'static> {
+    pub const fn line_index(&self) -> &LineIndex<'static> {
         &self.line_index
     }
 
     /// Get the parsed AST (always exists)
-    pub fn ast(&self) -> &tombi_ast::Root {
+    pub const fn ast(&self) -> &tombi_ast::Root {
         &self.ast
     }
 
@@ -118,12 +118,12 @@ impl DocumentSource {
         &self.ast_errors
     }
 
-    /// Get the parsed DocumentTree (always exists)
-    pub fn document_tree(&self) -> &tombi_document_tree::DocumentTree {
+    /// Get the parsed `DocumentTree` (always exists)
+    pub const fn document_tree(&self) -> &tombi_document_tree::DocumentTree {
         &self.document_tree
     }
 
-    /// Get DocumentTree generation errors
+    /// Get `DocumentTree` generation errors
     pub fn document_tree_errors(&self) -> &[tombi_diagnostic::Diagnostic] {
         &self.document_tree_errors
     }

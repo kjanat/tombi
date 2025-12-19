@@ -3,10 +3,10 @@ use tombi_x_keyword::{ArrayValuesOrderBy, ArrayValuesOrderGroup, StringFormat};
 
 use super::display_value::DisplayValue;
 
-/// Build enumerate values from const_value and enumerate fields
+/// Build enumerate values from `const_value` and enumerate fields
 ///
-/// This function is used to create the enumerate field for ValueConstraints
-/// by combining const_value and enumerate from various schema types.
+/// This function is used to create the enumerate field for `ValueConstraints`
+/// by combining `const_value` and enumerate from various schema types.
 pub fn build_enumerate_values<T, F>(
     const_value: &Option<T>,
     enumerate: &Option<Vec<T>>,
@@ -15,17 +15,17 @@ pub fn build_enumerate_values<T, F>(
 where
     F: Fn(&T) -> Option<DisplayValue>,
 {
-    let const_len = if const_value.is_some() { 1 } else { 0 };
+    let const_len = usize::from(const_value.is_some());
     let enumerate_len = enumerate
         .as_ref()
-        .map(|value| value.len())
+        .map(std::vec::Vec::len)
         .unwrap_or_default();
     let mut enumerate_values = Vec::with_capacity(const_len + enumerate_len);
 
-    if let Some(const_value) = const_value {
-        if let Some(display_value) = convert_fn(const_value) {
-            enumerate_values.push(display_value);
-        }
+    if let Some(const_value) = const_value
+        && let Some(display_value) = convert_fn(const_value)
+    {
+        enumerate_values.push(display_value);
     }
 
     if let Some(enumerate) = enumerate {
@@ -148,18 +148,18 @@ impl std::fmt::Display for ValueConstraints {
         if let Some(values_order) = &self.values_order {
             match values_order {
                 XTombiArrayValuesOrder::All(values_order) => {
-                    write!(f, "Values Order: `{values_order}`\n\n")?
+                    write!(f, "Values Order: `{values_order}`\n\n")?;
                 }
                 XTombiArrayValuesOrder::Groups(values_order) => match values_order {
                     ArrayValuesOrderGroup::OneOf(values_order) => {
                         write!(f, "Values Order: `oneOf`\n\n")?;
-                        for value in values_order.iter() {
+                        for value in values_order {
                             write!(f, "  - `{value}`\n\n")?;
                         }
                     }
                     ArrayValuesOrderGroup::AnyOf(values_order) => {
                         write!(f, "Values Order: `anyOf`\n\n")?;
-                        for value in values_order.iter() {
+                        for value in values_order {
                             write!(f, "  - `{value}`\n\n")?;
                         }
                     }
@@ -169,7 +169,7 @@ impl std::fmt::Display for ValueConstraints {
 
         if let Some(required_keys) = &self.required_keys {
             write!(f, "Required Keys:\n\n")?;
-            for key in required_keys.iter() {
+            for key in required_keys {
                 write!(f, "- `{key}`\n\n")?;
             }
         }
@@ -184,7 +184,7 @@ impl std::fmt::Display for ValueConstraints {
 
         if let Some(key_patterns) = &self.key_patterns {
             write!(f, "Key Patterns:\n\n")?;
-            for pattern_property in key_patterns.iter() {
+            for pattern_property in key_patterns {
                 write!(f, "- `{pattern_property}`\n\n")?;
             }
         }
@@ -200,11 +200,11 @@ impl std::fmt::Display for ValueConstraints {
         if let Some(keys_order) = &self.keys_order {
             match keys_order {
                 XTombiTableKeysOrder::All(keys_order) => {
-                    write!(f, "Keys Order: `{keys_order}`\n\n")?
+                    write!(f, "Keys Order: `{keys_order}`\n\n")?;
                 }
                 XTombiTableKeysOrder::Groups(keys_order) => {
                     write!(f, "Keys Order:\n\n")?;
-                    for key in keys_order.iter() {
+                    for key in keys_order {
                         write!(f, "  - {}: `{}`\n\n", key.target, key.order)?;
                     }
                 }

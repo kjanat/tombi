@@ -1,7 +1,10 @@
-use tombi_syntax::{SyntaxKind::*, T};
+use tombi_syntax::{
+    SyntaxKind::{LINE_BREAK, TABLE},
+    T,
+};
 
 use crate::{
-    ErrorKind::*,
+    ErrorKind::{ExpectedBracketEnd, ExpectedLineBreak},
     parse::{
         Parse, TS_LINE_END, begin_dangling_comments, end_dangling_comments, invalid_line,
         leading_comments, peek_leading_comments, trailing_comment,

@@ -57,14 +57,14 @@ pub struct BackendCapabilities {
 
 /// Diagnostic Type
 ///
-/// Many editors, such as VSCode, adopt the Pull diagnostic mode, but some specific editors adopt the Push mode.
+/// Many editors, such as `VSCode`, adopt the Pull diagnostic mode, but some specific editors adopt the Push mode.
 /// Therefore, it is necessary to support both modes.
 ///
-/// See: https://github.com/tombi-toml/tombi/issues/711
+/// See: <https://github.com/tombi-toml/tombi/issues/711>
 ///
-/// For WorkspaceDiagnostic, Tombi supports only the Push model in order to avoid CPU spikes.
+/// For `WorkspaceDiagnostic`, Tombi supports only the Push model in order to avoid CPU spikes.
 ///
-/// See: https://github.com/tombi-toml/tombi/issues/1070
+/// See: <https://github.com/tombi-toml/tombi/issues/1070>
 ///
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
 pub enum DiagnosticMode {
@@ -80,6 +80,7 @@ pub struct Options {
 
 impl Backend {
     #[inline]
+    #[must_use]
     pub fn new(client: tower_lsp::Client, options: &Options) -> Self {
         Self {
             client,
@@ -166,7 +167,7 @@ impl Backend {
             schema
                 .root_schema
                 .as_ref()
-                .and_then(|root| root.toml_version())
+                .and_then(tombi_schema_store::DocumentSchema::toml_version)
         }) {
             return (toml_version, TomlVersionSource::Schema);
         }
@@ -212,7 +213,7 @@ impl Backend {
 
     #[inline]
     pub async fn associate_schema(&self, params: AssociateSchemaParams) {
-        handle_associate_schema(self, params).await
+        handle_associate_schema(self, params).await;
     }
 
     #[inline]
@@ -225,7 +226,7 @@ impl Backend {
 
     #[inline]
     pub async fn push_diagnostics(&self, text_document_uri: tombi_uri::Uri) {
-        push_diagnostics(self, text_document_uri).await
+        push_diagnostics(self, text_document_uri).await;
     }
 }
 
@@ -239,7 +240,7 @@ impl tower_lsp::LanguageServer for Backend {
     }
 
     async fn initialized(&self, params: InitializedParams) {
-        handle_initialized(self, params).await
+        handle_initialized(self, params).await;
     }
 
     async fn shutdown(&self) -> Result<(), tower_lsp::jsonrpc::Error> {
@@ -247,27 +248,27 @@ impl tower_lsp::LanguageServer for Backend {
     }
 
     async fn did_open(&self, params: DidOpenTextDocumentParams) {
-        handle_did_open(self, params).await
+        handle_did_open(self, params).await;
     }
 
     async fn did_close(&self, params: DidCloseTextDocumentParams) {
-        handle_did_close(self, params).await
+        handle_did_close(self, params).await;
     }
 
     async fn did_change(&self, params: DidChangeTextDocumentParams) {
-        handle_did_change(self, params).await
+        handle_did_change(self, params).await;
     }
 
     async fn did_change_watched_files(&self, params: DidChangeWatchedFilesParams) {
-        handle_did_change_watched_files(self, params).await
+        handle_did_change_watched_files(self, params).await;
     }
 
     async fn did_save(&self, params: DidSaveTextDocumentParams) {
-        handle_did_save(self, params).await
+        handle_did_save(self, params).await;
     }
 
     async fn did_change_configuration(&self, params: DidChangeConfigurationParams) {
-        handle_did_change_configuration(params).await
+        handle_did_change_configuration(params).await;
     }
 
     async fn completion(

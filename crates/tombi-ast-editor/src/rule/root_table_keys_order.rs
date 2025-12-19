@@ -24,7 +24,9 @@ pub async fn root_table_keys_order<'a>(
 
     if comment_directive
         .as_ref()
-        .and_then(|c| c.table_keys_order_disabled())
+        .and_then(
+            tombi_comment_directive::value::TombiValueDirectiveContent::table_keys_order_disabled,
+        )
         .unwrap_or(false)
     {
         return Vec::with_capacity(0);

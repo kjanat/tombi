@@ -1,5 +1,5 @@
 #[derive(Debug)]
-pub(crate) enum CowMut<'a, T> {
+pub enum CowMut<'a, T> {
     Owned(T),
     Borrowed(&'a mut T),
 }

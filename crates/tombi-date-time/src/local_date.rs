@@ -3,23 +3,28 @@ pub struct LocalDate(crate::private::Date);
 
 impl LocalDate {
     #[cfg(feature = "serde")]
-    pub fn type_name() -> &'static str {
+    #[must_use]
+    pub const fn type_name() -> &'static str {
         "local date"
     }
 
-    pub fn from_ymd(year: u16, month: u8, day: u8) -> Self {
+    #[must_use]
+    pub const fn from_ymd(year: u16, month: u8, day: u8) -> Self {
         Self(crate::private::Date { year, month, day })
     }
 
-    pub fn year(&self) -> u16 {
+    #[must_use]
+    pub const fn year(&self) -> u16 {
         self.0.year
     }
 
-    pub fn month(&self) -> u8 {
+    #[must_use]
+    pub const fn month(&self) -> u8 {
         self.0.month
     }
 
-    pub fn day(&self) -> u8 {
+    #[must_use]
+    pub const fn day(&self) -> u8 {
         self.0.day
     }
 }
@@ -58,7 +63,7 @@ impl serde::ser::Serialize for LocalDate {
 
 #[cfg(feature = "serde")]
 impl<'de> serde::de::Deserialize<'de> for LocalDate {
-    fn deserialize<D>(deserializer: D) -> Result<LocalDate, D::Error>
+    fn deserialize<D>(deserializer: D) -> Result<Self, D::Error>
     where
         D: serde::de::Deserializer<'de>,
     {
@@ -70,7 +75,7 @@ impl<'de> serde::de::Deserialize<'de> for LocalDate {
                 date: Some(date),
                 time: None,
                 offset: None,
-            } => Ok(LocalDate(date)),
+            } => Ok(Self(date)),
             datetime => Err(serde::de::Error::invalid_type(
                 serde::de::Unexpected::Other(datetime.type_name()),
                 &Self::type_name(),

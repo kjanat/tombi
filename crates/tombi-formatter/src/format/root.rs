@@ -14,7 +14,9 @@ impl Format for tombi_ast::Root {
         let table_or_array_of_tables = self.table_or_array_of_tables().collect_vec();
         let key_values_dangling_comments = self.key_values_dangling_comments();
 
-        if !key_values.is_empty() {
+        if key_values.is_empty() {
+            key_values_dangling_comments.format(f)?;
+        } else {
             self.key_values_begin_dangling_comments().format(f)?;
 
             let equal_alignment_width = f.key_value_equal_alignment_width(key_values.iter());
@@ -34,8 +36,6 @@ impl Format for tombi_ast::Root {
             }
 
             self.key_values_end_dangling_comments().format(f)?;
-        } else {
-            key_values_dangling_comments.format(f)?;
         }
 
         if !(table_or_array_of_tables.is_empty()
@@ -75,7 +75,7 @@ impl Format for tombi_ast::Root {
                                 write!(f, "{}", f.line_ending())?;
                             }
                         }
-                    };
+                    }
                     table.format(f)?;
 
                     header = Header::Table {
@@ -117,7 +117,7 @@ impl Format for tombi_ast::Root {
                                 write!(f, "{}", f.line_ending())?;
                             }
                         }
-                    };
+                    }
                     array_of_table.format(f)?;
 
                     header = Header::ArrayOfTable {
@@ -136,9 +136,9 @@ impl Format for tombi_ast::Root {
 impl Format for tombi_ast::RootItem {
     fn format(&self, f: &mut crate::Formatter) -> Result<(), std::fmt::Error> {
         match self {
-            tombi_ast::RootItem::Table(it) => it.format(f),
-            tombi_ast::RootItem::ArrayOfTable(it) => it.format(f),
-            tombi_ast::RootItem::KeyValue(it) => it.format(f),
+            Self::Table(it) => it.format(f),
+            Self::ArrayOfTable(it) => it.format(f),
+            Self::KeyValue(it) => it.format(f),
         }
     }
 }

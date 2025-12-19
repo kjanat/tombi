@@ -32,6 +32,7 @@ pub enum ValueSchema {
 }
 
 impl ValueSchema {
+    #[must_use]
     pub fn new(
         object: &tombi_json::ObjectNode,
         string_formats: Option<&[StringFormat]>,
@@ -66,13 +67,13 @@ impl ValueSchema {
         }
 
         if object.get("oneOf").is_some() {
-            return Some(ValueSchema::OneOf(OneOfSchema::new(object, string_formats)));
+            return Some(Self::OneOf(OneOfSchema::new(object, string_formats)));
         }
         if object.get("anyOf").is_some() {
-            return Some(ValueSchema::AnyOf(AnyOfSchema::new(object, string_formats)));
+            return Some(Self::AnyOf(AnyOfSchema::new(object, string_formats)));
         }
         if object.get("allOf").is_some() {
-            return Some(ValueSchema::AllOf(AllOfSchema::new(object, string_formats)));
+            return Some(Self::AllOf(AllOfSchema::new(object, string_formats)));
         }
         if let Some(tombi_json::ValueNode::Array(enum_values)) = object.get("enum") {
             return Self::new_enum_value(object, enum_values, string_formats);
@@ -87,10 +88,10 @@ impl ValueSchema {
         string_formats: Option<&[StringFormat]>,
     ) -> Option<Self> {
         match type_str {
-            "null" => Some(ValueSchema::Null),
-            "boolean" => Some(ValueSchema::Boolean(BooleanSchema::new(object))),
-            "integer" => Some(ValueSchema::Integer(IntegerSchema::new(object))),
-            "number" => Some(ValueSchema::Float(FloatSchema::new(object))),
+            "null" => Some(Self::Null),
+            "boolean" => Some(Self::Boolean(BooleanSchema::new(object))),
+            "integer" => Some(Self::Integer(IntegerSchema::new(object))),
+            "number" => Some(Self::Float(FloatSchema::new(object))),
             "string" => {
                 let string_format = if let Some(tombi_json::ValueNode::String(StringNode {
                     value: format_str,
@@ -100,32 +101,28 @@ impl ValueSchema {
                     // See: https://json-schema.org/understanding-json-schema/reference/type#built-in-formats
                     match format_str.as_str() {
                         "date-time" => {
-                            return Some(ValueSchema::OffsetDateTime(OffsetDateTimeSchema::new(
-                                object,
-                            )));
+                            return Some(Self::OffsetDateTime(OffsetDateTimeSchema::new(object)));
                         }
                         "date-time-local" | "partial-date-time" => {
                             // NOTE: It's defined in OpenAPI.
                             //       date-time-local: see [OpenAPI Format Registry](https://spec.openapis.org/registry/format/date-time-local.html).
                             //       partial-date-time: used [schemars](https://github.com/GREsau/schemars).
-                            return Some(ValueSchema::LocalDateTime(LocalDateTimeSchema::new(
-                                object,
-                            )));
+                            return Some(Self::LocalDateTime(LocalDateTimeSchema::new(object)));
                         }
                         "date" => {
-                            return Some(ValueSchema::LocalDate(LocalDateSchema::new(object)));
+                            return Some(Self::LocalDate(LocalDateSchema::new(object)));
                         }
                         "time-local" | "partial-time" => {
                             // NOTE: It's defined in OpenAPI.
                             //       time-local: see [OpenAPI Format Registry](https://spec.openapis.org/registry/format/time-local.html).
                             //       partial-time: used [schemars](https://github.com/GREsau/schemars).
-                            return Some(ValueSchema::LocalTime(LocalTimeSchema::new(object)));
+                            return Some(Self::LocalTime(LocalTimeSchema::new(object)));
                         }
                         _ => string_formats.and_then(|string_formats| {
-                            if let Ok(string_format) = StringFormat::from_str(format_str.as_str()) {
-                                if string_formats.contains(&string_format) {
-                                    return Some(string_format);
-                                }
+                            if let Ok(string_format) = StringFormat::from_str(format_str.as_str())
+                                && string_formats.contains(&string_format)
+                            {
+                                return Some(string_format);
                             }
                             None
                         }),
@@ -134,13 +131,10 @@ impl ValueSchema {
                     None
                 };
 
-                Some(ValueSchema::String(StringSchema::new(
-                    object,
-                    string_format,
-                )))
+                Some(Self::String(StringSchema::new(object, string_format)))
             }
-            "array" => Some(ValueSchema::Array(ArraySchema::new(object, string_formats))),
-            "object" => Some(ValueSchema::Table(TableSchema::new(object, string_formats))),
+            "array" => Some(Self::Array(ArraySchema::new(object, string_formats))),
+            "object" => Some(Self::Table(TableSchema::new(object, string_formats))),
             _ => None,
         }
     }
@@ -190,23 +184,25 @@ impl ValueSchema {
                 let title = object
                     .get("title")
                     .and_then(|v| v.as_str())
-                    .map(|s| s.to_string());
+                    .map(std::string::ToString::to_string);
                 let description = object
                     .get("description")
                     .and_then(|v| v.as_str())
-                    .map(|s| s.to_string());
+                    .map(std::string::ToString::to_string);
 
                 Some(Self::OneOf(OneOfSchema {
                     title,
                     description,
                     range: object.range,
                     schemas: Arc::new(tokio::sync::RwLock::new(schemas)),
-                    default: object.get("default").cloned().map(|v| v.into()),
+                    default: object.get("default").cloned().map(std::convert::Into::into),
                     examples: object
                         .get("examples")
                         .and_then(|v| v.as_array())
-                        .map(|array| array.items.iter().map(|v| v.into()).collect()),
-                    deprecated: object.get("deprecated").and_then(|v| v.as_bool()),
+                        .map(|array| array.items.iter().map(std::convert::Into::into).collect()),
+                    deprecated: object
+                        .get("deprecated")
+                        .and_then(tombi_json::ValueNode::as_bool),
                     keys_order: object
                         .get(X_TOMBI_TABLE_KEYS_ORDER)
                         .and_then(|v| v.as_str().and_then(|s| TableKeysOrder::try_from(s).ok())),
@@ -263,7 +259,7 @@ impl ValueSchema {
                 schemas,
                 ..
             }) => {
-                if let Some(true) = deprecated {
+                if matches!(deprecated, Some(true)) {
                     Some(true)
                 } else {
                     let mut has_deprecated = false;
@@ -271,10 +267,10 @@ impl ValueSchema {
                         if schema.value_type().await == crate::ValueType::Null {
                             continue;
                         }
-                        if schema.deprecated().await != Some(true) {
-                            return None;
-                        } else {
+                        if schema.deprecated().await == Some(true) {
                             has_deprecated = true;
+                        } else {
+                            return None;
                         }
                     }
                     if has_deprecated { Some(true) } else { None }
@@ -283,7 +279,7 @@ impl ValueSchema {
         }
     }
 
-    pub(crate) fn set_deprecated(&mut self, deprecated: bool) {
+    pub(crate) const fn set_deprecated(&mut self, deprecated: bool) {
         match self {
             Self::Null => {}
             Self::Boolean(boolean) => boolean.deprecated = Some(deprecated),
@@ -294,7 +290,7 @@ impl ValueSchema {
             Self::LocalDateTime(local_date_time) => local_date_time.deprecated = Some(deprecated),
             Self::LocalTime(local_time) => local_time.deprecated = Some(deprecated),
             Self::OffsetDateTime(offset_date_time) => {
-                offset_date_time.deprecated = Some(deprecated)
+                offset_date_time.deprecated = Some(deprecated);
             }
             Self::Array(array) => array.deprecated = Some(deprecated),
             Self::Table(table) => table.deprecated = Some(deprecated),
@@ -304,114 +300,117 @@ impl ValueSchema {
         }
     }
 
+    #[must_use]
     pub fn title(&self) -> Option<&str> {
         match self {
-            ValueSchema::Null => None,
-            ValueSchema::Boolean(schema) => schema.title.as_deref(),
-            ValueSchema::Integer(schema) => schema.title.as_deref(),
-            ValueSchema::Float(schema) => schema.title.as_deref(),
-            ValueSchema::String(schema) => schema.title.as_deref(),
-            ValueSchema::LocalDate(schema) => schema.title.as_deref(),
-            ValueSchema::LocalDateTime(schema) => schema.title.as_deref(),
-            ValueSchema::LocalTime(schema) => schema.title.as_deref(),
-            ValueSchema::OffsetDateTime(schema) => schema.title.as_deref(),
-            ValueSchema::Array(schema) => schema.title.as_deref(),
-            ValueSchema::Table(schema) => schema.title.as_deref(),
-            ValueSchema::OneOf(schema) => schema.title.as_deref(),
-            ValueSchema::AnyOf(schema) => schema.title.as_deref(),
-            ValueSchema::AllOf(schema) => schema.title.as_deref(),
+            Self::Null => None,
+            Self::Boolean(schema) => schema.title.as_deref(),
+            Self::Integer(schema) => schema.title.as_deref(),
+            Self::Float(schema) => schema.title.as_deref(),
+            Self::String(schema) => schema.title.as_deref(),
+            Self::LocalDate(schema) => schema.title.as_deref(),
+            Self::LocalDateTime(schema) => schema.title.as_deref(),
+            Self::LocalTime(schema) => schema.title.as_deref(),
+            Self::OffsetDateTime(schema) => schema.title.as_deref(),
+            Self::Array(schema) => schema.title.as_deref(),
+            Self::Table(schema) => schema.title.as_deref(),
+            Self::OneOf(schema) => schema.title.as_deref(),
+            Self::AnyOf(schema) => schema.title.as_deref(),
+            Self::AllOf(schema) => schema.title.as_deref(),
         }
     }
 
     pub fn set_title(&mut self, title: Option<String>) {
         match self {
-            ValueSchema::Null => {}
-            ValueSchema::Boolean(schema) => schema.title = title,
-            ValueSchema::Integer(schema) => schema.title = title,
-            ValueSchema::Float(schema) => schema.title = title,
-            ValueSchema::String(schema) => schema.title = title,
-            ValueSchema::LocalDate(schema) => schema.title = title,
-            ValueSchema::LocalDateTime(schema) => schema.title = title,
-            ValueSchema::LocalTime(schema) => schema.title = title,
-            ValueSchema::OffsetDateTime(schema) => schema.title = title,
-            ValueSchema::Array(schema) => schema.title = title,
-            ValueSchema::Table(schema) => schema.title = title,
-            ValueSchema::OneOf(schema) => schema.title = title,
-            ValueSchema::AnyOf(schema) => schema.title = title,
-            ValueSchema::AllOf(schema) => schema.title = title,
+            Self::Null => {}
+            Self::Boolean(schema) => schema.title = title,
+            Self::Integer(schema) => schema.title = title,
+            Self::Float(schema) => schema.title = title,
+            Self::String(schema) => schema.title = title,
+            Self::LocalDate(schema) => schema.title = title,
+            Self::LocalDateTime(schema) => schema.title = title,
+            Self::LocalTime(schema) => schema.title = title,
+            Self::OffsetDateTime(schema) => schema.title = title,
+            Self::Array(schema) => schema.title = title,
+            Self::Table(schema) => schema.title = title,
+            Self::OneOf(schema) => schema.title = title,
+            Self::AnyOf(schema) => schema.title = title,
+            Self::AllOf(schema) => schema.title = title,
         }
     }
 
+    #[must_use]
     pub fn description(&self) -> Option<&str> {
         match self {
-            ValueSchema::Null => None,
-            ValueSchema::Boolean(schema) => schema.description.as_deref(),
-            ValueSchema::Integer(schema) => schema.description.as_deref(),
-            ValueSchema::Float(schema) => schema.description.as_deref(),
-            ValueSchema::String(schema) => schema.description.as_deref(),
-            ValueSchema::LocalDate(schema) => schema.description.as_deref(),
-            ValueSchema::LocalDateTime(schema) => schema.description.as_deref(),
-            ValueSchema::LocalTime(schema) => schema.description.as_deref(),
-            ValueSchema::OffsetDateTime(schema) => schema.description.as_deref(),
-            ValueSchema::Array(schema) => schema.description.as_deref(),
-            ValueSchema::Table(schema) => schema.description.as_deref(),
-            ValueSchema::OneOf(schema) => schema.description.as_deref(),
-            ValueSchema::AnyOf(schema) => schema.description.as_deref(),
-            ValueSchema::AllOf(schema) => schema.description.as_deref(),
+            Self::Null => None,
+            Self::Boolean(schema) => schema.description.as_deref(),
+            Self::Integer(schema) => schema.description.as_deref(),
+            Self::Float(schema) => schema.description.as_deref(),
+            Self::String(schema) => schema.description.as_deref(),
+            Self::LocalDate(schema) => schema.description.as_deref(),
+            Self::LocalDateTime(schema) => schema.description.as_deref(),
+            Self::LocalTime(schema) => schema.description.as_deref(),
+            Self::OffsetDateTime(schema) => schema.description.as_deref(),
+            Self::Array(schema) => schema.description.as_deref(),
+            Self::Table(schema) => schema.description.as_deref(),
+            Self::OneOf(schema) => schema.description.as_deref(),
+            Self::AnyOf(schema) => schema.description.as_deref(),
+            Self::AllOf(schema) => schema.description.as_deref(),
         }
     }
 
     pub fn set_description(&mut self, description: Option<String>) {
         match self {
-            ValueSchema::Null => {}
-            ValueSchema::Boolean(schema) => schema.description = description,
-            ValueSchema::Integer(schema) => schema.description = description,
-            ValueSchema::Float(schema) => schema.description = description,
-            ValueSchema::String(schema) => schema.description = description,
-            ValueSchema::LocalDate(schema) => schema.description = description,
-            ValueSchema::LocalDateTime(schema) => schema.description = description,
-            ValueSchema::LocalTime(schema) => schema.description = description,
-            ValueSchema::OffsetDateTime(schema) => schema.description = description,
-            ValueSchema::Array(schema) => schema.description = description,
-            ValueSchema::Table(schema) => schema.description = description,
-            ValueSchema::OneOf(schema) => schema.description = description,
-            ValueSchema::AnyOf(schema) => schema.description = description,
-            ValueSchema::AllOf(schema) => schema.description = description,
+            Self::Null => {}
+            Self::Boolean(schema) => schema.description = description,
+            Self::Integer(schema) => schema.description = description,
+            Self::Float(schema) => schema.description = description,
+            Self::String(schema) => schema.description = description,
+            Self::LocalDate(schema) => schema.description = description,
+            Self::LocalDateTime(schema) => schema.description = description,
+            Self::LocalTime(schema) => schema.description = description,
+            Self::OffsetDateTime(schema) => schema.description = description,
+            Self::Array(schema) => schema.description = description,
+            Self::Table(schema) => schema.description = description,
+            Self::OneOf(schema) => schema.description = description,
+            Self::AnyOf(schema) => schema.description = description,
+            Self::AllOf(schema) => schema.description = description,
         }
     }
 
+    #[must_use]
     pub fn range(&self) -> tombi_text::Range {
         match self {
-            ValueSchema::Null => tombi_text::Range::default(),
-            ValueSchema::Boolean(schema) => schema.range,
-            ValueSchema::Integer(schema) => schema.range,
-            ValueSchema::Float(schema) => schema.range,
-            ValueSchema::String(schema) => schema.range,
-            ValueSchema::LocalDate(schema) => schema.range,
-            ValueSchema::LocalDateTime(schema) => schema.range,
-            ValueSchema::LocalTime(schema) => schema.range,
-            ValueSchema::OffsetDateTime(schema) => schema.range,
-            ValueSchema::Array(schema) => schema.range,
-            ValueSchema::Table(schema) => schema.range,
-            ValueSchema::OneOf(schema) => schema.range,
-            ValueSchema::AnyOf(schema) => schema.range,
-            ValueSchema::AllOf(schema) => schema.range,
+            Self::Null => tombi_text::Range::default(),
+            Self::Boolean(schema) => schema.range,
+            Self::Integer(schema) => schema.range,
+            Self::Float(schema) => schema.range,
+            Self::String(schema) => schema.range,
+            Self::LocalDate(schema) => schema.range,
+            Self::LocalDateTime(schema) => schema.range,
+            Self::LocalTime(schema) => schema.range,
+            Self::OffsetDateTime(schema) => schema.range,
+            Self::Array(schema) => schema.range,
+            Self::Table(schema) => schema.range,
+            Self::OneOf(schema) => schema.range,
+            Self::AnyOf(schema) => schema.range,
+            Self::AllOf(schema) => schema.range,
         }
     }
 
-    pub fn match_flattened_schemas<'a: 'b, 'b, T: Fn(&ValueSchema) -> bool + Sync + Send>(
+    pub fn match_flattened_schemas<'a: 'b, 'b, T: Fn(&Self) -> bool + Sync + Send>(
         &'a self,
         condition: &'a T,
         schema_uri: &'a SchemaUri,
         definitions: &'a SchemaDefinitions,
         schema_store: &'a SchemaStore,
-    ) -> BoxFuture<'b, Vec<ValueSchema>> {
+    ) -> BoxFuture<'b, Vec<Self>> {
         async move {
             let mut matched_schemas = Vec::new();
             match self {
-                ValueSchema::OneOf(OneOfSchema { schemas, .. })
-                | ValueSchema::AnyOf(AnyOfSchema { schemas, .. })
-                | ValueSchema::AllOf(AllOfSchema { schemas, .. }) => {
+                Self::OneOf(OneOfSchema { schemas, .. })
+                | Self::AnyOf(AnyOfSchema { schemas, .. })
+                | Self::AllOf(AllOfSchema { schemas, .. }) => {
                     for referable_schema in schemas.write().await.iter_mut() {
                         if let Ok(Some(current_schema)) = referable_schema
                             .resolve(
@@ -431,7 +430,7 @@ impl ValueSchema {
                                         schema_store,
                                     )
                                     .await,
-                            )
+                            );
                         }
                     }
                 }
@@ -440,14 +439,14 @@ impl ValueSchema {
                         matched_schemas.push(self.clone());
                     }
                 }
-            };
+            }
 
             matched_schemas
         }
         .boxed()
     }
 
-    pub fn is_match<'a, 'b, T: Fn(&ValueSchema) -> bool + Sync + Send>(
+    pub fn is_match<'a, 'b, T: Fn(&Self) -> bool + Sync + Send>(
         &'a self,
         condition: &'a T,
         schema_uri: &'a SchemaUri,
@@ -459,8 +458,8 @@ impl ValueSchema {
     {
         async move {
             match self {
-                ValueSchema::OneOf(OneOfSchema { schemas, .. })
-                | ValueSchema::AnyOf(AnyOfSchema { schemas, .. }) => join_all(
+                Self::OneOf(OneOfSchema { schemas, .. })
+                | Self::AnyOf(AnyOfSchema { schemas, .. }) => join_all(
                     schemas
                         .write()
                         .await
@@ -489,7 +488,7 @@ impl ValueSchema {
                 .await
                 .into_iter()
                 .any(|is_matched| is_matched),
-                ValueSchema::AllOf(AllOfSchema { schemas, .. }) => join_all(
+                Self::AllOf(AllOfSchema { schemas, .. }) => join_all(
                     schemas
                         .write()
                         .await
@@ -591,7 +590,7 @@ impl FindSchemaCandidates for ValueSchema {
 
                     (candidates, errors)
                 }
-                ValueSchema::Null => (Vec::with_capacity(0), Vec::with_capacity(0)),
+                Self::Null => (Vec::with_capacity(0), Vec::with_capacity(0)),
                 _ => (vec![self.clone()], Vec::with_capacity(0)),
             }
         }

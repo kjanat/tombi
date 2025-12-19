@@ -1,4 +1,4 @@
-#[derive(Debug, Default, Clone, PartialEq)]
+#[derive(Debug, Default, Clone, PartialEq, Eq)]
 pub struct LocalDateTimeSchema {
     pub title: Option<String>,
     pub description: Option<String>,
@@ -11,14 +11,15 @@ pub struct LocalDateTimeSchema {
 }
 
 impl LocalDateTimeSchema {
+    #[must_use]
     pub fn new(object: &tombi_json::ObjectNode) -> Self {
         Self {
             title: object
                 .get("title")
-                .and_then(|v| v.as_str().map(|s| s.to_string())),
+                .and_then(|v| v.as_str().map(std::string::ToString::to_string)),
             description: object
                 .get("description")
-                .and_then(|v| v.as_str().map(|s| s.to_string())),
+                .and_then(|v| v.as_str().map(std::string::ToString::to_string)),
             enumerate: object.get("enum").and_then(|v| v.as_array()).map(|a| {
                 a.items
                     .iter()
@@ -28,21 +29,24 @@ impl LocalDateTimeSchema {
             }),
             default: object
                 .get("default")
-                .and_then(|v| v.as_str().map(|s| s.to_string())),
+                .and_then(|v| v.as_str().map(std::string::ToString::to_string)),
             const_value: object
                 .get("const")
-                .and_then(|v| v.as_str().map(|s| s.to_string())),
+                .and_then(|v| v.as_str().map(std::string::ToString::to_string)),
             examples: object.get("examples").and_then(|v| v.as_array()).map(|v| {
                 v.items
                     .iter()
                     .filter_map(|v| v.as_str().map(ToString::to_string))
                     .collect()
             }),
-            deprecated: object.get("deprecated").and_then(|v| v.as_bool()),
+            deprecated: object
+                .get("deprecated")
+                .and_then(tombi_json::ValueNode::as_bool),
             range: object.range,
         }
     }
 
+    #[must_use]
     pub const fn value_type(&self) -> crate::ValueType {
         crate::ValueType::LocalDateTime
     }

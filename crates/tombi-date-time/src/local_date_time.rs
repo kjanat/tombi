@@ -6,11 +6,20 @@ pub struct LocalDateTime {
 
 impl LocalDateTime {
     #[cfg(feature = "serde")]
-    pub fn type_name() -> &'static str {
+    #[must_use]
+    pub const fn type_name() -> &'static str {
         "local date time"
     }
 
-    pub fn from_ymd_hms(year: u16, month: u8, day: u8, hour: u8, minute: u8, second: u8) -> Self {
+    #[must_use]
+    pub const fn from_ymd_hms(
+        year: u16,
+        month: u8,
+        day: u8,
+        hour: u8,
+        minute: u8,
+        second: u8,
+    ) -> Self {
         Self {
             date: crate::private::Date { year, month, day },
             time: crate::private::Time {
@@ -22,6 +31,7 @@ impl LocalDateTime {
         }
     }
 
+    #[must_use]
     pub fn from_ymd_hms_milli(
         year: u16,
         month: u8,
@@ -44,6 +54,7 @@ impl LocalDateTime {
         }
     }
 
+    #[must_use]
     pub fn from_ymd_hms_nano(
         year: u16,
         month: u8,
@@ -65,31 +76,38 @@ impl LocalDateTime {
         }
     }
 
-    pub fn year(&self) -> u16 {
+    #[must_use]
+    pub const fn year(&self) -> u16 {
         self.date.year
     }
 
-    pub fn month(&self) -> u8 {
+    #[must_use]
+    pub const fn month(&self) -> u8 {
         self.date.month
     }
 
-    pub fn day(&self) -> u8 {
+    #[must_use]
+    pub const fn day(&self) -> u8 {
         self.date.day
     }
 
-    pub fn hour(&self) -> u8 {
+    #[must_use]
+    pub const fn hour(&self) -> u8 {
         self.time.hour
     }
 
-    pub fn minute(&self) -> u8 {
+    #[must_use]
+    pub const fn minute(&self) -> u8 {
         self.time.minute
     }
 
-    pub fn second(&self) -> u8 {
+    #[must_use]
+    pub const fn second(&self) -> u8 {
         self.time.second
     }
 
-    pub fn nanosecond(&self) -> u32 {
+    #[must_use]
+    pub const fn nanosecond(&self) -> u32 {
         self.time.nanosecond
     }
 }
@@ -164,7 +182,7 @@ impl serde::ser::Serialize for LocalDateTime {
 
 #[cfg(feature = "serde")]
 impl<'de> serde::de::Deserialize<'de> for LocalDateTime {
-    fn deserialize<D>(deserializer: D) -> Result<LocalDateTime, D::Error>
+    fn deserialize<D>(deserializer: D) -> Result<Self, D::Error>
     where
         D: serde::de::Deserializer<'de>,
     {
@@ -176,7 +194,7 @@ impl<'de> serde::de::Deserialize<'de> for LocalDateTime {
                 date: Some(date),
                 time: Some(time),
                 offset: None,
-            } => Ok(LocalDateTime { date, time }),
+            } => Ok(Self { date, time }),
             datetime => Err(serde::de::Error::invalid_type(
                 serde::de::Unexpected::Other(datetime.type_name()),
                 &Self::type_name(),

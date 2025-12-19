@@ -81,16 +81,19 @@ where
                 (_, ValueSchema::Null) => {
                     continue;
                 }
-                (_, ValueSchema::Boolean(_))
-                | (_, ValueSchema::Integer(_))
-                | (_, ValueSchema::Float(_))
-                | (_, ValueSchema::String(_))
-                | (_, ValueSchema::OffsetDateTime(_))
-                | (_, ValueSchema::LocalDateTime(_))
-                | (_, ValueSchema::LocalDate(_))
-                | (_, ValueSchema::LocalTime(_))
-                | (_, ValueSchema::Table(_))
-                | (_, ValueSchema::Array(_)) => handle_type_mismatch(
+                (
+                    _,
+                    ValueSchema::Boolean(_)
+                    | ValueSchema::Integer(_)
+                    | ValueSchema::Float(_)
+                    | ValueSchema::String(_)
+                    | ValueSchema::OffsetDateTime(_)
+                    | ValueSchema::LocalDateTime(_)
+                    | ValueSchema::LocalDate(_)
+                    | ValueSchema::LocalTime(_)
+                    | ValueSchema::Table(_)
+                    | ValueSchema::Array(_),
+                ) => handle_type_mismatch(
                     current_schema.value_schema.value_type().await,
                     value.value_type(),
                     value.range(),

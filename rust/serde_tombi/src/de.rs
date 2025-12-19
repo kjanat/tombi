@@ -78,7 +78,8 @@ impl Default for Deserializer<'_> {
 }
 
 impl Deserializer<'_> {
-    pub fn new() -> Self {
+    #[must_use]
+    pub const fn new() -> Self {
         Self {
             config: None,
             config_path: None,
@@ -121,27 +122,24 @@ impl Deserializer<'_> {
         let mut toml_version = TomlVersion::default();
 
         if self.schema_store.is_none() {
-            match self.config {
-                Some(config) => {
-                    if let Some(new_toml_version) = config.toml_version {
-                        toml_version = new_toml_version;
-                    }
-                    if self.schema_store.is_none() {
-                        schema_store.load_config(config, self.config_path).await?;
-                    }
+            if let Some(config) = self.config {
+                if let Some(new_toml_version) = config.toml_version {
+                    toml_version = new_toml_version;
                 }
-                None => {
-                    let (config, config_path) =
-                        crate::config::load_with_path(std::env::current_dir().ok())?;
-
-                    if let Some(new_toml_version) = config.toml_version {
-                        toml_version = new_toml_version;
-                    }
-
-                    schema_store
-                        .load_config(&config, config_path.as_deref())
-                        .await?;
+                if self.schema_store.is_none() {
+                    schema_store.load_config(config, self.config_path).await?;
                 }
+            } else {
+                let (config, config_path) =
+                    crate::config::load_with_path(std::env::current_dir().ok())?;
+
+                if let Some(new_toml_version) = config.toml_version {
+                    toml_version = new_toml_version;
+                }
+
+                schema_store
+                    .load_config(&config, config_path.as_deref())
+                    .await?;
             }
         }
 

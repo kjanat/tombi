@@ -28,7 +28,7 @@ impl AlignmentWidth {
     }
 
     #[inline]
-    pub fn value(&self) -> u32 {
+    pub const fn value(&self) -> u32 {
         self.0
     }
 }

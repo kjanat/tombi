@@ -79,7 +79,7 @@ pub fn pushd(path: impl Into<PathBuf>) -> Pushd {
 
 impl Drop for Pushd {
     fn drop(&mut self) {
-        Env::with(|env| env.popd())
+        Env::with(Env::popd);
     }
 }
 
@@ -94,7 +94,7 @@ pub fn pushenv(var: &str, value: &str) -> Pushenv {
 
 impl Drop for Pushenv {
     fn drop(&mut self) {
-        Env::with(|env| env.popenv())
+        Env::with(Env::popenv);
     }
 }
 
@@ -125,7 +125,7 @@ fn run_process_inner(cmd: &str, echo: bool, stdin: Option<&[u8]>) -> Result<Stri
     let current_dir = Env::with(|it| it.cwd().to_path_buf());
 
     if echo {
-        println!("> {cmd}")
+        println!("> {cmd}");
     }
 
     let mut command = Command::new(binary);
@@ -145,7 +145,7 @@ fn run_process_inner(cmd: &str, echo: bool, stdin: Option<&[u8]>) -> Result<Stri
     let stdout = String::from_utf8(output.stdout)?;
 
     if echo {
-        print!("{stdout}")
+        print!("{stdout}");
     }
 
     if !output.status.success() {
@@ -159,13 +159,13 @@ fn shelx(cmd: &str) -> Vec<String> {
     let mut res = Vec::new();
     for (string_piece, in_quotes) in cmd.split('\'').zip([false, true].iter().copied().cycle()) {
         if in_quotes {
-            res.push(string_piece.to_string())
+            res.push(string_piece.to_string());
         } else if !string_piece.is_empty() {
             res.extend(
                 string_piece
                     .split_ascii_whitespace()
-                    .map(|it| it.to_string()),
-            )
+                    .map(std::string::ToString::to_string),
+            );
         }
     }
     res
@@ -177,7 +177,7 @@ struct Env {
 }
 
 impl Env {
-    fn with<F: FnOnce(&mut Env) -> T, T>(f: F) -> T {
+    fn with<F: FnOnce(&mut Self) -> T, T>(f: F) -> T {
         thread_local! {
             static ENV: RefCell<Env> = RefCell::new(Env {
                 pushd_stack: vec![env::current_dir().unwrap()],

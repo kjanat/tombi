@@ -8,10 +8,15 @@ pub struct Token {
 }
 
 impl Token {
-    pub fn new(kind: SyntaxKind, (span, range): (tombi_text::Span, tombi_text::Range)) -> Self {
+    #[must_use]
+    pub const fn new(
+        kind: SyntaxKind,
+        (span, range): (tombi_text::Span, tombi_text::Range),
+    ) -> Self {
         Self { kind, span, range }
     }
 
+    #[must_use]
     pub const fn eof() -> Self {
         Self {
             kind: SyntaxKind::EOF,
@@ -21,22 +26,26 @@ impl Token {
     }
 
     #[inline]
+    #[must_use]
     pub fn is_eof(&self) -> bool {
         self.kind == SyntaxKind::EOF
     }
 
     #[inline]
-    pub fn kind(&self) -> SyntaxKind {
+    #[must_use]
+    pub const fn kind(&self) -> SyntaxKind {
         self.kind
     }
 
     #[inline]
-    pub fn span(&self) -> tombi_text::Span {
+    #[must_use]
+    pub const fn span(&self) -> tombi_text::Span {
         self.span
     }
 
     #[inline]
-    pub fn range(&self) -> tombi_text::Range {
+    #[must_use]
+    pub const fn range(&self) -> tombi_text::Range {
         self.range
     }
 }

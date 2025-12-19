@@ -22,9 +22,9 @@ struct DependencyRequirement<'a> {
     requirement: Requirement<VerbatimUrl>,
 }
 
-impl<'a> DependencyRequirement<'a> {
+impl DependencyRequirement<'_> {
     #[inline]
-    fn version_or_url(&self) -> Option<&VersionOrUrl<VerbatimUrl>> {
+    const fn version_or_url(&self) -> Option<&VersionOrUrl<VerbatimUrl>> {
         self.requirement.version_or_url.as_ref()
     }
 }
@@ -213,10 +213,10 @@ fn find_pyproject_toml_paths<'a>(
                 }
             }
 
-            if !pyproject_toml_paths.is_empty() {
-                Some(pyproject_toml_paths)
-            } else {
+            if pyproject_toml_paths.is_empty() {
                 None
+            } else {
+                Some(pyproject_toml_paths)
             }
         })
         .flatten()
@@ -302,14 +302,12 @@ fn goto_workspace_member(
     } else {
         return Ok(None);
     };
-    if accessors.len() == 3 {
-        if let Some((_, tombi_document_tree::Value::Table(table))) =
+    if accessors.len() == 3
+        && let Some((_, tombi_document_tree::Value::Table(table))) =
             dig_accessors(document_tree, accessors)
-        {
-            if !table.contains_key("workspace") {
-                return Ok(None);
-            }
-        }
+        && !table.contains_key("workspace")
+    {
+        return Ok(None);
     }
 
     let Some((package_toml_path, member_range)) = find_member_project_toml(
@@ -419,10 +417,10 @@ fn find_member_project_toml(
             continue;
         };
 
-        if let Some(name) = get_project_name(&package_project_toml_document_tree) {
-            if name.value() == package_name {
-                return Some((package_project_toml_path, member_item.unquoted_range()));
-            }
+        if let Some(name) = get_project_name(&package_project_toml_document_tree)
+            && name.value() == package_name
+        {
+            return Some((package_project_toml_path, member_item.unquoted_range()));
         }
     }
 
@@ -443,12 +441,12 @@ fn parse_requirement(dependency: &str) -> Option<Requirement<VerbatimUrl>> {
     }
 }
 
-fn parse_dependency_requirement<'a>(
-    dependency: &'a tombi_document_tree::String,
-) -> Option<DependencyRequirement<'a>> {
+fn parse_dependency_requirement(
+    dependency: &tombi_document_tree::String,
+) -> Option<DependencyRequirement<'_>> {
     parse_requirement(dependency.value()).map(|requirement| DependencyRequirement {
-        requirement,
         dependency,
+        requirement,
     })
 }
 

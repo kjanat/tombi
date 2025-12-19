@@ -53,8 +53,9 @@ pub enum SyntaxKind {
 }
 impl SyntaxKind {
     #[inline]
-    pub fn is_trivia(self) -> bool {
-        matches!(self, SyntaxKind::WHITESPACE)
+    #[must_use]
+    pub const fn is_trivia(self) -> bool {
+        matches!(self, Self::WHITESPACE)
     }
 }
 impl From<SyntaxKind> for tombi_rg_tree::SyntaxKind {
@@ -65,17 +66,17 @@ impl From<SyntaxKind> for tombi_rg_tree::SyntaxKind {
 }
 impl From<u16> for SyntaxKind {
     #[inline]
-    fn from(d: u16) -> SyntaxKind {
-        debug_assert!(d <= (SyntaxKind::__LAST as u16));
-        unsafe { std::mem::transmute::<u16, SyntaxKind>(d) }
+    fn from(d: u16) -> Self {
+        debug_assert!(d <= (Self::__LAST as u16));
+        unsafe { std::mem::transmute::<u16, Self>(d) }
     }
 }
 impl From<SyntaxKind> for u16 {
     #[inline]
-    fn from(k: SyntaxKind) -> u16 {
-        k as u16
+    fn from(k: SyntaxKind) -> Self {
+        k as Self
     }
 }
-#[doc = r" Utility macro for creating a SyntaxKind through simple macro syntax"]
+#[doc = r" Utility macro for creating a `SyntaxKind` through simple macro syntax"]
 #[macro_export]
 macro_rules ! T { [,] => { $ crate :: SyntaxKind :: COMMA } ; [.] => { $ crate :: SyntaxKind :: DOT } ; [=] => { $ crate :: SyntaxKind :: EQUAL } ; ['['] => { $ crate :: SyntaxKind :: BRACKET_START } ; [']'] => { $ crate :: SyntaxKind :: BRACKET_END } ; ['{'] => { $ crate :: SyntaxKind :: BRACE_START } ; ['}'] => { $ crate :: SyntaxKind :: BRACE_END } ; ["[["] => { $ crate :: SyntaxKind :: DOUBLE_BRACKET_START } ; ["]]"] => { $ crate :: SyntaxKind :: DOUBLE_BRACKET_END } ; [bare_key] => { $ crate :: SyntaxKind :: BARE_KEY } ; [basic_string] => { $ crate :: SyntaxKind :: BASIC_STRING } ; [multi_line_basic_string] => { $ crate :: SyntaxKind :: MULTI_LINE_BASIC_STRING } ; [literal_string] => { $ crate :: SyntaxKind :: LITERAL_STRING } ; [multi_line_literal_string] => { $ crate :: SyntaxKind :: MULTI_LINE_LITERAL_STRING } ; [integer_dec] => { $ crate :: SyntaxKind :: INTEGER_DEC } ; [integer_hex] => { $ crate :: SyntaxKind :: INTEGER_HEX } ; [integer_oct] => { $ crate :: SyntaxKind :: INTEGER_OCT } ; [integer_bin] => { $ crate :: SyntaxKind :: INTEGER_BIN } ; [float] => { $ crate :: SyntaxKind :: FLOAT } ; [offset_date_time] => { $ crate :: SyntaxKind :: OFFSET_DATE_TIME } ; [local_date_time] => { $ crate :: SyntaxKind :: LOCAL_DATE_TIME } ; [local_date] => { $ crate :: SyntaxKind :: LOCAL_DATE } ; [local_time] => { $ crate :: SyntaxKind :: LOCAL_TIME } ; }

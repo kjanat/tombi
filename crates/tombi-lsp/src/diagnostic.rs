@@ -23,7 +23,7 @@ pub async fn publish_diagnostics(backend: &Backend, text_document_uri: tombi_uri
     backend
         .client
         .publish_diagnostics(text_document_uri.into(), diagnostics, version)
-        .await
+        .await;
 }
 
 #[derive(Debug)]
@@ -98,7 +98,7 @@ pub async fn get_diagnostics_result(
                 .lint(document_source.text())
                 .await
                 {
-                    Ok(_) => Vec::with_capacity(0),
+                    Ok(()) => Vec::with_capacity(0),
                     Err(diagnostics) => diagnostics
                         .into_iter()
                         .unique()
@@ -153,7 +153,7 @@ pub async fn get_workspace_configs(
                     workspace_folder_path,
                     config,
                 });
-        };
+        }
     }
 
     Some(configs)

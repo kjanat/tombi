@@ -24,7 +24,7 @@ impl SchemaAccessor {
     /// assert_eq!(accessors[1], SchemaAccessor::Index);
     /// assert_eq!(accessors[2], SchemaAccessor::Key("key2".to_string()));
     /// ```
-    pub fn parse(path: &str) -> Option<Vec<SchemaAccessor>> {
+    pub fn parse(path: &str) -> Option<Vec<Self>> {
         let mut accessors = Vec::new();
         let mut current_key = String::new();
 
@@ -39,7 +39,7 @@ impl SchemaAccessor {
             match chars[i] {
                 '[' => {
                     if !current_key.is_empty() {
-                        accessors.push(SchemaAccessor::Key(current_key));
+                        accessors.push(Self::Key(current_key));
                         current_key = String::new();
                     }
                     i += 1;
@@ -49,9 +49,9 @@ impl SchemaAccessor {
                         i += 1;
                     }
                     if index_str == "*" {
-                        accessors.push(SchemaAccessor::Index); // Use 0 as a placeholder for [*]
+                        accessors.push(Self::Index); // Use 0 as a placeholder for [*]
                     } else if index_str.parse::<usize>().is_ok() {
-                        accessors.push(SchemaAccessor::Index);
+                        accessors.push(Self::Index);
                     } else {
                         tracing::warn!("Invalid schema accessor: {path}");
                         return None;
@@ -59,7 +59,7 @@ impl SchemaAccessor {
                 }
                 '.' => {
                     if !current_key.is_empty() {
-                        accessors.push(SchemaAccessor::Key(current_key));
+                        accessors.push(Self::Key(current_key));
                         current_key = String::new();
                     }
                 }
@@ -71,7 +71,7 @@ impl SchemaAccessor {
         }
 
         if !current_key.is_empty() {
-            accessors.push(SchemaAccessor::Key(current_key));
+            accessors.push(Self::Key(current_key));
         }
 
         Some(accessors)
@@ -81,18 +81,18 @@ impl SchemaAccessor {
 impl PartialEq<Accessor> for SchemaAccessor {
     fn eq(&self, other: &Accessor) -> bool {
         match (self, other) {
-            (SchemaAccessor::Key(key1), Accessor::Key(key2)) => key1 == key2,
-            (SchemaAccessor::Index, Accessor::Index(_)) => true,
+            (Self::Key(key1), Accessor::Key(key2)) => key1 == key2,
+            (Self::Index, Accessor::Index(_)) => true,
             _ => false,
         }
     }
 }
 
-impl PartialOrd<SchemaAccessor> for SchemaAccessor {
-    fn partial_cmp(&self, other: &SchemaAccessor) -> Option<std::cmp::Ordering> {
+impl PartialOrd<Self> for SchemaAccessor {
+    fn partial_cmp(&self, other: &Self) -> Option<std::cmp::Ordering> {
         match (self, other) {
-            (SchemaAccessor::Key(key1), SchemaAccessor::Key(key2)) => key1.partial_cmp(key2),
-            (SchemaAccessor::Index, _) | (_, SchemaAccessor::Index) => None,
+            (Self::Key(key1), Self::Key(key2)) => key1.partial_cmp(key2),
+            (Self::Index, _) | (_, Self::Index) => None,
         }
     }
 }
@@ -100,8 +100,8 @@ impl PartialOrd<SchemaAccessor> for SchemaAccessor {
 impl From<Accessor> for SchemaAccessor {
     fn from(accessor: Accessor) -> Self {
         match accessor {
-            Accessor::Key(key) => SchemaAccessor::Key(key),
-            Accessor::Index(_) => SchemaAccessor::Index,
+            Accessor::Key(key) => Self::Key(key),
+            Accessor::Index(_) => Self::Index,
         }
     }
 }
@@ -109,8 +109,8 @@ impl From<Accessor> for SchemaAccessor {
 impl From<&Accessor> for SchemaAccessor {
     fn from(value: &Accessor) -> Self {
         match value {
-            Accessor::Key(key) => SchemaAccessor::Key(key.clone()),
-            Accessor::Index(_) => SchemaAccessor::Index,
+            Accessor::Key(key) => Self::Key(key.clone()),
+            Accessor::Index(_) => Self::Index,
         }
     }
 }
@@ -118,8 +118,8 @@ impl From<&Accessor> for SchemaAccessor {
 impl std::fmt::Display for SchemaAccessor {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
         match self {
-            SchemaAccessor::Key(key) => write!(f, "{key}"),
-            SchemaAccessor::Index => write!(f, "[*]"),
+            Self::Key(key) => write!(f, "{key}"),
+            Self::Index => write!(f, "[*]"),
         }
     }
 }
@@ -130,11 +130,13 @@ pub struct SchemaAccessors(Vec<SchemaAccessor>);
 
 impl SchemaAccessors {
     #[inline]
+    #[must_use]
     pub fn first(&self) -> Option<&SchemaAccessor> {
         self.0.first()
     }
 
     #[inline]
+    #[must_use]
     pub fn last(&self) -> Option<&SchemaAccessor> {
         self.0.last()
     }

@@ -110,7 +110,8 @@ pub enum Error {
 
 impl Error {
     #[inline]
-    pub fn code(&self) -> &'static str {
+    #[must_use]
+    pub const fn code(&self) -> &'static str {
         match self {
             Self::DocumentLockError { .. } => "document-lock-error",
             Self::ReferenceLockError { .. } => "reference-lock-error",

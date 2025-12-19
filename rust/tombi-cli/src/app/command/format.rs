@@ -49,7 +49,7 @@ pub fn run(args: Args) -> Result<(), crate::Error> {
     match (success_num, not_needed_num) {
         (0, 0) => {
             if error_num == 0 {
-                eprintln!("No files formatted")
+                eprintln!("No files formatted");
             }
         }
         (success_num, not_needed_num) => {
@@ -57,19 +57,19 @@ pub fn run(args: Args) -> Result<(), crate::Error> {
                 0 => {}
                 1 => eprintln!("1 file formatted"),
                 _ => eprintln!("{success_num} files formatted"),
-            };
+            }
             match not_needed_num {
                 0 => {}
                 1 => eprintln!("1 file did not need formatting"),
                 _ => eprintln!("{not_needed_num} files did not need formatting"),
             }
         }
-    };
+    }
     match error_num {
         0 => {}
         1 => eprintln!("1 file failed to be formatted"),
         _ => eprintln!("{error_num} files failed to be formatted"),
-    };
+    }
 
     if error_num > 0 {
         std::process::exit(1);
@@ -93,10 +93,10 @@ where
         std::env::current_dir().ok(),
     )
     .inspect_err(|_| {
-        if FileInputType::from(args.files.as_ref()) == FileInputType::Stdin {
-            if let Err(error) = std::io::copy(&mut std::io::stdin(), &mut std::io::stdout()) {
-                tracing::error!("Failed to copy stdin to stdout: {}", error);
-            }
+        if FileInputType::from(args.files.as_ref()) == FileInputType::Stdin
+            && let Err(error) = std::io::copy(&mut std::io::stdin(), &mut std::io::stdout())
+        {
+            tracing::error!("Failed to copy stdin to stdout: {}", error);
         }
     })?;
 
@@ -105,7 +105,7 @@ where
     let schema_store =
         tombi_schema_store::SchemaStore::new_with_options(tombi_schema_store::Options {
             offline: args.common.offline.then_some(true),
-            strict: schema_options.and_then(|schema_options| schema_options.strict()),
+            strict: schema_options.and_then(tombi_config::SchemaOverviewOptions::strict),
             cache: Some(tombi_cache::Options {
                 no_cache: args.common.no_cache.then_some(true),
                 ..Default::default()
@@ -254,7 +254,7 @@ where
                     }
                 }
             }
-        };
+        }
 
         debug_assert_eq!(success_num + not_needed_num + error_num, total_num);
 
@@ -344,7 +344,9 @@ where
     .await
     {
         Ok(formatted) => {
-            if source != formatted {
+            if source == formatted {
+                Ok(false)
+            } else {
                 if diff {
                     tracing::info!("Found format changes in {:?}", source_path);
                     eprint_diff(&source, &formatted);
@@ -355,12 +357,10 @@ where
                     Err(crate::Error::Io(err))
                 } else {
                     match file.write_all(formatted.as_bytes()).await {
-                        Ok(_) => Ok(true),
+                        Ok(()) => Ok(true),
                         Err(err) => Err(crate::Error::Io(err)),
                     }
                 }
-            } else {
-                Ok(false)
             }
         }
         Err(diagnostics) => {

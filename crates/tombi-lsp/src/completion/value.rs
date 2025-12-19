@@ -174,8 +174,8 @@ impl FindCompletionContents for tombi_document_tree::Value {
                         )
                         .await
                 }
-                Self::Incomplete { .. } => match current_schema {
-                    Some(current_schema) => {
+                Self::Incomplete { .. } => {
+                    if let Some(current_schema) = current_schema {
                         SchemaCompletion
                             .find_completion_contents(
                                 position,
@@ -186,8 +186,7 @@ impl FindCompletionContents for tombi_document_tree::Value {
                                 completion_hint,
                             )
                             .await
-                    }
-                    None => {
+                    } else {
                         let last_key = keys.last();
 
                         match (&last_key, completion_hint) {
@@ -204,7 +203,7 @@ impl FindCompletionContents for tombi_document_tree::Value {
                             _ => type_hint_value(last_key, position, None, completion_hint),
                         }
                     }
-                },
+                }
             }
         }
         .boxed()
@@ -259,7 +258,7 @@ pub fn type_hint_value(
             position,
             schema_uri,
             completion_hint,
-        ))
+        ));
     }
 
     completion_contents

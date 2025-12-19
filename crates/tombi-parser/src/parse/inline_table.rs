@@ -1,8 +1,13 @@
 use tombi_config::TomlVersion;
-use tombi_syntax::{SyntaxKind::*, T};
+use tombi_syntax::{
+    SyntaxKind::{EOF, INLINE_TABLE, LINE_BREAK},
+    T,
+};
 
 use crate::{
-    ErrorKind::*,
+    ErrorKind::{
+        ExpectedBraceEnd, ExpectedComma, ForbiddenInlineTableLastComma, InlineTableMustSingleLine,
+    },
     parse::{
         Parse, begin_dangling_comments, end_dangling_comments, leading_comments,
         peek_leading_comments, trailing_comment,
@@ -69,13 +74,13 @@ impl Parse for tombi_ast::InlineTable {
                 begin_range + end_range,
             ));
         }
-        if let Some(comma_range) = last_comma_range {
-            if p.toml_version == TomlVersion::V1_0_0 {
-                p.error(crate::Error::new(
-                    ForbiddenInlineTableLastComma,
-                    comma_range,
-                ));
-            }
+        if let Some(comma_range) = last_comma_range
+            && p.toml_version == TomlVersion::V1_0_0
+        {
+            p.error(crate::Error::new(
+                ForbiddenInlineTableLastComma,
+                comma_range,
+            ));
         }
 
         trailing_comment(p);

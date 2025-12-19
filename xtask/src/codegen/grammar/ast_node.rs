@@ -163,7 +163,7 @@ pub fn generate_ast_node(ast: &AstSrc) -> Result<String, anyhow::Error> {
             let trait_name = format_ident!("{}", trait_name);
             let kinds: Vec<_> = nodes
                 .iter()
-                .map(|name| format_ident!("{}", &name.name.to_string().to_case(Case::UpperSnake)))
+                .map(|name| format_ident!("{}", &name.name.clone().to_case(Case::UpperSnake)))
                 .collect();
             let nodes = nodes.iter().map(|node| format_ident!("{}", node.name));
             (

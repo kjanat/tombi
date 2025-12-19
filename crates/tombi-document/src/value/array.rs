@@ -22,7 +22,7 @@ pub enum ArrayKind {
 
 impl From<tombi_document_tree::ArrayKind> for ArrayKind {
     fn from(kind: tombi_document_tree::ArrayKind) -> Self {
-        use tombi_document_tree::ArrayKind::*;
+        use tombi_document_tree::ArrayKind::{Array, ArrayOfTable, ParentArrayOfTable};
 
         match kind {
             ArrayOfTable | ParentArrayOfTable => Self::ArrayOfTable,
@@ -38,7 +38,8 @@ pub struct Array {
 }
 
 impl Array {
-    pub fn new(kind: ArrayKind) -> Self {
+    #[must_use]
+    pub const fn new(kind: ArrayKind) -> Self {
         Self {
             kind,
             values: Vec::new(),
@@ -49,23 +50,26 @@ impl Array {
         self.values.push(value);
     }
 
-    pub fn kind(&self) -> ArrayKind {
+    #[must_use]
+    pub const fn kind(&self) -> ArrayKind {
         self.kind
     }
 
-    pub fn is_empty(&self) -> bool {
+    #[must_use]
+    pub const fn is_empty(&self) -> bool {
         self.values.is_empty()
     }
 
-    pub fn kind_mut(&mut self) -> &mut ArrayKind {
+    pub const fn kind_mut(&mut self) -> &mut ArrayKind {
         &mut self.kind
     }
 
+    #[must_use]
     pub fn values(&self) -> &[Value] {
         &self.values
     }
 
-    pub fn values_mut(&mut self) -> &mut Vec<Value> {
+    pub const fn values_mut(&mut self) -> &mut Vec<Value> {
         &mut self.values
     }
 }

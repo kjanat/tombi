@@ -11,11 +11,11 @@ use crate::{
 pub struct Checkpoint(NonZeroUsize);
 
 impl Checkpoint {
-    fn new(inner: usize) -> Self {
+    const fn new(inner: usize) -> Self {
         Self(NonZeroUsize::new(inner + 1).unwrap())
     }
 
-    fn into_inner(self) -> usize {
+    const fn into_inner(self) -> usize {
         self.0.get() - 1
     }
 }
@@ -30,13 +30,14 @@ pub struct GreenNodeBuilder<'cache> {
 
 impl GreenNodeBuilder<'_> {
     /// Creates new builder.
+    #[must_use]
     pub fn new() -> GreenNodeBuilder<'static> {
         GreenNodeBuilder::default()
     }
 
     /// Reusing `NodeCache` between different `GreenNodeBuilder`s saves memory.
     /// It allows to structurally share underlying trees.
-    pub fn with_cache(cache: &mut NodeCache) -> GreenNodeBuilder<'_> {
+    pub const fn with_cache(cache: &mut NodeCache) -> GreenNodeBuilder<'_> {
         GreenNodeBuilder {
             cache: CowMut::Borrowed(cache),
             parents: Vec::new(),
@@ -93,7 +94,8 @@ impl GreenNodeBuilder<'_> {
     /// }
     /// ```
     #[inline]
-    pub fn checkpoint(&self) -> Checkpoint {
+    #[must_use]
+    pub const fn checkpoint(&self) -> Checkpoint {
         Checkpoint::new(self.children.len())
     }
 
@@ -123,6 +125,7 @@ impl GreenNodeBuilder<'_> {
     /// `start_node_at` and `finish_node` calls
     /// are paired!
     #[inline]
+    #[must_use]
     pub fn finish(mut self) -> GreenNode {
         debug_assert_eq!(self.children.len(), 1);
         match self.children.pop().unwrap().1 {

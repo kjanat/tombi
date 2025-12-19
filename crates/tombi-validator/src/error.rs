@@ -24,7 +24,8 @@ impl Default for Error {
 
 impl Error {
     #[inline]
-    pub fn new() -> Self {
+    #[must_use]
+    pub const fn new() -> Self {
         Self {
             score: 0,
             diagnostics: vec![],

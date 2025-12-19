@@ -21,7 +21,7 @@ const MAX_REFCOUNT: usize = (isize::MAX) as usize;
 
 /// The object allocated by an Arc<T>
 #[repr(C)]
-pub(crate) struct ArcInner<T: ?Sized> {
+pub struct ArcInner<T: ?Sized> {
     pub(crate) count: atomic::AtomicUsize,
     pub(crate) data: T,
 }
@@ -36,7 +36,7 @@ unsafe impl<T: ?Sized + Sync + Send> Sync for ArcInner<T> {}
 ///
 /// [`Arc`]: https://doc.rust-lang.org/stable/std/sync/struct.Arc.html
 #[repr(transparent)]
-pub(crate) struct Arc<T: ?Sized> {
+pub struct Arc<T: ?Sized> {
     pub(crate) p: ptr::NonNull<ArcInner<T>>,
     pub(crate) phantom: PhantomData<T>,
 }
@@ -45,19 +45,19 @@ unsafe impl<T: ?Sized + Sync + Send> Send for Arc<T> {}
 unsafe impl<T: ?Sized + Sync + Send> Sync for Arc<T> {}
 
 impl<T> Arc<T> {
-    /// Reconstruct the Arc<T> from a raw pointer obtained from into_raw()
+    /// Reconstruct the Arc<T> from a raw pointer obtained from `into_raw()`
     ///
     /// Note: This raw pointer will be offset in the allocation and must be preceded
     /// by the atomic count.
     ///
-    /// It is recommended to use OffsetArc for this
+    /// It is recommended to use `OffsetArc` for this
     #[inline]
-    pub(crate) unsafe fn from_raw(ptr: *const T) -> Self {
+    pub(crate) const unsafe fn from_raw(ptr: *const T) -> Self {
         unsafe {
             // To find the corresponding pointer to the `ArcInner` we need
             // to subtract the offset of the `data` field from the pointer.
-            let ptr = (ptr as *const u8).sub(offset_of!(ArcInner<T>, data));
-            Arc {
+            let ptr = ptr.cast::<u8>().sub(offset_of!(ArcInner<T>, data));
+            Self {
                 p: ptr::NonNull::new_unchecked(ptr as *mut ArcInner<T>),
                 phantom: PhantomData,
             }
@@ -91,7 +91,7 @@ impl<T: ?Sized> Arc<T> {
         std::ptr::addr_eq(this.ptr(), other.ptr())
     }
 
-    pub(crate) fn ptr(&self) -> *mut ArcInner<T> {
+    pub(crate) const fn ptr(&self) -> *mut ArcInner<T> {
         self.p.as_ptr()
     }
 }
@@ -126,7 +126,7 @@ impl<T: ?Sized> Clone for Arc<T> {
         }
 
         unsafe {
-            Arc {
+            Self {
                 p: ptr::NonNull::new_unchecked(self.ptr()),
                 phantom: PhantomData,
             }
@@ -204,35 +204,35 @@ impl<T: ?Sized> Drop for Arc<T> {
 }
 
 impl<T: ?Sized + PartialEq> PartialEq for Arc<T> {
-    fn eq(&self, other: &Arc<T>) -> bool {
+    fn eq(&self, other: &Self) -> bool {
         Self::ptr_eq(self, other) || *(*self) == *(*other)
     }
 }
 
 impl<T: ?Sized + PartialOrd> PartialOrd for Arc<T> {
-    fn partial_cmp(&self, other: &Arc<T>) -> Option<Ordering> {
+    fn partial_cmp(&self, other: &Self) -> Option<Ordering> {
         (**self).partial_cmp(&**other)
     }
 
-    fn lt(&self, other: &Arc<T>) -> bool {
+    fn lt(&self, other: &Self) -> bool {
         *(*self) < *(*other)
     }
 
-    fn le(&self, other: &Arc<T>) -> bool {
+    fn le(&self, other: &Self) -> bool {
         *(*self) <= *(*other)
     }
 
-    fn gt(&self, other: &Arc<T>) -> bool {
+    fn gt(&self, other: &Self) -> bool {
         *(*self) > *(*other)
     }
 
-    fn ge(&self, other: &Arc<T>) -> bool {
+    fn ge(&self, other: &Self) -> bool {
         *(*self) >= *(*other)
     }
 }
 
 impl<T: ?Sized + Ord> Ord for Arc<T> {
-    fn cmp(&self, other: &Arc<T>) -> Ordering {
+    fn cmp(&self, other: &Self) -> Ordering {
         (**self).cmp(&**other)
     }
 }
@@ -241,20 +241,20 @@ impl<T: ?Sized + Eq> Eq for Arc<T> {}
 
 impl<T: ?Sized + Hash> Hash for Arc<T> {
     fn hash<H: Hasher>(&self, state: &mut H) {
-        (**self).hash(state)
+        (**self).hash(state);
     }
 }
 
 #[derive(Debug, Eq, PartialEq, Hash, PartialOrd)]
 #[repr(C)]
-pub(crate) struct HeaderSlice<H, T: ?Sized> {
+pub struct HeaderSlice<H, T: ?Sized> {
     pub(crate) header: H,
     length: usize,
     slice: T,
 }
 
 impl<H, T> HeaderSlice<H, [T]> {
-    pub(crate) fn slice(&self) -> &[T] {
+    pub(crate) const fn slice(&self) -> &[T] {
         &self.slice
     }
 }
@@ -264,7 +264,8 @@ impl<H, T> Deref for HeaderSlice<H, [T; 0]> {
 
     fn deref(&self) -> &Self::Target {
         let len = self.length;
-        let fake_slice: *const [T] = ptr::slice_from_raw_parts(self as *const _ as *const T, len);
+        let fake_slice: *const [T] =
+            ptr::slice_from_raw_parts(std::ptr::from_ref(self).cast::<T>(), len);
         unsafe { &*(fake_slice as *const HeaderSlice<H, [T]>) }
     }
 }
@@ -285,7 +286,7 @@ impl<H, T> Deref for HeaderSlice<H, [T; 0]> {
 /// `ThinArc` solves this by storing the length in the allocation itself,
 /// via `HeaderSlice`.
 #[repr(transparent)]
-pub(crate) struct ThinArc<H, T> {
+pub struct ThinArc<H, T> {
     ptr: ptr::NonNull<ArcInner<HeaderSlice<H, [T; 0]>>>,
     phantom: PhantomData<(H, T)>,
 }
@@ -298,7 +299,7 @@ fn thin_to_thick<H, T>(
     thin: *mut ArcInner<HeaderSlice<H, [T; 0]>>,
 ) -> *mut ArcInner<HeaderSlice<H, [T]>> {
     let len = unsafe { (*thin).data.length };
-    let fake_slice: *mut [T] = ptr::slice_from_raw_parts_mut(thin as *mut T, len);
+    let fake_slice: *mut [T] = ptr::slice_from_raw_parts_mut(thin.cast::<T>(), len);
     // Transplants metadata.
     fake_slice as *mut ArcInner<HeaderSlice<H, [T]>>
 }
@@ -325,7 +326,7 @@ impl<H, T> ThinArc<H, T> {
         f(&transient)
     }
 
-    /// Creates a `ThinArc` for a HeaderSlice using the given header struct and
+    /// Creates a `ThinArc` for a `HeaderSlice` using the given header struct and
     /// iterator to generate the slice.
     pub(crate) fn from_header_and_iter<I>(header: H, mut items: I) -> Self
     where
@@ -370,7 +371,7 @@ impl<H, T> ThinArc<H, T> {
             // // or something else with a [T] as its last member.
             // let fake_slice: &mut [T] = slice::from_raw_parts_mut(buffer as *mut T, num_items);
             // ptr = fake_slice as *mut [T] as *mut ArcInner<HeaderSlice<H, [T]>>;
-            ptr = buffer as *mut _;
+            ptr = buffer.cast();
 
             let count = atomic::AtomicUsize::new(1);
 
@@ -382,7 +383,7 @@ impl<H, T> ThinArc<H, T> {
             ptr::write(ptr::addr_of_mut!((*ptr).data.header), header);
             ptr::write(ptr::addr_of_mut!((*ptr).data.length), num_items);
             if num_items != 0 {
-                let mut current = ptr::addr_of_mut!((*ptr).data.slice) as *mut T;
+                let mut current = ptr::addr_of_mut!((*ptr).data.slice).cast::<T>();
                 debug_assert_eq!(current as usize - buffer as usize, slice_offset);
                 for _ in 0..num_items {
                     ptr::write(
@@ -399,7 +400,7 @@ impl<H, T> ThinArc<H, T> {
                 );
 
                 // We should have consumed the buffer exactly.
-                debug_assert_eq!(current as *mut u8, buffer.add(usable_size));
+                debug_assert_eq!(current.cast::<u8>(), buffer.add(usable_size));
             }
             debug_assert!(
                 items.next().is_none(),
@@ -407,7 +408,7 @@ impl<H, T> ThinArc<H, T> {
             );
         }
 
-        ThinArc {
+        Self {
             ptr: unsafe { ptr::NonNull::new_unchecked(ptr) },
             phantom: PhantomData,
         }
@@ -426,14 +427,14 @@ impl<H, T> Deref for ThinArc<H, T> {
 impl<H, T> Clone for ThinArc<H, T> {
     #[inline]
     fn clone(&self) -> Self {
-        ThinArc::with_arc(self, |a| Arc::into_thin(a.clone()))
+        Self::with_arc(self, |a| Arc::into_thin(a.clone()))
     }
 }
 
 impl<H, T> Drop for ThinArc<H, T> {
     #[inline]
     fn drop(&mut self) {
-        let _ = Arc::from_thin(ThinArc {
+        let _ = Arc::from_thin(Self {
             ptr: self.ptr,
             phantom: PhantomData,
         });
@@ -452,10 +453,10 @@ impl<H, T> Arc<HeaderSlice<H, [T]>> {
         );
         let fat_ptr: *mut ArcInner<HeaderSlice<H, [T]>> = a.ptr();
         mem::forget(a);
-        let thin_ptr = fat_ptr as *mut [usize] as *mut usize;
+        let thin_ptr = (fat_ptr as *mut [usize]).cast::<usize>();
         ThinArc {
             ptr: unsafe {
-                ptr::NonNull::new_unchecked(thin_ptr as *mut ArcInner<HeaderSlice<H, [T; 0]>>)
+                ptr::NonNull::new_unchecked(thin_ptr.cast::<ArcInner<HeaderSlice<H, [T; 0]>>>())
             },
             phantom: PhantomData,
         }
@@ -468,7 +469,7 @@ impl<H, T> Arc<HeaderSlice<H, [T]>> {
         let ptr = thin_to_thick(a.ptr.as_ptr());
         mem::forget(a);
         unsafe {
-            Arc {
+            Self {
                 p: ptr::NonNull::new_unchecked(ptr),
                 phantom: PhantomData,
             }
@@ -478,7 +479,7 @@ impl<H, T> Arc<HeaderSlice<H, [T]>> {
 
 impl<H: PartialEq, T: PartialEq> PartialEq for ThinArc<H, T> {
     #[inline]
-    fn eq(&self, other: &ThinArc<H, T>) -> bool {
+    fn eq(&self, other: &Self) -> bool {
         **self == **other
     }
 }
@@ -487,6 +488,6 @@ impl<H: Eq, T: Eq> Eq for ThinArc<H, T> {}
 
 impl<H: Hash, T: Hash> Hash for ThinArc<H, T> {
     fn hash<HSR: Hasher>(&self, state: &mut HSR) {
-        (**self).hash(state)
+        (**self).hash(state);
     }
 }

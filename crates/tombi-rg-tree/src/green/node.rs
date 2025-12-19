@@ -23,7 +23,7 @@ pub(super) struct GreenNodeHead {
 }
 
 #[derive(Debug, Clone, PartialEq, Eq, Hash)]
-pub(crate) enum GreenChild {
+pub enum GreenChild {
     Node {
         relative_offset: tombi_text::RelativeOffset,
         relative_position: tombi_text::RelativePosition,
@@ -120,7 +120,7 @@ impl fmt::Display for GreenNodeData {
 
 impl GreenNodeData {
     #[inline]
-    fn header(&self) -> &GreenNodeHead {
+    const fn header(&self) -> &GreenNodeHead {
         &self.data.header
     }
 
@@ -131,23 +131,27 @@ impl GreenNodeData {
 
     /// Kind of this node.
     #[inline]
-    pub fn kind(&self) -> SyntaxKind {
+    #[must_use]
+    pub const fn kind(&self) -> SyntaxKind {
         self.header().kind
     }
 
     /// Returns the length of the text covered by this node.
     #[inline]
-    pub fn text_len(&self) -> tombi_text::RawOffset {
+    #[must_use]
+    pub const fn text_len(&self) -> tombi_text::RawOffset {
         self.header().text_len
     }
 
     #[inline]
-    pub fn text_relative_position(&self) -> tombi_text::RelativePosition {
+    #[must_use]
+    pub const fn text_relative_position(&self) -> tombi_text::RelativePosition {
         self.header().text_relative_position
     }
 
     /// Children of this node.
     #[inline]
+    #[must_use]
     pub fn children(&self) -> Children<'_> {
         Children {
             raw: self.slice().iter(),
@@ -210,7 +214,10 @@ impl GreenNodeData {
         R: ops::RangeBounds<usize>,
         I: IntoIterator<Item = GreenElement>,
     {
-        let mut children: Vec<_> = self.children().map(|it| it.to_owned()).collect();
+        let mut children: Vec<_> = self
+            .children()
+            .map(super::super::utility_types::NodeOrToken::to_owned)
+            .collect();
         children.splice(range, replace_with);
         GreenNode::new(self.kind(), children)
     }
@@ -223,7 +230,7 @@ impl ops::Deref for GreenNode {
     fn deref(&self) -> &GreenNodeData {
         let repr: &Repr = &self.ptr;
         unsafe {
-            let repr: &ReprThin = &*(repr as *const Repr as *const ReprThin);
+            let repr: &ReprThin = &*std::ptr::from_ref::<Repr>(repr).cast::<ReprThin>();
             mem::transmute::<&ReprThin, &GreenNodeData>(repr)
         }
     }
@@ -232,7 +239,7 @@ impl ops::Deref for GreenNode {
 impl GreenNode {
     /// Creates new Node.
     #[inline]
-    pub fn new<I>(kind: SyntaxKind, children: I) -> GreenNode
+    pub fn new<I>(kind: SyntaxKind, children: I) -> Self
     where
         I: IntoIterator<Item = GreenElement>,
         I::IntoIter: ExactSizeIterator,
@@ -281,22 +288,22 @@ impl GreenNode {
             Arc::into_thin(data)
         };
 
-        GreenNode { ptr: data }
+        Self { ptr: data }
     }
 
     #[inline]
-    pub(crate) fn into_raw(this: GreenNode) -> ptr::NonNull<GreenNodeData> {
+    pub(crate) fn into_raw(this: Self) -> ptr::NonNull<GreenNodeData> {
         let green = ManuallyDrop::new(this);
         let green: &GreenNodeData = &green;
         ptr::NonNull::from(green)
     }
 
     #[inline]
-    pub(crate) unsafe fn from_raw(ptr: ptr::NonNull<GreenNodeData>) -> GreenNode {
+    pub(crate) unsafe fn from_raw(ptr: ptr::NonNull<GreenNodeData>) -> Self {
         unsafe {
-            let arc = Arc::from_raw(&ptr.as_ref().data as *const ReprThin);
+            let arc = Arc::from_raw(&raw const ptr.as_ref().data);
             let arc = mem::transmute::<Arc<ReprThin>, ThinArc<GreenNodeHead, GreenChild>>(arc);
-            GreenNode { ptr: arc }
+            Self { ptr: arc }
         }
     }
 }
@@ -305,29 +312,29 @@ impl GreenChild {
     #[inline]
     pub(crate) fn as_ref(&self) -> GreenElementRef<'_> {
         match self {
-            GreenChild::Node { node, .. } => NodeOrToken::Node(node),
-            GreenChild::Token { token, .. } => NodeOrToken::Token(token),
+            Self::Node { node, .. } => NodeOrToken::Node(node),
+            Self::Token { token, .. } => NodeOrToken::Token(token),
         }
     }
     #[inline]
-    pub(crate) fn relative_offset(&self) -> tombi_text::RelativeOffset {
+    pub(crate) const fn relative_offset(&self) -> tombi_text::RelativeOffset {
         match self {
-            GreenChild::Node {
+            Self::Node {
                 relative_offset, ..
             }
-            | GreenChild::Token {
+            | Self::Token {
                 relative_offset, ..
             } => *relative_offset,
         }
     }
 
     #[inline]
-    pub(crate) fn relative_position(&self) -> tombi_text::RelativePosition {
+    pub(crate) const fn relative_position(&self) -> tombi_text::RelativePosition {
         match self {
-            GreenChild::Node {
+            Self::Node {
                 relative_position, ..
             }
-            | GreenChild::Token {
+            | Self::Token {
                 relative_position, ..
             } => *relative_position,
         }

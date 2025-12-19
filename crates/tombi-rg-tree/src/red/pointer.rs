@@ -12,6 +12,7 @@ pub struct RedNodePtr<L: Language> {
 
 impl<L: Language> RedNodePtr<L> {
     /// Returns a [`SyntaxNodePtr`] for the node.
+    #[must_use]
     pub fn new(node: &RedNode<L>) -> Self {
         Self {
             kind: node.kind(),
@@ -49,12 +50,12 @@ impl<L: Language> RedNodePtr<L> {
     }
 
     /// Returns the kind of the syntax node this points to.
-    pub fn kind(&self) -> L::Kind {
+    pub const fn kind(&self) -> L::Kind {
         self.kind
     }
 
     /// Returns the range of the syntax node this points to.
-    pub fn span(&self) -> tombi_text::Span {
+    pub const fn span(&self) -> tombi_text::Span {
         self.span
     }
 }

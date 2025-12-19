@@ -52,6 +52,7 @@ compile_error!("'text' crate assumes usize >= u32 and does not work on 16-bit ta
 /// However, only TOML files maintain a `line_index`. Other file types do not support this.
 /// For simplicity, and at the cost of accuracy, this function forcibly converts to the LSP type.
 ///
+#[must_use]
 pub fn convert_range_to_lsp(range: Range) -> tower_lsp::lsp_types::Range {
     tower_lsp::lsp_types::Range::new(
         tower_lsp::lsp_types::Position::new(range.start.line, range.start.column),

@@ -13,15 +13,14 @@ impl crate::Edit for tombi_ast::Value {
     ) -> BoxFuture<'b, Vec<crate::Change>> {
         async move {
             match (self, node) {
-                (tombi_ast::Value::Array(array), tombi_document_tree::Value::Array(_)) => {
+                (Self::Array(array), tombi_document_tree::Value::Array(_)) => {
                     array
                         .edit(node, accessors, source_path, current_schema, schema_context)
                         .await
                 }
-                (
-                    tombi_ast::Value::InlineTable(inline_table),
-                    tombi_document_tree::Value::Table(table),
-                ) if matches!(table.kind(), TableKind::InlineTable { .. }) => {
+                (Self::InlineTable(inline_table), tombi_document_tree::Value::Table(table))
+                    if matches!(table.kind(), TableKind::InlineTable { .. }) =>
+                {
                     inline_table
                         .edit(node, accessors, source_path, current_schema, schema_context)
                         .await

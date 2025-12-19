@@ -8,7 +8,8 @@ pub struct Integer {
 
 impl Integer {
     #[inline]
-    pub fn new(value: i64) -> Self {
+    #[must_use]
+    pub const fn new(value: i64) -> Self {
         Self {
             kind: IntegerKind::Decimal,
             value,
@@ -16,12 +17,14 @@ impl Integer {
     }
 
     #[inline]
-    pub fn kind(&self) -> IntegerKind {
+    #[must_use]
+    pub const fn kind(&self) -> IntegerKind {
         self.kind
     }
 
     #[inline]
-    pub fn value(&self) -> i64 {
+    #[must_use]
+    pub const fn value(&self) -> i64 {
         self.value
     }
 }

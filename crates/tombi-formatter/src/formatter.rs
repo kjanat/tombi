@@ -27,6 +27,7 @@ pub struct Formatter<'a> {
 
 impl<'a> Formatter<'a> {
     #[inline]
+    #[must_use]
     pub fn new(
         toml_version: TomlVersion,
         options: &'a crate::FormatOptions,
@@ -65,25 +66,24 @@ impl<'a> Formatter<'a> {
             (None, None)
         };
 
-        if let Some(tombi_document_comment_directive) = &tombi_document_comment_directive {
-            if let Some(format) = &tombi_document_comment_directive.format {
-                if format.disabled.unwrap_or(false) {
-                    match self.source_uri_or_path.map(|path| match path {
-                        Either::Left(url) => url.to_string(),
-                        Either::Right(path) => path.to_string_lossy().to_string(),
-                    }) {
-                        Some(source_url_or_path) => {
-                            tracing::info!(
-                                "Skip formatting for \"{source_url_or_path}\" due to `format.disable`"
-                            );
-                        }
-                        None => {
-                            tracing::info!("Skip formatting for stdin due to `format.disable`");
-                        }
-                    }
-                    return Ok(source.to_string());
+        if let Some(tombi_document_comment_directive) = &tombi_document_comment_directive
+            && let Some(format) = &tombi_document_comment_directive.format
+            && format.disabled.unwrap_or(false)
+        {
+            match self.source_uri_or_path.map(|path| match path {
+                Either::Left(url) => url.to_string(),
+                Either::Right(path) => path.to_string_lossy().to_string(),
+            }) {
+                Some(source_url_or_path) => {
+                    tracing::info!(
+                        "Skip formatting for \"{source_url_or_path}\" due to `format.disable`"
+                    );
+                }
+                None => {
+                    tracing::info!("Skip formatting for stdin due to `format.disable`");
                 }
             }
+            return Ok(source.to_string());
         }
 
         self.toml_version = tombi_document_comment_directive
@@ -96,7 +96,7 @@ impl<'a> Formatter<'a> {
                         schema
                             .root_schema
                             .as_ref()
-                            .and_then(|root| root.toml_version())
+                            .and_then(tombi_schema_store::DocumentSchema::toml_version)
                     })
                     .unwrap_or(self.toml_version)
             });
@@ -213,12 +213,12 @@ impl<'a> Formatter<'a> {
     }
 
     #[inline]
-    pub(crate) fn skip_comment(&self) -> bool {
+    pub(crate) const fn skip_comment(&self) -> bool {
         self.skip_comment
     }
 
     #[inline]
-    pub(crate) fn single_line_mode(&self) -> bool {
+    pub(crate) const fn single_line_mode(&self) -> bool {
         self.single_line_mode
     }
 
@@ -228,6 +228,7 @@ impl<'a> Formatter<'a> {
     }
 
     #[inline]
+    #[must_use]
     pub const fn line_ending(&self) -> &'static str {
         self.definitions.line_ending
     }
@@ -288,12 +289,12 @@ impl<'a> Formatter<'a> {
     }
 
     #[inline]
-    pub(crate) fn string_quote_style(&self) -> tombi_config::StringQuoteStyle {
+    pub(crate) const fn string_quote_style(&self) -> tombi_config::StringQuoteStyle {
         self.definitions.string_quote_style
     }
 
     #[inline]
-    pub(crate) fn date_time_delimiter(&self) -> Option<&str> {
+    pub(crate) const fn date_time_delimiter(&self) -> Option<&str> {
         self.definitions.date_time_delimiter
     }
 
@@ -336,7 +337,7 @@ impl<'a> Formatter<'a> {
     ) -> Option<AlignmentWidth> {
         if self.definitions.key_value_equal_alignment {
             key_values
-                .filter_map(|key_value| key_value.keys())
+                .filter_map(tombi_ast::KeyValue::keys)
                 .map(|keys| AlignmentWidth::new(&keys.to_string()))
                 .max()
         } else {
@@ -369,30 +370,30 @@ impl<'a> Formatter<'a> {
     }
 
     #[inline]
-    pub(crate) fn inc_indent(&mut self) {
+    pub(crate) const fn inc_indent(&mut self) {
         self.indent_depth += 1;
     }
 
     #[inline]
-    pub(crate) fn dec_indent(&mut self) {
+    pub(crate) const fn dec_indent(&mut self) {
         self.indent_depth = self.indent_depth.saturating_sub(1);
     }
 
     #[inline]
-    pub(crate) fn skip_indent(&mut self) {
+    pub(crate) const fn skip_indent(&mut self) {
         self.skip_indent = true;
     }
 
     #[inline]
-    pub(crate) fn reset_indent(&mut self) {
+    pub(crate) const fn reset_indent(&mut self) {
         self.indent_depth = 0;
     }
 
     #[inline]
     pub(crate) fn current_line_width(&self) -> usize {
         self.buf
-            .split("\n")
-            .last()
+            .split('\n')
+            .next_back()
             .unwrap_or_default()
             .graphemes(true)
             .count()

@@ -7,13 +7,13 @@ use crate::utility_types::Delta;
 /// A type that can be inserted into a sorted linked list.
 ///
 /// # Safety
-pub(crate) unsafe trait Elem {
+pub unsafe trait Elem {
     fn prev(&self) -> &Cell<*const Self>;
     fn next(&self) -> &Cell<*const Self>;
     fn key(&self) -> &Cell<u32>;
 }
 
-pub(crate) enum AddToSllResult<'a, E: Elem> {
+pub enum AddToSllResult<'a, E: Elem> {
     NoHead,
     EmptyHead(&'a Cell<*const E>),
     SmallerThanHead(&'a Cell<*const E>),
@@ -55,10 +55,7 @@ impl<E: Elem> AddToSllResult<'_, E> {
 }
 
 #[cold]
-pub(crate) fn init<'a, E: Elem>(
-    head: Option<&'a Cell<*const E>>,
-    elem: &E,
-) -> AddToSllResult<'a, E> {
+pub fn init<'a, E: Elem>(head: Option<&'a Cell<*const E>>, elem: &E) -> AddToSllResult<'a, E> {
     if let Some(head) = head {
         link(head, elem)
     } else {
@@ -67,7 +64,7 @@ pub(crate) fn init<'a, E: Elem>(
 }
 
 #[cold]
-pub(crate) fn unlink<E: Elem>(head: &Cell<*const E>, elem: &E) {
+pub fn unlink<E: Elem>(head: &Cell<*const E>, elem: &E) {
     debug_assert!(!head.get().is_null(), "invalid linked list head");
 
     let elem_ptr: *const E = elem;
@@ -82,12 +79,12 @@ pub(crate) fn unlink<E: Elem>(head: &Cell<*const E>, elem: &E) {
     }
 
     if head.get() == elem_ptr {
-        head.set(if next == elem_ptr { ptr::null() } else { next })
+        head.set(if next == elem_ptr { ptr::null() } else { next });
     }
 }
 
 #[cold]
-pub(crate) fn link<'a, E: Elem>(head: &'a Cell<*const E>, elem: &E) -> AddToSllResult<'a, E> {
+pub fn link<'a, E: Elem>(head: &'a Cell<*const E>, elem: &E) -> AddToSllResult<'a, E> {
     let old_head = head.get();
     // Case 1: empty head, replace it.
     if old_head.is_null() {
@@ -112,7 +109,7 @@ pub(crate) fn link<'a, E: Elem>(head: &'a Cell<*const E>, elem: &E) -> AddToSllR
     }
 }
 
-pub(crate) fn adjust<E: Elem>(elem: &E, from: u32, by: Delta<u32>) {
+pub fn adjust<E: Elem>(elem: &E, from: u32, by: Delta<u32>) {
     let elem_ptr: *const E = elem;
 
     unsafe {

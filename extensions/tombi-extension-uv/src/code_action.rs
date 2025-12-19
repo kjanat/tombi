@@ -65,10 +65,10 @@ pub enum CodeActionRefactorRewriteName {
 impl std::fmt::Display for CodeActionRefactorRewriteName {
     fn fmt(&self, f: &mut std::fmt::Formatter) -> std::fmt::Result {
         match self {
-            CodeActionRefactorRewriteName::UseWorkspaceDependency => {
+            Self::UseWorkspaceDependency => {
                 write!(f, "Use Workspace Dependency")
             }
-            CodeActionRefactorRewriteName::AddToWorkspaceAndUseWorkspaceDependency => {
+            Self::AddToWorkspaceAndUseWorkspaceDependency => {
                 write!(f, "Add to Workspace and Use Workspace Dependency")
             }
         }
@@ -89,19 +89,15 @@ pub fn code_action(
     }
 
     // Check if this is a workspace root (has [tool.uv.workspace] section)
-    if document_tree.contains_key("tool") {
-        if let Some((_, tool_value)) = tombi_document_tree::dig_keys(document_tree, &["tool"]) {
-            if let tombi_document_tree::Value::Table(tool_table) = tool_value {
-                if let Some((_, uv_value)) = tool_table.get_key_value("uv") {
-                    if let tombi_document_tree::Value::Table(uv_table) = uv_value {
-                        if uv_table.contains_key("workspace") {
-                            // This is a workspace root, don't provide code actions
-                            return Ok(None);
-                        }
-                    }
-                }
-            }
-        }
+    if document_tree.contains_key("tool")
+        && let Some((_, tool_value)) = tombi_document_tree::dig_keys(document_tree, &["tool"])
+        && let tombi_document_tree::Value::Table(tool_table) = tool_value
+        && let Some((_, uv_value)) = tool_table.get_key_value("uv")
+        && let tombi_document_tree::Value::Table(uv_table) = uv_value
+        && uv_table.contains_key("workspace")
+    {
+        // This is a workspace root, don't provide code actions
+        return Ok(None);
     }
 
     if matches_accessors!(accessors, ["project", "dependencies", _])
@@ -202,7 +198,11 @@ fn format_dependency_without_version(requirement: &Requirement<VerbatimUrl>) -> 
     if requirement.extras.is_empty() {
         name
     } else {
-        let extras: Vec<String> = requirement.extras.iter().map(|e| e.to_string()).collect();
+        let extras: Vec<String> = requirement
+            .extras
+            .iter()
+            .map(std::string::ToString::to_string)
+            .collect();
         format!("{}[{}]", name, extras.join(","))
     }
 }
@@ -217,7 +217,7 @@ fn calculate_insertion_index(existing_package_names: &[&str], new_package_name: 
 }
 
 /// Get AST array from document tree range
-/// First finds the range in document_tree, then locates the corresponding AST node
+/// First finds the range in `document_tree`, then locates the corresponding AST node
 fn get_ast_array_from_document_tree(
     root: &tombi_ast::Root,
     document_tree: &tombi_document_tree::DocumentTree,
@@ -235,10 +235,10 @@ fn get_ast_array_from_document_tree(
 
     // Use descendants to find the Array with matching range
     for node in root.syntax().descendants() {
-        if let Some(array) = tombi_ast::Array::cast(node) {
-            if array.range() == target_range {
-                return Some(array);
-            }
+        if let Some(array) = tombi_ast::Array::cast(node)
+            && array.range() == target_range
+        {
+            return Some(array);
         }
     }
 
@@ -246,7 +246,7 @@ fn get_ast_array_from_document_tree(
 }
 
 /// Calculate insertion position and text for array insertion with comma handling
-/// Uses tombi_ast API to properly handle commas and formatting
+/// Uses `tombi_ast` API to properly handle commas and formatting
 fn calculate_array_insertion(
     ast_array: &tombi_ast::Array,
     insertion_index: usize,
@@ -263,12 +263,12 @@ fn calculate_array_insertion(
         {
             Some((
                 dangling_comment.syntax().range().end,
-                format!("\n\n{},\n", new_element),
+                format!("\n\n{new_element},\n"),
             ))
         } else {
             Some((
                 ast_array.bracket_start()?.range().end,
-                format!("{}", new_element),
+                format!("{new_element}"),
             ))
         };
     }
@@ -277,7 +277,7 @@ fn calculate_array_insertion(
         // Insert at the beginning
         let (first_value, _) = values_with_comma.first()?;
         let insert_pos = first_value.syntax().range().start;
-        let new_text = format!("{},\n", new_element);
+        let new_text = format!("{new_element},\n");
         return Some((insert_pos, new_text));
     }
 
@@ -286,11 +286,11 @@ fn calculate_array_insertion(
         let (last_value, last_comma) = values_with_comma.last()?;
         if let Some(last_comma) = last_comma {
             let insert_pos = last_comma.range().end;
-            let new_text = format!("\n{}, ", new_element);
+            let new_text = format!("\n{new_element}, ");
             return Some((insert_pos, new_text));
         } else {
             let insert_pos = last_value.syntax().range().end;
-            let new_text = format!(", {}", new_element);
+            let new_text = format!(", {new_element}");
             return Some((insert_pos, new_text));
         }
     }
@@ -302,8 +302,8 @@ fn calculate_array_insertion(
     } else {
         target_value.syntax().range().end
     };
-    let new_text = format!("\n{},\n", new_element);
-    return Some((insert_pos, new_text));
+    let new_text = format!("\n{new_element},\n");
+    Some((insert_pos, new_text))
 }
 
 fn add_workspace_dependency_code_action(
@@ -327,25 +327,17 @@ fn add_workspace_dependency_code_action(
     let dependency_requirement = parse_dependency_requirement(dep_str)?;
 
     // If no version specified, don't provide code action
-    if dependency_requirement.version_or_url().is_none() {
-        return None;
-    }
+    dependency_requirement.version_or_url()?;
 
     // Check if this dependency already exists in workspace
     let workspace_dependencies =
-        collect_dependency_requirements_from_document_tree(&workspace_document_tree);
-    if workspace_dependencies
-        .iter()
-        .find(
-            |DependencyRequirement {
-                 requirement: workspace_requirement,
-                 ..
-             }| {
-                dependency_requirement.requirement.name == workspace_requirement.name
-            },
-        )
-        .is_some()
-    {
+        collect_dependency_requirements_from_document_tree(workspace_document_tree);
+    if workspace_dependencies.iter().any(
+        |DependencyRequirement {
+             requirement: workspace_requirement,
+             ..
+         }| { dependency_requirement.requirement.name == workspace_requirement.name },
+    ) {
         return None;
     }
 
@@ -394,14 +386,14 @@ fn add_workspace_dependency_code_action(
 
     Some(CodeAction {
         title: CodeActionRefactorRewriteName::AddToWorkspaceAndUseWorkspaceDependency.to_string(),
-        kind: Some(CodeActionKind::REFACTOR_REWRITE.clone()),
+        kind: Some(CodeActionKind::REFACTOR_REWRITE),
         diagnostics: None,
         edit: Some(workspace_edit_full),
         ..Default::default()
     })
 }
 
-/// Generate TextEdit for adding dependency to workspace [project.dependencies]
+/// Generate `TextEdit` for adding dependency to workspace [project.dependencies]
 fn generate_workspace_dependency_edit(
     accessors: &[Accessor],
     workspace_line_index: &tombi_text::LineIndex,
@@ -448,7 +440,10 @@ fn generate_workspace_dependency_edit(
         .collect();
 
     // Convert to &str for calculate_insertion_index
-    let existing_packages: Vec<&str> = existing_package_names.iter().map(|s| s.as_str()).collect();
+    let existing_packages: Vec<&str> = existing_package_names
+        .iter()
+        .map(std::string::String::as_str)
+        .collect();
 
     let package_name = dependency_requirement.requirement.name.to_string();
 
@@ -468,7 +463,7 @@ fn generate_workspace_dependency_edit(
     })
 }
 
-/// Generate TextEdit for converting member dependency to version-less format
+/// Generate `TextEdit` for converting member dependency to version-less format
 fn generate_member_dependency_edit(
     DependencyRequirement {
         requirement,
@@ -480,7 +475,7 @@ fn generate_member_dependency_edit(
 
     Some(TextEdit {
         range: dependency.range().into_lsp(line_index),
-        new_text: format!("\"{}\"", new_dep_str),
+        new_text: format!("\"{new_dep_str}\""),
     })
 }
 
@@ -507,12 +502,10 @@ fn use_workspace_dependency_code_action(
     let requirement = parse_requirement(dep_str.value())?;
 
     // If no version specified, don't provide code action
-    if requirement.version_or_url.is_none() {
-        return None;
-    }
+    requirement.version_or_url.as_ref()?;
 
     let workspace_dependency_requirements =
-        collect_dependency_requirements_from_document_tree(&workspace_document_tree);
+        collect_dependency_requirements_from_document_tree(workspace_document_tree);
     let DependencyRequirement {
         requirement: workspace_requirement,
         ..
@@ -524,14 +517,14 @@ fn use_workspace_dependency_code_action(
     )?;
 
     // Format dependency without version (preserving extras)
-    let new_dep_str = format_dependency_without_version(&workspace_requirement);
+    let new_dep_str = format_dependency_without_version(workspace_requirement);
 
     // Use the string's range for replacement
     let range = dep_str.range().into_lsp(line_index);
 
     Some(CodeAction {
         title: CodeActionRefactorRewriteName::UseWorkspaceDependency.to_string(),
-        kind: Some(CodeActionKind::REFACTOR_REWRITE.clone()),
+        kind: Some(CodeActionKind::REFACTOR_REWRITE),
         diagnostics: None,
         edit: Some(WorkspaceEdit {
             changes: None,
@@ -542,7 +535,7 @@ fn use_workspace_dependency_code_action(
                 },
                 edits: vec![OneOf::Left(TextEdit {
                     range,
-                    new_text: format!("\"{}\"", new_dep_str),
+                    new_text: format!("\"{new_dep_str}\""),
                 })],
             }])),
             change_annotations: None,

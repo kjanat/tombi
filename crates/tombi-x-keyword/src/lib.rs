@@ -84,10 +84,10 @@ pub enum TableKeysOrder {
 impl std::fmt::Display for TableKeysOrder {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
         match self {
-            TableKeysOrder::Ascending => write!(f, "ascending"),
-            TableKeysOrder::Descending => write!(f, "descending"),
-            TableKeysOrder::Schema => write!(f, "schema"),
-            TableKeysOrder::VersionSort => write!(f, "version-sort"),
+            Self::Ascending => write!(f, "ascending"),
+            Self::Descending => write!(f, "descending"),
+            Self::Schema => write!(f, "schema"),
+            Self::VersionSort => write!(f, "version-sort"),
         }
     }
 }
@@ -118,9 +118,9 @@ pub enum TableKeysOrderGroupKind {
 impl std::fmt::Display for TableKeysOrderGroupKind {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
         match self {
-            TableKeysOrderGroupKind::Keys => write!(f, "Keys"),
-            TableKeysOrderGroupKind::AdditionalKeys => write!(f, "Additional Keys"),
-            TableKeysOrderGroupKind::PatternKeys => write!(f, "Pattern Keys"),
+            Self::Keys => write!(f, "Keys"),
+            Self::AdditionalKeys => write!(f, "Additional Keys"),
+            Self::PatternKeys => write!(f, "Pattern Keys"),
         }
     }
 }
@@ -130,9 +130,9 @@ impl<'a> TryFrom<&'a str> for TableKeysOrderGroupKind {
 
     fn try_from(value: &'a str) -> Result<Self, Self::Error> {
         match value {
-            "properties" => Ok(TableKeysOrderGroupKind::Keys),
-            "additionalProperties" => Ok(TableKeysOrderGroupKind::AdditionalKeys),
-            "patternProperties" => Ok(TableKeysOrderGroupKind::PatternKeys),
+            "properties" => Ok(Self::Keys),
+            "additionalProperties" => Ok(Self::AdditionalKeys),
+            "patternProperties" => Ok(Self::PatternKeys),
             _ => Err("Invalid table group"),
         }
     }

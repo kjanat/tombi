@@ -57,7 +57,7 @@ impl TableSchema {
                 if let Some(property_schema) = Referable::<ValueSchema>::new(object, string_formats)
                 {
                     properties.insert(
-                        SchemaAccessor::Key(key_node.value.to_string()),
+                        SchemaAccessor::Key(key_node.value.clone()),
                         PropertySchema {
                             property_schema,
                             key_range: key_node.range,
@@ -125,10 +125,10 @@ impl TableSchema {
         Self {
             title: object_node
                 .get("title")
-                .and_then(|v| v.as_str().map(|s| s.to_string())),
+                .and_then(|v| v.as_str().map(std::string::ToString::to_string)),
             description: object_node
                 .get("description")
-                .and_then(|v| v.as_str().map(|s| s.to_string())),
+                .and_then(|v| v.as_str().map(std::string::ToString::to_string)),
             range: object_node.range,
             properties: Arc::new(properties.into()),
             pattern_properties: pattern_properties.map(|props| {
@@ -170,55 +170,62 @@ impl TableSchema {
             enumerate: object_node.get("enum").and_then(|v| v.as_array()).map(|v| {
                 v.items
                     .iter()
-                    .filter_map(|v| v.as_object().map(|v| v.into()))
+                    .filter_map(|v| v.as_object().map(std::convert::Into::into))
                     .collect()
             }),
             default: object_node
                 .get("default")
                 .and_then(|v| v.as_object())
-                .map(|v| v.into()),
+                .map(std::convert::Into::into),
             const_value: object_node
                 .get("const")
                 .and_then(|v| v.as_object())
-                .map(|v| v.into()),
+                .map(std::convert::Into::into),
             examples: object_node
                 .get("examples")
                 .and_then(|v| v.as_array())
                 .map(|v| {
                     v.items
                         .iter()
-                        .filter_map(|v| v.as_object().map(|v| v.into()))
+                        .filter_map(|v| v.as_object().map(std::convert::Into::into))
                         .collect()
                 }),
-            deprecated: object_node.get("deprecated").and_then(|v| v.as_bool()),
+            deprecated: object_node
+                .get("deprecated")
+                .and_then(tombi_json::ValueNode::as_bool),
             additional_key_label: object_node
                 .get(X_TOMBI_ADDITIONAL_KEY_LABEL)
-                .and_then(|v| v.as_str().map(|s| s.to_string())),
+                .and_then(|v| v.as_str().map(std::string::ToString::to_string)),
             not: NotSchema::new(object_node, string_formats),
         }
     }
 
-    pub fn value_type(&self) -> crate::ValueType {
+    #[must_use]
+    pub const fn value_type(&self) -> crate::ValueType {
         crate::ValueType::Table
     }
 
     #[inline]
-    pub fn additional_properties(&self) -> Option<bool> {
+    #[must_use]
+    pub const fn additional_properties(&self) -> Option<bool> {
         self.additional_properties
     }
 
     #[inline]
+    #[must_use]
     pub fn allows_any_additional_properties(&self, strict: bool) -> bool {
         self.allows_additional_properties(strict) || self.pattern_properties.is_some()
     }
 
     #[inline]
+    #[must_use]
     pub fn allows_additional_properties(&self, strict: bool) -> bool {
         self.additional_properties.unwrap_or(!strict)
     }
 
     #[inline]
-    pub fn check_strict_additional_properties_violation(&self, strict: bool) -> bool {
+    #[must_use]
+    pub const fn check_strict_additional_properties_violation(&self, strict: bool) -> bool {
         strict && self.additional_properties.is_none() && self.pattern_properties.is_none()
     }
 
@@ -287,8 +294,7 @@ impl FindSchemaCandidates for TableSchema {
                 .write()
                 .await
                 .get_mut(&SchemaAccessor::from(&accessors[0]))
-            {
-                if let Ok(Some(CurrentSchema {
+                && let Ok(Some(CurrentSchema {
                     value_schema,
                     schema_uri,
                     definitions,
@@ -299,16 +305,15 @@ impl FindSchemaCandidates for TableSchema {
                         schema_store,
                     )
                     .await
-                {
-                    return value_schema
-                        .find_schema_candidates(
-                            &accessors[1..],
-                            &schema_uri,
-                            &definitions,
-                            schema_store,
-                        )
-                        .await;
-                }
+            {
+                return value_schema
+                    .find_schema_candidates(
+                        &accessors[1..],
+                        &schema_uri,
+                        &definitions,
+                        schema_store,
+                    )
+                    .await;
             }
 
             (candidates, errors)
@@ -333,12 +338,11 @@ impl XTombiTableKeysOrder {
     pub fn new(value_node: &tombi_json::ValueNode) -> Option<Self> {
         match value_node {
             tombi_json::ValueNode::String(StringNode { value: order, .. }) => {
-                match TableKeysOrder::try_from(order.as_str()) {
-                    Ok(val) => Some(XTombiTableKeysOrder::All(val)),
-                    Err(_) => {
-                        tracing::warn!("Invalid {X_TOMBI_TABLE_KEYS_ORDER}: {order}");
-                        None
-                    }
+                if let Ok(val) = TableKeysOrder::try_from(order.as_str()) {
+                    Some(Self::All(val))
+                } else {
+                    tracing::warn!("Invalid {X_TOMBI_TABLE_KEYS_ORDER}: {order}");
+                    None
                 }
             }
             tombi_json::ValueNode::Object(object_node) => {

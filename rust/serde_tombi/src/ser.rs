@@ -74,6 +74,7 @@ impl Default for Serializer<'_> {
 }
 
 impl Serializer<'_> {
+    #[must_use]
     pub const fn new() -> Self {
         Self {
             config: None,
@@ -120,19 +121,16 @@ impl Serializer<'_> {
             None => &SchemaStore::new(),
         };
         if self.schema_store.is_none() {
-            match self.config {
-                Some(config) => {
-                    if self.schema_store.is_none() {
-                        schema_store.load_config(config, self.config_path).await?;
-                    }
+            if let Some(config) = self.config {
+                if self.schema_store.is_none() {
+                    schema_store.load_config(config, self.config_path).await?;
                 }
-                None => {
-                    let (config, config_path) =
-                        crate::config::load_with_path(std::env::current_dir().ok())?;
-                    schema_store
-                        .load_config(&config, config_path.as_deref())
-                        .await?;
-                }
+            } else {
+                let (config, config_path) =
+                    crate::config::load_with_path(std::env::current_dir().ok())?;
+                schema_store
+                    .load_config(&config, config_path.as_deref())
+                    .await?;
             }
         }
 
@@ -177,15 +175,15 @@ impl<'a> serde::Serializer for &'a mut ValueSerializer<'a> {
     }
 
     fn serialize_i8(self, v: i8) -> Result<Self::Ok, Self::Error> {
-        self.serialize_i64(v as i64)
+        self.serialize_i64(i64::from(v))
     }
 
     fn serialize_i16(self, v: i16) -> Result<Self::Ok, Self::Error> {
-        self.serialize_i64(v as i64)
+        self.serialize_i64(i64::from(v))
     }
 
     fn serialize_i32(self, v: i32) -> Result<Self::Ok, Self::Error> {
-        self.serialize_i64(v as i64)
+        self.serialize_i64(i64::from(v))
     }
 
     fn serialize_i64(self, v: i64) -> Result<Self::Ok, Self::Error> {
@@ -195,15 +193,15 @@ impl<'a> serde::Serializer for &'a mut ValueSerializer<'a> {
     }
 
     fn serialize_u8(self, v: u8) -> Result<Self::Ok, Self::Error> {
-        self.serialize_i64(v as i64)
+        self.serialize_i64(i64::from(v))
     }
 
     fn serialize_u16(self, v: u16) -> Result<Self::Ok, Self::Error> {
-        self.serialize_i64(v as i64)
+        self.serialize_i64(i64::from(v))
     }
 
     fn serialize_u32(self, v: u32) -> Result<Self::Ok, Self::Error> {
-        self.serialize_i64(v as i64)
+        self.serialize_i64(i64::from(v))
     }
 
     fn serialize_u64(self, v: u64) -> Result<Self::Ok, Self::Error> {
@@ -211,7 +209,7 @@ impl<'a> serde::Serializer for &'a mut ValueSerializer<'a> {
     }
 
     fn serialize_f32(self, v: f32) -> Result<Self::Ok, Self::Error> {
-        self.serialize_f64(v as f64)
+        self.serialize_f64(f64::from(v))
     }
 
     fn serialize_f64(self, v: f64) -> Result<Self::Ok, Self::Error> {
@@ -612,7 +610,7 @@ struct DateTimeSerializer<'a, T> {
 }
 
 impl<'a, T> DateTimeSerializer<'a, T> {
-    fn new(accessors: &'a [tombi_schema_store::Accessor]) -> Self {
+    const fn new(accessors: &'a [tombi_schema_store::Accessor]) -> Self {
         Self {
             accessors,
             _marker: std::marker::PhantomData,

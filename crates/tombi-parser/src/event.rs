@@ -1,4 +1,4 @@
-use tombi_syntax::SyntaxKind::{self, *};
+use tombi_syntax::SyntaxKind::{self, TOMBSTONE};
 
 use crate::output::Output;
 
@@ -26,8 +26,8 @@ pub enum Event {
 }
 
 impl Event {
-    pub(crate) fn tombstone() -> Self {
-        Event::Start {
+    pub(crate) const fn tombstone() -> Self {
+        Self::Start {
             kind: TOMBSTONE,
             forward_parent: None,
         }
@@ -35,7 +35,7 @@ impl Event {
 }
 
 /// Generate the syntax tree with the control of events.
-pub(super) fn process(mut events: Vec<Event>) -> Output {
+pub fn process(mut events: Vec<Event>) -> Output {
     let mut output = Output::default();
     let mut forward_parents = Vec::new();
 

@@ -6,7 +6,7 @@ pub use tombi_document::{
 };
 
 /// A trait for converting TOML values to their string representation.
-pub(crate) trait ToTomlString {
+pub trait ToTomlString {
     fn to_toml_string(
         &self,
         result: &mut std::string::String,
@@ -49,16 +49,16 @@ impl ToTomlString for tombi_document::Value {
         parent_keys: &[&tombi_document::Key],
     ) {
         match self {
-            tombi_document::Value::String(s) => result.push_str(&format!("\"{}\"", s.value())),
-            tombi_document::Value::Integer(i) => result.push_str(&i.value().to_string()),
-            tombi_document::Value::Float(f) => result.push_str(&f.value().to_string()),
-            tombi_document::Value::Boolean(b) => result.push_str(&b.value().to_string()),
-            tombi_document::Value::Array(a) => a.to_toml_string(result, parent_keys),
-            tombi_document::Value::Table(t) => t.to_toml_string(result, parent_keys),
-            tombi_document::Value::OffsetDateTime(dt) => result.push_str(&dt.to_string()),
-            tombi_document::Value::LocalDateTime(dt) => result.push_str(&dt.to_string()),
-            tombi_document::Value::LocalDate(d) => result.push_str(&d.to_string()),
-            tombi_document::Value::LocalTime(t) => result.push_str(&t.to_string()),
+            Self::String(s) => result.push_str(&format!("\"{}\"", s.value())),
+            Self::Integer(i) => result.push_str(&i.value().to_string()),
+            Self::Float(f) => result.push_str(&f.value().to_string()),
+            Self::Boolean(b) => result.push_str(&b.value().to_string()),
+            Self::Array(a) => a.to_toml_string(result, parent_keys),
+            Self::Table(t) => t.to_toml_string(result, parent_keys),
+            Self::OffsetDateTime(dt) => result.push_str(&dt.to_string()),
+            Self::LocalDateTime(dt) => result.push_str(&dt.to_string()),
+            Self::LocalDate(d) => result.push_str(&d.to_string()),
+            Self::LocalTime(t) => result.push_str(&t.to_string()),
         }
     }
 }
@@ -71,27 +71,27 @@ impl ToTomlString for tombi_document::Table {
     ) {
         match self.kind() {
             tombi_document::TableKind::Table => {
-                if self.key_values().len() == 1 {
-                    if let Some((key, value)) = self.key_values().iter().next() {
-                        match value {
-                            tombi_document::Value::Table(table)
-                                if table.kind() == tombi_document::TableKind::Table =>
-                            {
-                                return table.to_toml_string(
-                                    result,
-                                    &parent_keys.iter().chain(&[key]).copied().collect_vec(),
-                                );
-                            }
-                            tombi_document::Value::Array(array)
-                                if array.kind() == tombi_document::ArrayKind::ArrayOfTable =>
-                            {
-                                return array.to_toml_string(
-                                    result,
-                                    &parent_keys.iter().chain(&[key]).copied().collect_vec(),
-                                );
-                            }
-                            _ => {}
+                if self.key_values().len() == 1
+                    && let Some((key, value)) = self.key_values().iter().next()
+                {
+                    match value {
+                        tombi_document::Value::Table(table)
+                            if table.kind() == tombi_document::TableKind::Table =>
+                        {
+                            return table.to_toml_string(
+                                result,
+                                &parent_keys.iter().chain(&[key]).copied().collect_vec(),
+                            );
                         }
+                        tombi_document::Value::Array(array)
+                            if array.kind() == tombi_document::ArrayKind::ArrayOfTable =>
+                        {
+                            return array.to_toml_string(
+                                result,
+                                &parent_keys.iter().chain(&[key]).copied().collect_vec(),
+                            );
+                        }
+                        _ => {}
                     }
                 }
 
@@ -178,7 +178,7 @@ impl ToTomlString for tombi_document::Array {
                 result.push(']');
             }
             tombi_document::ArrayKind::ArrayOfTable => {
-                for value in self.values().iter() {
+                for value in self.values() {
                     result.push_str(&format!(
                         "[[{}]]\n",
                         parent_keys

@@ -38,12 +38,12 @@ impl NotFormattedError {
     }
 
     #[inline]
-    pub fn from_input() -> Self {
+    pub const fn from_input() -> Self {
         Self { source_path: None }
     }
 
     #[inline]
-    pub fn into_error(self) -> Error {
+    pub const fn into_error(self) -> Error {
         Error::NotFormatted(self)
     }
 }

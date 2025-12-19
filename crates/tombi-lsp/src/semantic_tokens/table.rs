@@ -10,7 +10,7 @@ impl AppendSemanticTokens for tombi_ast::Table {
         }
 
         if let Some(token) = self.bracket_start() {
-            builder.add_token(TokenType::OPERATOR, token.into())
+            builder.add_token(TokenType::OPERATOR, token.into());
         }
 
         if let Some(header) = self.header() {
@@ -20,7 +20,7 @@ impl AppendSemanticTokens for tombi_ast::Table {
         }
 
         if let Some(token) = self.bracket_end() {
-            builder.add_token(TokenType::OPERATOR, token.into())
+            builder.add_token(TokenType::OPERATOR, token.into());
         }
 
         if let Some(comment) = self.header_trailing_comment() {

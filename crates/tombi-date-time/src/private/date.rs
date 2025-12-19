@@ -1,5 +1,5 @@
 #[derive(PartialEq, Eq, PartialOrd, Ord, Copy, Clone, Debug, Hash)]
-pub(crate) struct Date {
+pub struct Date {
     /// Year: four digits
     pub year: u16,
     /// Month: 1 to 12

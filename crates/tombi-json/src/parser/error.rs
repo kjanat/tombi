@@ -28,6 +28,6 @@ pub enum Error {
 
 impl From<LexerError> for Error {
     fn from(_: LexerError) -> Self {
-        Error::Lexer
+        Self::Lexer
     }
 }

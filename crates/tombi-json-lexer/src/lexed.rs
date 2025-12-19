@@ -1,4 +1,4 @@
-use tombi_json_syntax::SyntaxKind::*;
+use tombi_json_syntax::SyntaxKind::INVALID_TOKEN;
 
 #[derive(Debug, Default)]
 pub struct Lexed {

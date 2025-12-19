@@ -21,9 +21,10 @@ pub async fn create_boolean_sortable_values<'a>(
 
         match (value.clone(), value_node) {
             (tombi_ast::Value::Boolean(_), tombi_document_tree::Value::Boolean(boolean_node)) => {
-                match boolean_node.value() {
-                    true => sortable_values.push((true, value, comma)),
-                    false => sortable_values.push((false, value, comma)),
+                if boolean_node.value() {
+                    sortable_values.push((true, value, comma))
+                } else {
+                    sortable_values.push((false, value, comma))
                 }
             }
             (
@@ -48,15 +49,14 @@ pub async fn create_boolean_sortable_values<'a>(
                     let mut keys_iter = keys.keys();
                     if let (Some(key), None) = (keys_iter.next(), keys_iter.next()) {
                         let key_text = key.to_raw_text(schema_context.toml_version);
-                        if key_text == array_values_order_by {
-                            if let Some(tombi_document_tree::Value::Boolean(boolean_node)) =
+                        if key_text == array_values_order_by
+                            && let Some(tombi_document_tree::Value::Boolean(boolean_node)) =
                                 table_node.get(&key_text)
-                            {
-                                sortable_values.push((boolean_node.value(), value, comma));
+                        {
+                            sortable_values.push((boolean_node.value(), value, comma));
 
-                                found = true;
-                                break;
-                            }
+                            found = true;
+                            break;
                         }
                     } else {
                         return Err(SortFailReason::DottedKeysInlineTableNotSupported);

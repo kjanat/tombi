@@ -11,11 +11,8 @@ pub struct DocumentLink {
 }
 
 impl FromLsp<DocumentLink> for tower_lsp::lsp_types::DocumentLink {
-    fn from_lsp(
-        source: DocumentLink,
-        line_index: &tombi_text::LineIndex,
-    ) -> tower_lsp::lsp_types::DocumentLink {
-        tower_lsp::lsp_types::DocumentLink {
+    fn from_lsp(source: DocumentLink, line_index: &tombi_text::LineIndex) -> Self {
+        Self {
             range: source.range.into_lsp(line_index),
             target: Some(source.target.into()),
             tooltip: Some(source.tooltip.into_owned()),
@@ -24,6 +21,7 @@ impl FromLsp<DocumentLink> for tower_lsp::lsp_types::DocumentLink {
     }
 }
 
+#[must_use]
 pub fn get_tombi_github_uri(uri: &tombi_uri::Uri) -> Option<tombi_uri::Uri> {
     if uri.scheme() == "tombi" {
         if get_tombi_schemastore_content(uri).is_some() {

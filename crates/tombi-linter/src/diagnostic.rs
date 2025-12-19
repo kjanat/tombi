@@ -16,7 +16,8 @@ pub struct Diagnostic {
 }
 
 impl Diagnostic {
-    pub fn code(&self) -> &'static str {
+    #[must_use]
+    pub const fn code(&self) -> &'static str {
         match self.kind {
             DiagnosticKind::KeyEmpty => "key-empty",
             DiagnosticKind::DottedKeysOutOfOrder => "dotted-keys-out-of-order",

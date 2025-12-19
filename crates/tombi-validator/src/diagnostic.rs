@@ -131,6 +131,7 @@ pub struct Diagnostic {
 
 impl Diagnostic {
     #[inline]
+    #[must_use]
     pub fn code(&self) -> &'static str {
         match *self.kind {
             DiagnosticKind::UnusedNoqa { .. } => "unused-noqa",

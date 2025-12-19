@@ -1,6 +1,6 @@
 use tombi_x_keyword::StringFormat;
 
-#[derive(Debug, Default, Clone, PartialEq)]
+#[derive(Debug, Default, Clone, PartialEq, Eq)]
 pub struct StringSchema {
     pub title: Option<String>,
     pub description: Option<String>,
@@ -17,14 +17,15 @@ pub struct StringSchema {
 }
 
 impl StringSchema {
+    #[must_use]
     pub fn new(object: &tombi_json::ObjectNode, format: Option<StringFormat>) -> Self {
         Self {
             title: object
                 .get("title")
-                .and_then(|v| v.as_str().map(|s| s.to_string())),
+                .and_then(|v| v.as_str().map(std::string::ToString::to_string)),
             description: object
                 .get("description")
-                .and_then(|v| v.as_str().map(|s| s.to_string())),
+                .and_then(|v| v.as_str().map(std::string::ToString::to_string)),
             range: object.range,
             min_length: object
                 .get("minLength")
@@ -35,7 +36,7 @@ impl StringSchema {
             format,
             pattern: object
                 .get("pattern")
-                .and_then(|v| v.as_str().map(|s| s.to_string())),
+                .and_then(|v| v.as_str().map(std::string::ToString::to_string)),
             enumerate: object.get("enum").and_then(|v| v.as_array()).map(|a| {
                 a.items
                     .iter()
@@ -45,7 +46,7 @@ impl StringSchema {
             }),
             const_value: object
                 .get("const")
-                .and_then(|v| v.as_str().map(|s| s.to_string())),
+                .and_then(|v| v.as_str().map(std::string::ToString::to_string)),
             examples: object.get("examples").and_then(|v| v.as_array()).map(|a| {
                 a.items
                     .iter()
@@ -55,11 +56,14 @@ impl StringSchema {
             }),
             default: object
                 .get("default")
-                .and_then(|v| v.as_str().map(|s| s.to_string())),
-            deprecated: object.get("deprecated").and_then(|v| v.as_bool()),
+                .and_then(|v| v.as_str().map(std::string::ToString::to_string)),
+            deprecated: object
+                .get("deprecated")
+                .and_then(tombi_json::ValueNode::as_bool),
         }
     }
 
+    #[must_use]
     pub const fn value_type(&self) -> crate::ValueType {
         crate::ValueType::String
     }
