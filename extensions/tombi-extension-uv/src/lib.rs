@@ -301,11 +301,8 @@ fn goto_workspace_member(
             || matches_accessors!(accessors, ["tool", "uv", "sources", _, "workspace"])
     );
 
-    let Some((workspace_pyproject_toml_path, _, workspace_pyproject_toml_document_tree)) =
-        find_workspace_pyproject_toml(pyproject_toml_path, toml_version)
-    else {
-        return None;
-    };
+    let (workspace_pyproject_toml_path, _, workspace_pyproject_toml_document_tree) =
+        find_workspace_pyproject_toml(pyproject_toml_path, toml_version)?;
 
     let package_name = if let tombi_schema_store::Accessor::Key(key) = &accessors[3] {
         key
@@ -320,28 +317,21 @@ fn goto_workspace_member(
         return None;
     }
 
-    let Some((package_toml_path, member_range)) = find_member_project_toml(
+    let (package_toml_path, member_range) = find_member_project_toml(
         package_name,
         &workspace_pyproject_toml_document_tree,
         &workspace_pyproject_toml_path,
         toml_version,
-    ) else {
-        return None;
-    };
+    )?;
 
     if jump_to_package {
         let Ok(package_pyproject_toml_uri) = tombi_uri::Uri::from_file_path(&package_toml_path)
         else {
             return None;
         };
-        let Some(member_document_tree) =
-            load_pyproject_toml_document_tree(pyproject_toml_path, toml_version)
-        else {
-            return None;
-        };
-        let Some(package_name) = get_project_name(&member_document_tree) else {
-            return None;
-        };
+        let member_document_tree =
+            load_pyproject_toml_document_tree(pyproject_toml_path, toml_version)?;
+        let package_name = get_project_name(&member_document_tree)?;
 
         Some(tombi_extension::DefinitionLocation {
             uri: package_pyproject_toml_uri,
