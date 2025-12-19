@@ -36,6 +36,11 @@ pub use error::Error;
 ///     let toml = serde_tombi::to_string_async(&config).await.unwrap();
 /// }
 /// ```
+///
+/// # Errors
+///
+/// Returns an error if the value cannot be serialized, the root value is not a table,
+/// or if loading schema configurations fails.
 pub async fn to_string_async<T>(value: &T) -> Result<String, crate::ser::Error>
 where
     T: Serialize,
@@ -44,6 +49,10 @@ where
 }
 
 /// Serialize the given data structure as a TOML Document.
+///
+/// # Errors
+///
+/// Returns an error if the value cannot be serialized or if the root value is not a table.
 pub fn to_document<T>(value: &T) -> Result<crate::Document, crate::ser::Error>
 where
     T: Serialize,
@@ -84,6 +93,11 @@ impl Serializer<'_> {
         }
     }
 
+    /// Serialize the given value into a TOML document.
+    ///
+    /// # Errors
+    ///
+    /// Returns an error if the value cannot be serialized or if the root value is not a table.
     pub fn to_document<T>(&self, value: &T) -> Result<tombi_document::Document, crate::ser::Error>
     where
         T: Serialize,
@@ -98,7 +112,13 @@ impl Serializer<'_> {
         }
     }
 
-    #[cfg(not(feature = "wasm"))]
+    /// Serialize the given value as a TOML string.
+    ///
+    /// # Errors
+    ///
+    /// Returns an error if the value cannot be serialized, the root value is not a table,
+    /// or if creating the runtime fails.
+        #[cfg(not(feature = "wasm"))]
     pub fn to_string<T>(&self, value: &T) -> Result<String, crate::ser::Error>
     where
         T: Serialize,
@@ -106,7 +126,13 @@ impl Serializer<'_> {
         tokio::runtime::Runtime::new()?.block_on(self.to_string_async(value))
     }
 
-    pub async fn to_string_async<T>(&self, value: &T) -> Result<String, crate::ser::Error>
+    /// Serialize the given value as a TOML string asynchronously.
+    ///
+    /// # Errors
+    ///
+    /// Returns an error if the value cannot be serialized, the root value is not a table,
+    /// or if loading schema configurations fails.
+        pub async fn to_string_async<T>(&self, value: &T) -> Result<String, crate::ser::Error>
     where
         T: Serialize,
     {

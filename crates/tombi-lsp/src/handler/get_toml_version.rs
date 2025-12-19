@@ -4,6 +4,11 @@ use tower_lsp::lsp_types::TextDocumentIdentifier;
 use crate::backend::Backend;
 
 #[tracing::instrument(level = "debug", skip_all)]
+/// Returns the TOML version for the given document.
+///
+/// # Errors
+///
+/// Returns JSONRPC error if internal operations fail.
 pub async fn handle_get_toml_version(
     backend: &Backend,
     params: TextDocumentIdentifier,

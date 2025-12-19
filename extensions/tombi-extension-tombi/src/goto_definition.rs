@@ -4,6 +4,11 @@ use tombi_config::TomlVersion;
 use tombi_document_tree::dig_accessors;
 use tombi_schema_store::matches_accessors;
 
+/// Find definition locations for schema paths in tombi.toml files.
+///
+/// # Errors
+///
+/// Returns an error if internal LSP processing fails.
 pub async fn goto_definition(
     text_document_uri: &tombi_uri::Uri,
     document_tree: &tombi_document_tree::DocumentTree,

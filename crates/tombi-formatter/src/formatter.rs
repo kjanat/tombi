@@ -48,6 +48,10 @@ impl<'a> Formatter<'a> {
     }
 
     /// Format a TOML document and return the result as a string
+    ///
+    /// # Errors
+    ///
+    /// Returns a vector of diagnostics if formatting encounters parse errors or other issues.
     pub async fn format(mut self, source: &str) -> Result<String, Vec<Diagnostic>> {
         let (source_schema, tombi_document_comment_directive) = if let Some(parsed) =
             tombi_parser::parse_document_header_comments(source).cast::<tombi_ast::Root>()

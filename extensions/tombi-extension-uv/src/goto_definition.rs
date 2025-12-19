@@ -10,6 +10,11 @@ use crate::{
     load_pyproject_toml_document_tree, parse_requirement,
 };
 
+/// Find definition locations for dependencies in pyproject.toml files.
+///
+/// # Errors
+///
+/// Returns an error if internal LSP processing fails.
 pub async fn goto_definition(
     text_document_uri: &tombi_uri::Uri,
     document_tree: &tombi_document_tree::DocumentTree,

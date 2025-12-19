@@ -8,6 +8,12 @@ pub enum ParseError {
     LeadingZero,
 }
 
+/// Parse a floating-point number literal.
+///
+/// # Errors
+///
+/// Returns an error if underscores are placed incorrectly, leading zeros are present in the integer part,
+/// or the value cannot be parsed as f64.
 pub fn try_from_float(value: &str) -> Result<f64, self::ParseError> {
     if value.chars().enumerate().any(|(i, c)| {
         if c == '_' {

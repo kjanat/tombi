@@ -9,6 +9,10 @@ use crate::{
 };
 
 /// Pull diagnostics
+///
+/// # Errors
+///
+/// Returns JSONRPC error if internal operations fail.
 pub async fn handle_diagnostic(
     backend: &Backend,
     params: DocumentDiagnosticParams,

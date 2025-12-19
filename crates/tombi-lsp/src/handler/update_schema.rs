@@ -6,6 +6,11 @@ use tower_lsp::lsp_types::{
 use crate::backend::Backend;
 
 #[tracing::instrument(level = "debug", skip_all)]
+/// Updates schema for the given document.
+///
+/// # Errors
+///
+/// This function always returns success (`Ok`), converting any internal errors to error notifications sent to the client.
 pub async fn handle_update_schema(
     backend: &Backend,
     params: TextDocumentIdentifier,

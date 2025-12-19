@@ -61,6 +61,11 @@ impl std::fmt::Display for DocumentLinkToolTip {
     }
 }
 
+/// Find document links for crate dependencies and workspace members in Cargo.toml files.
+///
+/// # Errors
+///
+/// Returns an error if internal LSP processing fails.
 pub async fn document_link(
     text_document_uri: &tombi_uri::Uri,
     document_tree: &tombi_document_tree::DocumentTree,
@@ -107,6 +112,11 @@ pub async fn document_link(
     Ok(Some(document_links))
 }
 
+/// Find document links for workspace Cargo.toml files.
+///
+/// # Errors
+///
+/// Returns an error if internal LSP processing fails.
 fn document_link_for_workspace_cargo_toml(
     workspace_document_tree: &tombi_document_tree::DocumentTree,
     workspace_cargo_toml_path: &std::path::Path,
@@ -225,6 +235,11 @@ fn create_member_document_links(
     document_links
 }
 
+/// Find document links for workspace dependencies.
+///
+/// # Errors
+///
+/// Returns an error if internal LSP processing fails.
 fn document_link_for_workspace_depencencies(
     dependencies: &tombi_document_tree::Table,
     workspace_cargo_toml_path: &std::path::Path,
@@ -247,6 +262,11 @@ fn document_link_for_workspace_depencencies(
     Ok(total_document_links)
 }
 
+/// Find document links for crate dependencies in Cargo.toml files.
+///
+/// # Errors
+///
+/// Returns an error if internal LSP processing fails.
 fn document_link_for_crate_cargo_toml(
     crate_document_tree: &tombi_document_tree::DocumentTree,
     crate_cargo_toml_path: &std::path::Path,
@@ -410,6 +430,11 @@ fn document_link_for_crate_cargo_toml(
     Ok(total_document_links)
 }
 
+/// Find document links for individual workspace dependencies.
+///
+/// # Errors
+///
+/// Returns an error if internal LSP processing fails.
 fn document_link_for_workspace_dependency(
     crate_key: &tombi_document_tree::Key,
     crate_value: &tombi_document_tree::Value,
@@ -438,6 +463,11 @@ fn document_link_for_workspace_dependency(
     }
 }
 
+/// Find document links for crate dependencies when workspace exists.
+///
+/// # Errors
+///
+/// Returns an error if internal LSP processing fails.
 fn document_link_for_crate_dependency_has_workspace(
     crate_key: &tombi_document_tree::Key,
     crate_value: &tombi_document_tree::Value,
@@ -539,6 +569,11 @@ fn document_link_for_bin_targets(
         .collect()
 }
 
+/// Find document link for a single dependency.
+///
+/// # Errors
+///
+/// Returns an error if internal LSP processing fails.
 fn document_link_for_dependency(
     crate_key: &tombi_document_tree::Key,
     crate_value: &tombi_document_tree::Value,
@@ -620,6 +655,11 @@ fn document_link_for_dependency(
     Ok(None)
 }
 
+/// Get registries from .cargo/config.toml.
+///
+/// # Errors
+///
+/// Returns an error if internal LSP processing fails.
 fn get_registories(
     workspace_cargo_toml_path: &std::path::Path,
     toml_version: TomlVersion,

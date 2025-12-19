@@ -34,6 +34,10 @@ impl de::Error for Error {
 }
 
 /// Deserialize an instance of type Tree from a string of JSON text
+///
+/// # Errors
+///
+/// Returns a parsing error if the JSON text is invalid or deserialization fails.
 pub fn from_str<T>(s: &str) -> Result<T, crate::Error>
 where
     T: DeserializeOwned,
@@ -43,6 +47,10 @@ where
 }
 
 /// Deserialize a `ValueNode` from a reader
+///
+/// # Errors
+///
+/// Returns an IO error if reading from the reader fails, or a parsing/deserialization error if the JSON text is invalid.
 pub fn from_reader<R, T>(reader: R) -> Result<T, Error>
 where
     R: Read,

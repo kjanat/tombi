@@ -6,6 +6,11 @@ use crate::Backend;
 #[serde(rename_all = "camelCase")]
 pub struct RefreshCacheParams {}
 
+/// Refreshes the schema cache.
+///
+/// # Errors
+///
+/// Returns JSONRPC InternalError if cache refresh fails.
 pub async fn handle_refresh_cache(
     backend: &Backend,
     _params: RefreshCacheParams,

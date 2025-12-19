@@ -71,6 +71,10 @@ where
 /// Follows the given keys in order and retrieves the value if it exists.
 ///
 /// NOTE: You cannot follow indices. Use `tombi_accessor::dig_accessors` for that.
+///
+/// # Errors
+///
+/// Returns `None` if any key in the path is not found or if a non-table value is encountered in the path.
 pub fn dig_keys<'a, K>(
     table: &'a crate::Table,
     keys: &[&K],

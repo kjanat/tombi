@@ -5,6 +5,11 @@ use tower_lsp::lsp_types::{DocumentLink, DocumentLinkParams};
 
 use crate::{Backend, config_manager::ConfigSchemaStore};
 
+/// Provides document links at the cursor position.
+///
+/// # Errors
+///
+/// Returns JSONRPC error if extension operations fail.
 pub async fn handle_document_link(
     backend: &Backend,
     params: DocumentLinkParams,

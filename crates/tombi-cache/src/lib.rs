@@ -49,6 +49,11 @@ pub async fn get_cache_file_path(cache_file_uri: &tombi_uri::Uri) -> Option<std:
     })
 }
 
+/// Read cached content from a file if it exists and is valid.
+///
+/// # Errors
+///
+/// Returns an error if the cache file cannot be read (IO error).
 pub async fn read_from_cache(
     cache_file_path: Option<&std::path::Path>,
     options: Option<&Options>,
@@ -87,6 +92,11 @@ pub async fn read_from_cache(
     Ok(None)
 }
 
+/// Save content to a cache file, creating parent directories as needed.
+///
+/// # Errors
+///
+/// Returns an error if parent directories cannot be created or the file cannot be written.
 pub async fn save_to_cache(
     cache_file_path: Option<&std::path::Path>,
     bytes: &[u8],

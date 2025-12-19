@@ -6,6 +6,11 @@ use tower_lsp::lsp_types::{
 use crate::backend::Backend;
 
 #[tracing::instrument(level = "debug", skip_all)]
+/// Provides symbols defined in the document.
+///
+/// # Errors
+///
+/// Returns JSONRPC error if internal operations fail.
 pub async fn handle_document_symbol(
     backend: &Backend,
     params: DocumentSymbolParams,

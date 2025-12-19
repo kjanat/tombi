@@ -5,6 +5,11 @@ use tower_lsp::lsp_types::{FoldingRange, FoldingRangeKind, FoldingRangeParams};
 use crate::backend::Backend;
 
 #[tracing::instrument(level = "debug", skip_all)]
+/// Provides folding ranges for the document.
+///
+/// # Errors
+///
+/// Returns JSONRPC error if internal operations fail.
 pub async fn handle_folding_range(
     backend: &Backend,
     params: FoldingRangeParams,

@@ -2,6 +2,11 @@ use crate::goto_definition_for_crate_cargo_toml;
 use tombi_config::TomlVersion;
 use tombi_schema_store::matches_accessors;
 
+/// Find declaration locations for crate dependencies in Cargo.toml files.
+///
+/// # Errors
+///
+/// Returns an error if internal LSP processing fails.
 pub async fn goto_declaration(
     text_document_uri: &tombi_uri::Uri,
     document_tree: &tombi_document_tree::DocumentTree,

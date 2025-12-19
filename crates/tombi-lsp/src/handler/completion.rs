@@ -15,6 +15,11 @@ use crate::{
 };
 
 #[tracing::instrument(level = "debug", skip_all)]
+/// Provides completion suggestions at the cursor position.
+///
+/// # Errors
+///
+/// Returns JSONRPC error if extension operations fail.
 pub async fn handle_completion(
     backend: &backend::Backend,
     params: CompletionParams,

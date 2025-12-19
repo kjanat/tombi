@@ -42,6 +42,11 @@ struct CratesIoVersionDetailResponse {
     version: CratesIoVersion,
 }
 
+/// Provide completion suggestions for Cargo.toml files.
+///
+/// # Errors
+///
+/// Returns an error if internal LSP processing fails.
 pub async fn completion(
     text_document_uri: &tombi_uri::Uri,
     document_tree: &tombi_document_tree::DocumentTree,

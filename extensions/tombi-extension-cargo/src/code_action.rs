@@ -119,6 +119,11 @@ impl std::fmt::Display for CodeActionRefactorRewriteName {
     }
 }
 
+/// Generate code actions for package and dependency management in Cargo.toml files.
+///
+/// # Errors
+///
+/// Returns an error if internal LSP processing fails.
 pub fn code_action(
     text_document_uri: &tombi_uri::Uri,
     line_index: &tombi_text::LineIndex,

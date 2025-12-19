@@ -12,6 +12,11 @@ use crate::{
 };
 
 #[tracing::instrument(level = "debug", skip_all)]
+/// Provides hover information at the cursor position.
+///
+/// # Errors
+///
+/// Returns JSONRPC error if internal operations fail.
 pub async fn handle_hover(
     backend: &backend::Backend,
     params: HoverParams,

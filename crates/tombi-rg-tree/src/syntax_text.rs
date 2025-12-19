@@ -74,6 +74,11 @@ impl SyntaxText {
         }
     }
 
+    /// Fold chunks of text with error handling.
+    ///
+    /// # Errors
+    ///
+    /// Returns an error if the closure `f` returns an error.
     pub fn try_fold_chunks<T, F, E>(&self, init: T, mut f: F) -> Result<T, E>
     where
         F: FnMut(T, &str) -> Result<T, E>,
@@ -82,6 +87,11 @@ impl SyntaxText {
             .try_fold(init, move |acc, (token, span)| f(acc, &token.text()[span]))
     }
 
+    /// Execute a closure for each chunk of text with error handling.
+    ///
+    /// # Errors
+    ///
+    /// Returns an error if the closure `f` returns an error.
     pub fn try_for_each_chunk<F: FnMut(&str) -> Result<(), E>, E>(
         &self,
         mut f: F,

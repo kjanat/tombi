@@ -47,6 +47,11 @@ impl std::fmt::Display for DocumentLinkToolTip {
     }
 }
 
+/// Find document links for dependencies and workspace members in pyproject.toml files.
+///
+/// # Errors
+///
+/// Returns an error if internal LSP processing fails.
 pub async fn document_link(
     text_document_uri: &tombi_uri::Uri,
     document_tree: &tombi_document_tree::DocumentTree,

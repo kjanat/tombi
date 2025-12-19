@@ -19,6 +19,11 @@ use crate::{
 };
 
 #[tracing::instrument(level = "debug", skip_all)]
+/// Initializes the LSP server with client capabilities.
+///
+/// # Errors
+///
+/// Returns JSONRPC error if internal operations fail.
 pub async fn handle_initialize(
     backend: &Backend,
     params: InitializeParams,

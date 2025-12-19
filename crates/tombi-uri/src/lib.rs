@@ -30,11 +30,21 @@ macro_rules! comment_directive_schemastore_hostname {
 pub struct Uri(url::Url);
 
 impl Uri {
+    /// Create a URI from a file path.
+    ///
+    /// # Errors
+    ///
+    /// Returns an error if the file path is not a valid URL.
     #[allow(clippy::result_unit_err)]
     pub fn from_file_path<P: AsRef<std::path::Path>>(path: P) -> Result<Self, ()> {
         url_from_file_path(path).map(Self)
     }
 
+     /// Convert the URI to a file path.
+    ///
+    /// # Errors
+    ///
+    /// Returns an error if the URI scheme is not `file` or the URI cannot be converted to a valid file path.
     #[allow(clippy::result_unit_err)]
     pub fn to_file_path(&self) -> Result<std::path::PathBuf, ()> {
         url_to_file_path(self)

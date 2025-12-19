@@ -6,6 +6,11 @@ use crate::{
 };
 
 #[tracing::instrument(level = "debug", skip_all)]
+/// Provides semantic tokens for the full document.
+///
+/// # Errors
+///
+/// Returns JSONRPC error if internal operations fail.
 pub async fn handle_semantic_tokens_full(
     backend: &Backend,
     params: SemanticTokensParams,

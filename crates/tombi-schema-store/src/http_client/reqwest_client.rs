@@ -22,6 +22,11 @@ impl HttpClient {
         )
     }
 
+    /// Fetch raw bytes from the given URL.
+    ///
+    /// # Errors
+    ///
+    /// Returns a `FetchError` if the HTTP request fails, the response status is not successful, or reading the response body fails.
     pub async fn get_bytes(&self, url: &str) -> Result<Bytes, FetchError> {
         let response = self
             .0

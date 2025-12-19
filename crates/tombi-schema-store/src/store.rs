@@ -69,6 +69,11 @@ impl SchemaStore {
         self.options.strict.unwrap_or(true)
     }
 
+    /// Refresh the schema cache and reload configuration.
+    ///
+    /// # Errors
+    ///
+    /// Returns an error if cache refresh fails or configuration reloading fails.
     #[cfg(feature = "native")]
     pub async fn refresh_cache(
         &self,
@@ -83,6 +88,11 @@ impl SchemaStore {
         }
     }
 
+    /// Refresh the schema cache and reload configuration (no-op when native feature is disabled).
+    ///
+    /// # Errors
+    ///
+    /// Never returns an error in this configuration, always returns `Ok(false)`.
     #[cfg(not(feature = "native"))]
     pub async fn refresh_cache(
         &self,
@@ -92,6 +102,11 @@ impl SchemaStore {
         Ok(false)
     }
 
+    /// Reload configuration by clearing cached schemas and loading config again.
+    ///
+    /// # Errors
+    ///
+    /// Returns an error if configuration loading fails.
     pub async fn reload_config(
         &self,
         config: &tombi_config::Config,
@@ -103,6 +118,11 @@ impl SchemaStore {
         Ok(())
     }
 
+     /// Load schemas and catalogs from the given configuration.
+    ///
+    /// # Errors
+    ///
+    /// Returns an error if catalog loading or JSON parsing fails.
     pub async fn load_config(
         &self,
         config: &tombi_config::Config,

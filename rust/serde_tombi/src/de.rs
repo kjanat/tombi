@@ -41,6 +41,11 @@ use typed_builder::TypedBuilder;
 ///     let config: Config = serde_tombi::from_str_async(toml).await.unwrap();
 /// }
 /// ```
+///
+/// # Errors
+///
+/// Returns an error if the TOML text cannot be parsed, the document tree construction fails,
+/// or if loading schema configurations fails.
 pub async fn from_str_async<T>(toml_text: &str) -> Result<T, crate::de::Error>
 where
     T: DeserializeOwned,
@@ -48,6 +53,11 @@ where
     Deserializer::new().from_str_async(toml_text).await
 }
 
+/// Deserialize a TOML document into a Rust data structure.
+///
+/// # Errors
+///
+/// Returns an error if the document cannot be deserialized into the target type.
 pub fn from_document<T>(document: tombi_document::Document) -> Result<T, crate::de::Error>
 where
     T: DeserializeOwned,
@@ -88,6 +98,12 @@ impl Deserializer<'_> {
         }
     }
 
+    /// Deserialize a TOML string into a Rust data structure.
+    ///
+    /// # Errors
+    ///
+    /// Returns an error if the TOML text cannot be parsed, the document tree construction fails,
+    /// or if loading schema configurations fails.
     pub async fn from_str_async<T>(&self, toml_text: &str) -> Result<T, crate::de::Error>
     where
         T: DeserializeOwned,
@@ -103,6 +119,11 @@ impl Deserializer<'_> {
         from_document(self.try_to_document(root, toml_version)?)
     }
 
+    /// Deserialize a TOML document into a Rust data structure.
+    ///
+    /// # Errors
+    ///
+    /// Returns an error if the document cannot be deserialized into the target type.
     pub fn from_document<T>(
         &self,
         document: tombi_document::Document,

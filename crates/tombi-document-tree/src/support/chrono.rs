@@ -44,6 +44,12 @@ impl From<chrono::format::ParseErrorKind> for ParseError {
     }
 }
 
+/// Parse an offset date-time from an AST node.
+///
+/// # Errors
+///
+/// Returns an error if the node is incomplete, the datetime string format is invalid,
+/// or the parsed value is out of range for the TOML version.
 pub fn try_new_offset_date_time(
     node: &tombi_ast::OffsetDateTime,
     toml_version: TomlVersion,
@@ -70,6 +76,12 @@ pub fn try_new_offset_date_time(
     }
 }
 
+/// Parse a local date-time from an AST node.
+///
+/// # Errors
+///
+/// Returns an error if the node is incomplete, the datetime string format is invalid,
+/// or the parsed value is out of range for the TOML version.
 pub fn try_new_local_date_time(
     node: &tombi_ast::LocalDateTime,
     toml_version: TomlVersion,

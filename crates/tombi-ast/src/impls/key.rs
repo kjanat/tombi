@@ -27,6 +27,11 @@ impl crate::Key {
             .unwrap_or_else(|_| self.syntax().text().to_string())
     }
 
+    /// Convert this key to raw unescaped text.
+    ///
+    /// # Errors
+    ///
+    /// Returns an error if the key text contains invalid escape sequences or cannot be parsed.
     pub fn try_to_raw_text(
         &self,
         toml_version: TomlVersion,

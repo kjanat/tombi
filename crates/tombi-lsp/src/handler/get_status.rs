@@ -7,6 +7,11 @@ use tower_lsp::lsp_types::TextDocumentIdentifier;
 use crate::{backend::Backend, config_manager::ConfigSchemaStore, handler::TomlVersionSource};
 
 #[tracing::instrument(level = "debug", skip_all)]
+/// Returns the status and configuration for the given document.
+///
+/// # Errors
+///
+/// Returns JSONRPC error if internal operations fail.
 pub async fn handle_get_status(
     backend: &Backend,
     params: TextDocumentIdentifier,

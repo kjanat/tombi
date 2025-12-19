@@ -29,6 +29,10 @@ impl WalkDir {
     }
 
     /// Walk the directory asynchronously and return matching file paths
+    ///
+    /// # Errors
+    ///
+    /// Returns an error if the root path does not exist, is not a directory, or a lock error occurs during parallel processing.
     pub async fn walk(self) -> Result<Vec<PathBuf>, crate::Error> {
         let root_path = &self.root;
 

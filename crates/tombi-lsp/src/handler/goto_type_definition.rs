@@ -13,6 +13,11 @@ use crate::{
 };
 
 #[tracing::instrument(level = "debug", skip_all)]
+/// Navigates to type definitions for the symbol at cursor position.
+///
+/// # Errors
+///
+/// Returns JSONRPC error if extension operations fail.
 pub async fn handle_goto_type_definition(
     backend: &Backend,
     params: GotoTypeDefinitionParams,

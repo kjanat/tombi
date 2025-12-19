@@ -7,6 +7,11 @@ use crate::config_manager::ConfigSchemaStore;
 use crate::handler::hover::get_hover_keys_with_range;
 
 #[tracing::instrument(level = "debug", skip_all)]
+/// Navigates to declarations for the symbol at cursor position.
+///
+/// # Errors
+///
+/// Returns JSONRPC error if extension operations fail.
 pub async fn handle_goto_declaration(
     backend: &Backend,
     params: GotoDeclarationParams,

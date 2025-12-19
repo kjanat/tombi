@@ -36,6 +36,11 @@ impl std::fmt::Display for DocumentLinkToolTip {
     }
 }
 
+/// Find document links for schema paths and catalogs in tombi.toml files.
+///
+/// # Errors
+///
+/// Returns an error if internal LSP processing fails.
 pub async fn document_link(
     text_document_uri: &tombi_uri::Uri,
     document_tree: &tombi_document_tree::DocumentTree,

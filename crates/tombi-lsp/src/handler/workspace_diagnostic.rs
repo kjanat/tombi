@@ -9,6 +9,11 @@ use crate::{
     document::DocumentSource,
 };
 
+/// Pushes workspace diagnostics for all matched files.
+///
+/// # Errors
+///
+/// Returns JSONRPC error if internal operations fail.
 pub async fn push_workspace_diagnostics(
     backend: &Backend,
 ) -> Result<(), tower_lsp::jsonrpc::Error> {

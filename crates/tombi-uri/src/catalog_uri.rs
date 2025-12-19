@@ -66,6 +66,11 @@ impl From<CatalogUri> for crate::Uri {
 impl std::str::FromStr for CatalogUri {
     type Err = crate::ParseError;
 
+    /// Parse a string slice into a CatalogUri.
+    ///
+    /// # Errors
+    ///
+    /// Returns a `ParseError` if the string is not a valid URL.
     fn from_str(s: &str) -> Result<Self, Self::Err> {
         crate::Uri::from_str(s).map(Self)
     }

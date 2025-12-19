@@ -9,6 +9,11 @@ use unicode_segmentation::UnicodeSegmentation;
 use crate::{backend::Backend, config_manager::ConfigSchemaStore};
 
 #[tracing::instrument(level = "debug", skip_all)]
+/// Formats the document and returns text edits.
+///
+/// # Errors
+///
+/// Returns JSONRPC error if formatter initialization or execution fails.
 pub async fn handle_formatting(
     backend: &Backend,
     params: DocumentFormattingParams,

@@ -39,6 +39,11 @@ pub enum ParseError {
     UnicodeKey,
 }
 
+/// Parse a bare key string.
+///
+/// # Errors
+///
+/// Returns an error if the key contains a `+` character or contains Unicode characters.
 pub fn try_from_bare_key(value: &str) -> Result<String, ParseError> {
     if value.chars().any(|c| matches!(c, '+')) {
         return Err(ParseError::PlusCharacter);
@@ -62,14 +67,29 @@ pub fn try_from_bare_key(value: &str) -> Result<String, ParseError> {
     }
 }
 
+/// Parse a basic string with escape sequences.
+///
+/// # Errors
+///
+/// Returns an error if the string contains invalid escape sequences, invalid Unicode, control characters, or invalid line breaks.
 pub fn try_from_basic_string(value: &str, toml_version: TomlVersion) -> Result<String, ParseError> {
     parse_basic_string(&value[1..value.len() - 1], toml_version, false)
 }
 
+/// Parse a literal string (no escape sequences).
+///
+/// # Errors
+///
+/// Returns an error if the string contains control characters or invalid line breaks.
 pub fn try_from_literal_string(value: &str) -> Result<String, ParseError> {
     parse_literal_string(&value[1..value.len() - 1], false)
 }
 
+/// Parse a multi-line basic string with escape sequences.
+///
+/// # Errors
+///
+/// Returns an error if the string contains invalid escape sequences, invalid Unicode, control characters, or invalid line breaks.
 pub fn try_from_multi_line_basic_string(
     value: &str,
     toml_version: TomlVersion,
@@ -84,6 +104,11 @@ pub fn try_from_multi_line_basic_string(
     )
 }
 
+/// Parse a multi-line literal string (no escape sequences).
+///
+/// # Errors
+///
+/// Returns an error if the string contains control characters or invalid line breaks.
 pub fn try_from_multi_line_literal_string(value: &str) -> Result<String, ParseError> {
     parse_literal_string(
         &value[3..value.len() - 3]
@@ -94,6 +119,11 @@ pub fn try_from_multi_line_literal_string(value: &str) -> Result<String, ParseEr
     )
 }
 
+/// Parse a basic string, processing escape sequences according to TOML specification.
+///
+/// # Errors
+///
+/// Returns an error for invalid escape sequences, malformed Unicode escapes, control characters, invalid line breaks, or unsupported escapes in the given TOML version.
 pub fn parse_basic_string(
     input: &str,
     toml_version: TomlVersion,
@@ -254,6 +284,11 @@ pub fn parse_basic_string(
     Ok(output)
 }
 
+/// Parse a literal string without processing escape sequences.
+///
+/// # Errors
+///
+/// Returns an error if the string contains control characters or invalid line breaks.
 pub fn parse_literal_string(input: &str, is_multi_line: bool) -> Result<String, ParseError> {
     let mut output = String::with_capacity(input.len());
     let mut chars = input.chars().peekable();

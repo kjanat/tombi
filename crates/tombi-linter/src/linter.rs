@@ -34,6 +34,11 @@ impl<'a> Linter<'a> {
         }
     }
 
+    /// Lint a TOML document source and return any diagnostics found.
+    ///
+    /// # Errors
+    ///
+    /// Returns a vector of diagnostics if linting detects any issues (warnings or errors).
     pub async fn lint(mut self, source: &str) -> Result<(), Vec<Diagnostic>> {
         self.source_text = Cow::Borrowed(source);
         let (source_schema, tombi_document_comment_directive) = if let Some(parsed) =

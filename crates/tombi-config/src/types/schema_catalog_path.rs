@@ -24,6 +24,11 @@ impl SchemaCatalogPath {
         self.0.as_str()
     }
 
+    /// Convert this catalog path to a URI.
+    ///
+    /// # Errors
+    ///
+    /// Returns an error if the path cannot be parsed as a valid URI or file path.
     pub fn try_to_catalog_url(
         &self,
         base_dir_path: Option<&std::path::Path>,

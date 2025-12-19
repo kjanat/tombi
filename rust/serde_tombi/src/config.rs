@@ -60,6 +60,11 @@ struct Tool {
     tombi: Option<Config>,
 }
 
+/// Load a configuration from the specified file path.
+///
+/// # Errors
+///
+/// Returns an error if the file does not exist, cannot be read, or contains invalid TOML.
 pub fn try_from_path<P: AsRef<std::path::Path>>(
     config_path: P,
 ) -> Result<Option<Config>, tombi_config::Error> {
@@ -107,6 +112,11 @@ pub fn try_from_path<P: AsRef<std::path::Path>>(
     }
 }
 
+/// Load a configuration from the specified URI.
+///
+/// # Errors
+///
+/// Returns an error if the URI is unsupported, the file does not exist, cannot be read, or contains invalid TOML.
 pub fn try_from_uri(config_uri: &tombi_uri::Uri) -> Result<Option<Config>, tombi_config::Error> {
     match config_uri.scheme() {
         "file" => {
@@ -123,6 +133,11 @@ pub fn try_from_uri(config_uri: &tombi_uri::Uri) -> Result<Option<Config>, tombi
     }
 }
 
+/// Load configuration from the project directory or system/user config paths.
+///
+/// # Errors
+///
+/// Returns an error if a configuration file cannot be read or parsed.
 pub fn load_with_path_and_level(
     search_dir: Option<std::path::PathBuf>,
 ) -> Result<(Config, Option<std::path::PathBuf>, ConfigLevel), tombi_config::Error> {
@@ -180,6 +195,11 @@ pub fn load_with_path_and_level(
 }
 
 #[inline]
+/// Load configuration from the project directory or system/user config paths.
+///
+/// # Errors
+///
+/// Returns an error if a configuration file cannot be read or parsed.
 pub fn load_with_path(
     search_dir: Option<std::path::PathBuf>,
 ) -> Result<(Config, Option<std::path::PathBuf>), tombi_config::Error> {
@@ -188,6 +208,11 @@ pub fn load_with_path(
 }
 
 #[inline]
+/// Load configuration from the project directory or system/user config paths.
+///
+/// # Errors
+///
+/// Returns an error if a configuration file cannot be read or parsed.
 pub fn load(search_dir: Option<std::path::PathBuf>) -> Result<Config, tombi_config::Error> {
     let (config, _, _) = load_with_path_and_level(search_dir)?;
     Ok(config)

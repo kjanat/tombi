@@ -222,6 +222,11 @@ fn find_pyproject_toml_paths<'a>(
         .flatten()
 }
 
+/// Find definition locations for member pyproject.toml files.
+///
+/// # Errors
+///
+/// Returns an error if internal LSP processing fails.
 fn goto_definition_for_member_pyproject_toml(
     document_tree: &tombi_document_tree::DocumentTree,
     accessors: &[tombi_schema_store::Accessor],
@@ -247,6 +252,11 @@ fn goto_definition_for_member_pyproject_toml(
     }
 }
 
+/// Find definition locations for workspace pyproject.toml files.
+///
+/// # Errors
+///
+/// Returns an error if internal LSP processing fails.
 fn goto_definition_for_workspace_pyproject_toml(
     workspace_document_tree: &tombi_document_tree::DocumentTree,
     accessors: &[tombi_schema_store::Accessor],

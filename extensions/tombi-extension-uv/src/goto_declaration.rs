@@ -13,6 +13,11 @@ use crate::{
     goto_definition_for_member_pyproject_toml, goto_definition_for_workspace_pyproject_toml,
 };
 
+/// Find declaration locations for dependencies in pyproject.toml files.
+///
+/// # Errors
+///
+/// Returns an error if internal LSP processing fails.
 pub async fn goto_declaration(
     text_document_uri: &tombi_uri::Uri,
     document_tree: &tombi_document_tree::DocumentTree,

@@ -9,6 +9,11 @@ use tombi_schema_store::build_accessor_contexts;
 use tombi_text::IntoLsp;
 use tower_lsp::lsp_types::{CodeActionOrCommand, CodeActionParams};
 
+/// Provides code actions for the given range.
+///
+/// # Errors
+///
+/// Returns JSONRPC error if extension operations fail.
 pub async fn handle_code_action(
     backend: &Backend,
     params: CodeActionParams,
