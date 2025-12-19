@@ -867,7 +867,7 @@ mod tests {
         let color: Color = from_str(json).unwrap();
         pretty_assertions::assert_eq!(color, Color::Rgb(255, 255, 255));
 
-        let json = r###"{"HexCode": "#FFFFFF"}"###;
+        let json = r##"{"HexCode": "#FFFFFF"}"##;
         let color: Color = from_str(json).unwrap();
         pretty_assertions::assert_eq!(color, Color::HexCode("#FFFFFF".to_string()));
     }

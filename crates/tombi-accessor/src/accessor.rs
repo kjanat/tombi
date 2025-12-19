@@ -171,7 +171,7 @@ mod tests {
             Accessor::Index(1),
             Accessor::Key("item".to_string()),
         ]);
-        assert_eq!(format!("{}", accessors), "root.child[1].item");
+        assert_eq!(format!("{accessors}"), "root.child[1].item");
     }
 
     #[test]
@@ -182,6 +182,6 @@ mod tests {
             Accessor::Index(1),
             Accessor::Index(2),
         ]);
-        assert_eq!(format!("{}", accessors), "array[0][1][2]");
+        assert_eq!(format!("{accessors}"), "array[0][1][2]");
     }
 }

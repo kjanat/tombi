@@ -30,7 +30,7 @@ fn main() {
     let (content, schema_uri) = match read_content(input) {
         Ok((content, schema_uri)) => (content, schema_uri),
         Err(err) => {
-            eprintln!("Error reading from '{}': {}", input, err);
+            eprintln!("Error reading from '{input}': {err}");
             process::exit(1);
         }
     };
@@ -39,18 +39,15 @@ fn main() {
     match parse(&content) {
         Ok(value_node) => {
             eprintln!("✅ Parse successful!");
-            let object_node = match value_node {
-                tombi_json::ValueNode::Object(object_node) => object_node,
-                _ => {
-                    eprintln!("❌ Parse error: expected object node");
-                    process::exit(1);
-                }
+            let object_node = if let tombi_json::ValueNode::Object(object_node) = value_node { object_node } else {
+                eprintln!("❌ Parse error: expected object node");
+                process::exit(1);
             };
 
             println!("{:#?}", DocumentSchema::new(object_node, schema_uri));
         }
         Err(err) => {
-            eprintln!("❌ Parse error: {}", err);
+            eprintln!("❌ Parse error: {err}");
             process::exit(1);
         }
     }

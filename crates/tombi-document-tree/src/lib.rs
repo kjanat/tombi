@@ -82,7 +82,7 @@ where
         return None;
     }
     let (mut key, mut value) = table.get_key_value(keys[0])?;
-    for k in keys[1..].iter() {
+    for k in &keys[1..] {
         let crate::Value::Table(table) = value else {
             return None;
         };
@@ -106,7 +106,7 @@ pub fn dig_accessors<'a>(
     let first_key = accessors[0].as_key()?;
     let mut value = document_tree.get(first_key)?;
     let mut current_accessor = &accessors[0];
-    for accessor in accessors[1..].iter() {
+    for accessor in &accessors[1..] {
         match (accessor, value) {
             (tombi_accessor::Accessor::Key(key), crate::Value::Table(table)) => {
                 let next_value = table.get(key)?;

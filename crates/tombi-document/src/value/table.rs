@@ -261,13 +261,13 @@ mod test {
     test_deserialize! {
         #[test]
         fn tables(
-            r#"
+            r"
             [foo1]
             bar = 1
 
             [foo2]
             bar = 2
-            "#
+            "
         ) -> Ok(json!({
             "foo1": {"bar": 1},
             "foo2": {"bar": 2}
@@ -277,17 +277,17 @@ mod test {
     test_deserialize! {
         #[test]
         fn sub_empty(
-            r#"
+            r"
             [a]
             [a.b]
-            "#
+            "
         ) -> Ok(json!({ "a": { "b": {} } }))
     }
 
     test_deserialize! {
         #[test]
         fn key_dotted_2(
-            r#"many.dots.here.dot.dot.dot = {a.b.c = 1, a.b.d = 2}"#
+            r"many.dots.here.dot.dot.dot = {a.b.c = 1, a.b.d = 2}"
         ) -> Ok(json!(
             {
                 "many": {
@@ -315,13 +315,13 @@ mod test {
     test_deserialize! {
         #[test]
         fn key_dotted_3(
-            r#"
+            r"
             [tbl]
             a.b.c = {d.e=1}
 
             [tbl.x]
             a.b.c = {d.e=1}
-            "#
+            "
         ) -> Ok(json!(
             {
                 "tbl": {
@@ -392,13 +392,13 @@ mod test {
     test_deserialize! {
         #[test]
         fn duplicate(
-            r#"
+            r"
             [a]
             b = 1
 
             [a]
             c = 2
-            "#
+            "
         ) -> Err([
             ("conflicting table", ((3, 0), (4, 5)))
         ])
@@ -429,12 +429,12 @@ mod test {
     test_deserialize! {
         #[test]
         fn duplicate_key_dotted_table2(
-            r#"
+            r"
             [fruit]
             apple.taste.sweet = true
 
             [fruit.apple.taste] # INVALID
-            "#
+            "
         ) -> Err([
             ("conflicting table", ((3, 0), (3, 29)))
         ])
@@ -443,11 +443,11 @@ mod test {
     test_deserialize! {
         #[test]
         fn redefine_2(
-            r#"
+            r"
             [t1]
             t2.t3.v = 0
             [t1.t2]
-            "#
+            "
         ) -> Err([
             ("conflicting table", ((2, 0), (2, 7)))
         ])

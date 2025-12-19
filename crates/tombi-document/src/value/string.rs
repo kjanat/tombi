@@ -282,9 +282,9 @@ mod test {
     test_deserialize!(
         #[test]
         fn rawstring_us(
-            r#"
+            r"
             rawstring-us   = 'null'
-            "#
+            "
         ) -> Err([
             ("invalid string: invalid control character in input", ((0, 17), (0, 24)))
         ])

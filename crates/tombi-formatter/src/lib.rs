@@ -225,7 +225,7 @@ mod test {
     test_format! {
         #[tokio::test]
         async fn test_empty(
-            r#""#,
+            r"",
             TomlVersion::V1_0_0
         ) -> Ok(source)
     }
@@ -233,14 +233,14 @@ mod test {
     test_format! {
         #[tokio::test]
         async fn test_whitespace(
-            r#"    "#,
+            r"    ",
             TomlVersion::V1_0_0
         ) -> Ok("")
     }
 
     test_format! {
         #[tokio::test]
-        async fn test_key_values(r#"
+        async fn test_key_values(r"
             array5 = [
               1,
               {
@@ -259,7 +259,7 @@ mod test {
 
               # comment
             ]
-            "#,
+            ",
             TomlVersion::V1_1_0_Preview
         ) -> Ok(source)
     }

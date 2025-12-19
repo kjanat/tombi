@@ -49,10 +49,10 @@ mod goto_definition_tests {
         test_goto_definition!(
             #[tokio::test]
             async fn dependencies_serde_workspace(
-                r#"
+                r"
                 [dependencies]
                 serde = { workspace█ = true }
-                "#,
+                ",
                 SourcePath(project_root_path().join("crates/test-crate/Cargo.toml")),
             ) -> Ok([project_root_path().join("Cargo.toml")]);
         );
@@ -60,10 +60,10 @@ mod goto_definition_tests {
         test_goto_definition!(
             #[tokio::test]
             async fn dependencies_serde_with_workspace(
-                r#"
+                r"
                 [dependencies]
                 serde█ = { workspace = true }
-                "#,
+                ",
                 SourcePath(project_root_path().join("crates/test-crate/Cargo.toml")),
             ) -> Ok([project_root_path().join("Cargo.toml")]);
         );
@@ -71,10 +71,10 @@ mod goto_definition_tests {
         test_goto_definition!(
             #[tokio::test]
             async fn dependencies_tombi_ast_workspace(
-                r#"
+                r"
                 [dependencies]
                 tombi-ast = { workspace█ = true }
-                "#,
+                ",
                 SourcePath(project_root_path().join("crates/test-crate/Cargo.toml")),
             ) -> Ok([project_root_path().join("Cargo.toml")]);
         );
@@ -82,10 +82,10 @@ mod goto_definition_tests {
         test_goto_definition!(
             #[tokio::test]
             async fn dependencies_tombi_ast(
-                r#"
+                r"
                 [dependencies]
                 tombi-ast█ = { workspace = true }
-                "#,
+                ",
                 SourcePath(project_root_path().join("crates/test-crate/Cargo.toml")),
             ) -> Ok([project_root_path().join("crates/tombi-ast/Cargo.toml")]);
         );
@@ -93,10 +93,10 @@ mod goto_definition_tests {
         test_goto_definition!(
             #[tokio::test]
             async fn dev_dependencies_rstest_workspace(
-                r#"
+                r"
                 [dev-dependencies]
                 rstest = { workspace█ = true }
-                "#,
+                ",
                 SourcePath(project_root_path().join("crates/test-crate/Cargo.toml")),
             ) -> Ok([project_root_path().join("Cargo.toml")]);
         );
@@ -104,10 +104,10 @@ mod goto_definition_tests {
         test_goto_definition!(
             #[tokio::test]
             async fn build_dependencies_rstest_workspace(
-                r#"
+                r"
                 [build-dependencies]
                 serde = { workspace█ = true }
-                "#,
+                ",
                 SourcePath(project_root_path().join("crates/test-crate/Cargo.toml")),
             ) -> Ok([project_root_path().join("Cargo.toml")]);
         );
@@ -115,10 +115,10 @@ mod goto_definition_tests {
         test_goto_definition!(
             #[tokio::test]
             async fn dev_dependencies_tombi_ast_with_workspace(
-                r#"
+                r"
                 [dev-dependencies]
                 tombi-ast█ = { workspace = true }
-                "#,
+                ",
                 SourcePath(project_root_path().join("crates/test-crate/Cargo.toml")),
             ) -> Ok([project_root_path().join("crates/tombi-ast/Cargo.toml")]);
         );
@@ -126,10 +126,10 @@ mod goto_definition_tests {
         test_goto_definition!(
             #[tokio::test]
             async fn dev_dependencies_tombi_ast_workspace(
-                r#"
+                r"
                 [dev-dependencies]
                 tombi-ast = { workspace█ = true }
-                "#,
+                ",
                 SourcePath(project_root_path().join("crates/test-crate/Cargo.toml")),
             ) -> Ok([project_root_path().join("Cargo.toml")]);
         );
@@ -137,10 +137,10 @@ mod goto_definition_tests {
         test_goto_definition!(
             #[tokio::test]
             async fn build_dependencies_tombi_ast_workspace(
-                r#"
+                r"
                 [build-dependencies]
                 tombi-ast = { workspace█ = true }
-                "#,
+                ",
                 SourcePath(project_root_path().join("crates/test-crate/Cargo.toml")),
             ) -> Ok([project_root_path().join("Cargo.toml")]);
         );
@@ -289,10 +289,10 @@ mod goto_definition_tests {
         test_goto_definition!(
             #[tokio::test]
             async fn target_dependencies_serde_workspace(
-                r#"
+                r"
                 [target.'cfg(unix)'.dependencies]
                 serde = { workspace█ = true }
-                "#,
+                ",
                 SourcePath(project_root_path().join("crates/tombi-lsp/Cargo.toml")),
             ) -> Ok([project_root_path().join("Cargo.toml")]);
         );
@@ -300,10 +300,10 @@ mod goto_definition_tests {
         test_goto_definition!(
             #[tokio::test]
             async fn target_dependencies_tombi_ast_workspace(
-                r#"
+                r"
                 [target.'cfg(unix)'.dependencies]
                 tombi-ast = { workspace█ = true }
-                "#,
+                ",
                 SourcePath(project_root_path().join("crates/tombi-lsp/Cargo.toml")),
             ) -> Ok([project_root_path().join("Cargo.toml")]);
         );
@@ -333,10 +333,10 @@ mod goto_definition_tests {
         test_goto_definition!(
             #[tokio::test]
             async fn target_build_dependencies_workspace(
-                r#"
+                r"
                 [target.'cfg(windows)'.build-dependencies]
                 serde = { workspace█ = true }
-                "#,
+                ",
                 SourcePath(project_root_path().join("crates/tombi-lsp/Cargo.toml")),
             ) -> Ok([project_root_path().join("Cargo.toml")]);
         );
@@ -348,10 +348,10 @@ mod goto_definition_tests {
         test_goto_definition!(
             #[tokio::test]
             async fn tool_uv_sources_package_with_workspace(
-                r#"
+                r"
                 [tool.uv.sources]
                 tombi-beta█ = { workspace = true }
-                "#,
+                ",
                 SourcePath(project_root_path().join("python/tombi-beta/pyproject.toml")),
             ) -> Ok([project_root_path().join("python/tombi-beta/pyproject.toml")]);
         );
@@ -359,10 +359,10 @@ mod goto_definition_tests {
         test_goto_definition!(
             #[tokio::test]
             async fn tool_uv_sources_package_workspace(
-                r#"
+                r"
                 [tool.uv.sources]
                 tombi-beta = { workspace█ = true }
-                "#,
+                ",
                 SourcePath(project_root_path().join("python/tombi-beta/pyproject.toml")),
             ) -> Ok([project_root_path().join("pyproject.toml")]);
         );

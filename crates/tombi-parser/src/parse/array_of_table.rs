@@ -72,55 +72,55 @@ mod test {
     test_parser! {
         #[test]
         fn invalid_array_of_table1(
-            r#"
+            r"
             [[]]
             key1 = 1
             key2 = 2
-            "#
+            "
         ) -> Err([SyntaxError(ExpectedKey, 0:2..0:3)])
     }
 
     test_parser! {
         #[test]
         fn invalid_array_of_table2(
-            r#"
+            r"
             [[aaa.]]
             key1 = 1
             key2 = 2
-            "#
+            "
         ) -> Err([SyntaxError(ForbiddenKeysLastPeriod, 0:6..0:7)])
     }
 
     test_parser! {
         #[test]
         fn invalid_array_of_table3(
-            r#"
+            r"
             [[aaa.bbb
             key1 = 1
             key2 = 2
-            "#
+            "
         ) -> Err([SyntaxError(ExpectedDoubleBracketEnd, 0:9..1:0)])
     }
 
     test_parser! {
         #[test]
         fn invalid_array_of_table4(
-            r#"
+            r"
             [[aaa.bbb]
             key1 = 1
             key2 = 2
-            "#
+            "
         ) -> Err([SyntaxError(ExpectedDoubleBracketEnd, 0:9..0:10)])
     }
 
     test_parser! {
         #[test]
         fn invalid_array_of_table5(
-            r#"
+            r"
             [[aaa.bbb]]
             key1 = 1 INVALID COMMENT
             key2 = 2
-            "#
+            "
         ) -> Err([SyntaxError(ExpectedLineBreak, 1:9..1:16)])
     }
 }

@@ -39,8 +39,8 @@ mod tests {
         test_lint! {
             #[test]
             fn test_root_table_min_keys(
-                r#"
-                "#,
+                r"
+                ",
                 SchemaPath(type_test_schema_path()),
             ) -> Err([tombi_validator::DiagnosticKind::TableMinKeys {
                 min_keys: 1,
@@ -51,9 +51,9 @@ mod tests {
         test_lint! {
             #[test]
             fn test_root_table_min_keys_with_disabled_comment_directive(
-                r#"
+                r"
                 # tombi: lint.rules.table-min-keys.disabled = true
-                "#,
+                ",
                 SchemaPath(type_test_schema_path()),
             ) -> Ok(_)
         }

@@ -268,8 +268,8 @@ mod tests {
     fn build_tree(chunks: &[&str]) -> SyntaxNode {
         let mut builder = GreenNodeBuilder::new();
         builder.start_node(SyntaxKind(62));
-        for &chunk in chunks.iter() {
-            builder.token(SyntaxKind(92), chunk)
+        for &chunk in chunks {
+            builder.token(SyntaxKind(92), chunk);
         }
         builder.finish_node();
         SyntaxNode::new_root(builder.finish())
@@ -300,7 +300,7 @@ mod tests {
         }
         fn check(t1: &[&str], t2: &[&str]) {
             do_check(t1, t2);
-            do_check(t2, t1)
+            do_check(t2, t1);
         }
 
         check(&[""], &[""]);

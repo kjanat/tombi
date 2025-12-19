@@ -31,9 +31,9 @@ mod goto_type_definition_tests {
         test_goto_type_definition!(
             #[tokio::test]
             async fn tombi_schemas(
-                r#"
+                r"
                 [[schemas█]]
-                "#,
+                ",
                 SourcePath(tombi_schema_path()),
                 SchemaPath(tombi_schema_path()),
             ) -> Ok(tombi_schema_path());
@@ -71,10 +71,10 @@ mod goto_type_definition_tests {
         test_goto_type_definition!(
             #[tokio::test]
             async fn cargo_dependencies_key(
-                r#"
+                r"
                 [dependencies]
                 serde█ = { workspace = true }
-                "#,
+                ",
                 SourcePath(cargo_schema_path()),
                 SchemaPath(cargo_schema_path()),
             ) -> Ok(cargo_schema_path());
@@ -158,12 +158,12 @@ mod goto_type_definition_tests {
         test_goto_type_definition!(
             #[tokio::test]
             async fn type_test_tombi_document_directive(
-                r#"
+                r"
                 #:tombi schema.strict█ = true
 
                 [table]
                 integer = 42
-                "#,
+                ",
                 SourcePath(type_test_schema_path()),
                 SchemaPath(type_test_schema_path()),
             ) -> Ok("tombi://www.schemastore.tombi/tombi-document-directive.json");
@@ -172,10 +172,10 @@ mod goto_type_definition_tests {
         test_goto_type_definition!(
             #[tokio::test]
             async fn type_test_tombi_document_directive_in_integer_scope(
-                r#"
+                r"
                 #:tombi schema.strict█ = true
                 integer = 42
-                "#,
+                ",
                 SourcePath(type_test_schema_path()),
                 SchemaPath(type_test_schema_path()),
             ) -> Ok("tombi://www.schemastore.tombi/tombi-document-directive.json");
@@ -184,12 +184,12 @@ mod goto_type_definition_tests {
         test_goto_type_definition!(
             #[tokio::test]
             async fn type_test_tombi_document_directive_in_table_scope(
-                r#"
+                r"
                 #:tombi schema.strict█ = true
 
                 [table]
                 integer = 42
-                "#,
+                ",
                 SourcePath(type_test_schema_path()),
                 SchemaPath(type_test_schema_path()),
             ) -> Ok("tombi://www.schemastore.tombi/tombi-document-directive.json");
@@ -359,10 +359,10 @@ mod goto_type_definition_tests {
         test_goto_type_definition!(
             #[tokio::test]
             async fn type_test_tombi_key_table_directive(
-                r#"
+                r"
                 # tombi: lint.rules.const-value.disabled█ = true
                 [table]
-                "#,
+                ",
                 SourcePath(type_test_schema_path()),
                 SchemaPath(type_test_schema_path()),
             ) -> Ok("tombi://www.schemastore.tombi/tombi-key-table-directive.json");
@@ -371,10 +371,10 @@ mod goto_type_definition_tests {
         test_goto_type_definition!(
             #[tokio::test]
             async fn type_test_tombi_table_directive(
-                r#"
+                r"
                 [table]
                 # tombi: lint.rules.const-value.disabled█ = true
-                "#,
+                ",
                 SourcePath(type_test_schema_path()),
                 SchemaPath(type_test_schema_path()),
             ) -> Ok("tombi://www.schemastore.tombi/tombi-table-directive.json");
@@ -383,10 +383,10 @@ mod goto_type_definition_tests {
         test_goto_type_definition!(
             #[tokio::test]
             async fn type_test_tombi_key_array_of_table_directive(
-                r#"
+                r"
                 # tombi: lint.rules.const-value.disabled█ = true
                 [[array]]
-                "#,
+                ",
                 SourcePath(type_test_schema_path()),
                 SchemaPath(type_test_schema_path()),
             ) -> Ok("tombi://www.schemastore.tombi/tombi-key-array-of-table-directive.json");
@@ -395,9 +395,9 @@ mod goto_type_definition_tests {
         test_goto_type_definition!(
             #[tokio::test]
             async fn type_test_tombi_table_key_array_of_table_directive(
-                r#"
+                r"
                 [[array]] # tombi: lint.rules.const-value.disabled█ = true
-                "#,
+                ",
                 SourcePath(type_test_schema_path()),
                 SchemaPath(type_test_schema_path()),
             ) -> Ok("tombi://www.schemastore.tombi/tombi-key-array-of-table-directive.json");
@@ -406,10 +406,10 @@ mod goto_type_definition_tests {
         test_goto_type_definition!(
             #[tokio::test]
             async fn type_test_tombi_array_of_table_directive(
-                r#"
+                r"
                 [[array]]
                 # tombi: lint.rules.const-value.disabled█ = true
-                "#,
+                ",
                 SourcePath(type_test_schema_path()),
                 SchemaPath(type_test_schema_path()),
             ) -> Ok("tombi://www.schemastore.tombi/tombi-table-directive.json");

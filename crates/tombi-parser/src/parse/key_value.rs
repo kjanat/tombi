@@ -67,11 +67,11 @@ mod test {
     test_parser! {
         #[test]
         fn value_not_found_in_multi_key_value(
-            r#"
+            r"
             key1 = 1
             key2 = # INVALID
             key3 = 3
-            "#
+            "
         ) -> Err([
             SyntaxError(ExpectedValue, 1:5..1:6),
         ])
@@ -108,11 +108,11 @@ mod test {
     test_parser! {
         #[test]
         fn literal_string_without_start_quote(
-            r#"
+            r"
             key1 = 'str'
             key2 = invalid'
             key3 = 1
-            "#
+            "
         ) -> Err([
             SyntaxError(InvalidKey, 1:7..1:15),
             SyntaxError(ExpectedValue, 1:7..1:15),
@@ -122,11 +122,11 @@ mod test {
     test_parser! {
         #[test]
         fn literal_string_without_end_quote(
-            r#"
+            r"
             key1 = 'str'
             key2 = 'invalid
             key3 = 1
-            "#
+            "
         ) -> Err([
             SyntaxError(InvalidLiteralString, 1:7..1:15),
             SyntaxError(ExpectedValue, 1:7..1:15),
@@ -148,12 +148,12 @@ mod test {
     test_parser! {
         #[test]
         fn without_equal_on_root_item_with_comment(
-            r#"
+            r"
             key value # comment
 
             [aaa]
             key1 = 1
-            "#
+            "
         ) -> Err([
             SyntaxError(ExpectedEqual, 0:4..0:9),
             SyntaxError(ExpectedValue, 0:4..0:9),
@@ -163,12 +163,12 @@ mod test {
     test_parser! {
         #[test]
         fn without_equal_on_root_item(
-            r#"
+            r"
             key value
 
             [aaa]
             key1 = 1
-            "#
+            "
         ) -> Err([
             SyntaxError(ExpectedEqual, 0:4..0:9),
             SyntaxError(ExpectedValue, 0:4..0:9),
@@ -178,9 +178,9 @@ mod test {
     test_parser! {
         #[test]
         fn value_is_key(
-            r#"
+            r"
             key=value
-            "#
+            "
         ) -> Err([
             SyntaxError(ExpectedValue, 0:4..0:9),
         ])
@@ -189,20 +189,20 @@ mod test {
     test_parser! {
         #[test]
         fn date_keys(
-            r#"
+            r"
             a.2001-02-08 = 7
             a.2001-02-09.2001-02-10 = 8
             2001-02-11.a.2001-02-12 = 9
-            "#
+            "
         ) -> Ok(_)
     }
 
     test_parser! {
         #[test]
         fn minus_number_keys(
-            r#"
+            r"
             -01   = true
-            "#
+            "
         ) -> Ok(_)
     }
 }

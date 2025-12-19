@@ -28,11 +28,11 @@ mod tests {
         test_lint! {
             #[test]
             fn test_array_of_table_min_values(
-                r#"
+                r"
                 [[array]]
                 boolean = true
                 integer = 1
-                "#,
+                ",
                 SchemaPath(type_test_schema_path()),
             ) -> Err([
                 tombi_validator::DiagnosticKind::ArrayMinValues {
@@ -45,12 +45,12 @@ mod tests {
         test_lint! {
             #[test]
             fn test_array_of_table_min_values_with_leading_comment_directive(
-                r#"
+                r"
                 # tombi: lint.rules.array-min-values.disabled = true
                 [[array]]
                 boolean = true
                 integer = 1
-                "#,
+                ",
                 SchemaPath(type_test_schema_path()),
             ) -> Ok(_)
         }
@@ -58,11 +58,11 @@ mod tests {
         test_lint! {
             #[test]
             fn test_array_of_table_min_values_with_header_trailing_comment_directive(
-                r#"
+                r"
                 [[array]] # tombi: lint.rules.array-min-values.disabled = true
                 boolean = true
                 integer = 1
-                "#,
+                ",
                 SchemaPath(type_test_schema_path()),
             ) -> Ok(_)
         }
@@ -70,12 +70,12 @@ mod tests {
         test_lint! {
             #[test]
             fn test_array_of_table_min_values_with_dangling_comment_directive(
-                r#"
+                r"
                 [[array]]
                 # tombi: lint.rules.array-min-values.disabled = true
                 boolean = true
                 integer = 1
-                "#,
+                ",
                 SchemaPath(type_test_schema_path()),
             ) -> Err([
                 tombi_validator::DiagnosticKind::KeyNotAllowed {

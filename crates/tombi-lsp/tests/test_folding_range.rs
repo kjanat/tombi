@@ -105,7 +105,7 @@ mod folding_range_tests {
     test_folding_range!(
         #[tokio::test]
         async fn array_with_comments(
-            r#"
+            r"
             array = [ # Line 0
 
               # Line 2
@@ -119,7 +119,7 @@ mod folding_range_tests {
 
               # Line 11
             ] # Line 12
-            "#,
+            ",
         ) -> [
             0..12,
             2..3,
@@ -131,7 +131,7 @@ mod folding_range_tests {
     test_folding_range!(
         #[tokio::test]
         async fn nested_structure_with_comments(
-            r#"
+            r"
             # Line 0
             # Line 1
             [outer] # Line 2
@@ -150,7 +150,7 @@ mod folding_range_tests {
 
             # Line 16
             # Line 17
-            "#,
+            ",
         ) -> [
             0..1,
             2..17,
@@ -165,7 +165,7 @@ mod folding_range_tests {
     test_folding_range!(
         #[tokio::test]
         async fn array_of_tables_with_comments(
-            r#"
+            r"
             # Line 0
             # Line 1
             [[items]] # Line 2
@@ -183,7 +183,7 @@ mod folding_range_tests {
             # Line 14
             # Line 15
             # Line 16
-            "#,
+            ",
         ) -> [
             0..1,
             2..7,
@@ -212,12 +212,12 @@ mod folding_range_tests {
     test_folding_range!(
         #[tokio::test]
         async fn multi_line_literal_string_simple(
-            r#"
+            r"
             key = '''
             Line 1
             Line 2
             '''
-            "#,
+            ",
         ) -> [
             0..3,
         ];

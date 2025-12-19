@@ -181,10 +181,10 @@ mod tests {
     test_format! {
         #[tokio::test]
         async fn test_only_comment1(
-            r#"
+            r"
             # comment1
             # comment2
-            "#,
+            ",
             TomlVersion::V1_0_0
         ) -> Ok(source)
     }
@@ -192,13 +192,13 @@ mod tests {
     test_format! {
         #[tokio::test]
         async fn test_only_comment2(
-            r#"
+            r"
             # comment1
             # comment2
 
             # comment3
             # comment4
-            "#,
+            ",
             TomlVersion::V1_0_0
         ) -> Ok(source)
     }
@@ -291,10 +291,10 @@ mod tests {
     test_format! {
         #[tokio::test]
         async fn multiline_comment_with_ident(
-            r#"
+            r"
             # NOTE: Tombi preserves spaces at the beginning of a comment line.
             #       This allows for multi-line indentation to be preserved.
-            "#
+            "
         ) -> Ok(source)
     }
 

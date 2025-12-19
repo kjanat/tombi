@@ -71,11 +71,11 @@ mod test {
     test_parser! {
         #[test]
         fn without_header_keys(
-            r#"
+            r"
                 []
                 key1 = 1
                 key2 = 2
-                "#
+                "
         ) -> Err([
             SyntaxError(ExpectedKey, 0:1..0:2),
         ])
@@ -84,11 +84,11 @@ mod test {
     test_parser! {
         #[test]
         fn without_last_dot_key(
-            r#"
+            r"
             [aaa.]
             key1 = 1
             key2 = 2
-            "#
+            "
         ) -> Err([
             SyntaxError(ForbiddenKeysLastPeriod, 0:5..0:6),
         ])
@@ -97,11 +97,11 @@ mod test {
     test_parser! {
         #[test]
         fn without_last_bracket(
-            r#"
+            r"
             [aaa.bbb
             key1 = 1
             key2 = 2
-            "#
+            "
         ) -> Err([
             SyntaxError(ExpectedBracketEnd, 0:8..1:0),
         ])
@@ -110,7 +110,7 @@ mod test {
     test_parser! {
         #[test]
         fn without_value(
-            r#"
+            r"
             [aaa.bbb]
             key1 = 1
             key2 = 2
@@ -122,7 +122,7 @@ mod test {
             [aaa.ddd]
             key1 = 1
             key2 = 2
-            "#
+            "
         ) -> Err([
             SyntaxError(ExpectedValue, 5:6..6:0),
         ])
@@ -131,11 +131,11 @@ mod test {
     test_parser! {
         #[test]
         fn invalid_key_value_trailing_comment(
-            r#"
+            r"
             [aaa.bbb]
             key1 = 1 INVALID COMMENT
             key2 = 2
-            "#
+            "
         ) -> Err([
             SyntaxError(ExpectedLineBreak, 1:9..1:16),
         ])

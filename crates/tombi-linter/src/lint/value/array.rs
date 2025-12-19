@@ -25,9 +25,9 @@ mod tests {
         test_lint! {
             #[test]
             fn test_array_min_values(
-                r#"
+                r"
                 array = []
-                "#,
+                ",
                 SchemaPath(type_test_schema_path()),
             ) -> Err([
                 tombi_validator::DiagnosticKind::ArrayMinValues {
@@ -40,10 +40,10 @@ mod tests {
         test_lint! {
             #[test]
             fn test_array_min_values_with_leading_comment_directive(
-                r#"
+                r"
                 # tombi: lint.rules.array-min-values.disabled = true
                 array = []
-                "#,
+                ",
                 SchemaPath(type_test_schema_path()),
             ) -> Ok(_)
         }
@@ -51,9 +51,9 @@ mod tests {
         test_lint! {
             #[test]
             fn test_array_min_values_with_trailing_comment_directive(
-                r#"
+                r"
                 array = [] # tombi: lint.rules.array-min-values.disabled = true
-                "#,
+                ",
                 SchemaPath(type_test_schema_path()),
             ) -> Ok(_)
         }
@@ -61,11 +61,11 @@ mod tests {
         test_lint! {
             #[test]
             fn test_array_min_values_with_dangling_comment_directive(
-                r#"
+                r"
                 array = [
                   # tombi: lint.rules.array-min-values.disabled = true
                 ]
-                "#,
+                ",
                 SchemaPath(type_test_schema_path()),
             ) -> Ok(_)
         }
@@ -73,13 +73,13 @@ mod tests {
         test_lint! {
             #[test]
             fn test_array_min_values_with_begin_dangling_comment_directive(
-                r#"
+                r"
                 array = [
                   # tombi: lint.rules.array-min-values.disabled = true
 
                   1,
                 ]
-                "#,
+                ",
                 SchemaPath(type_test_schema_path()),
             ) -> Ok(_)
         }
@@ -87,13 +87,13 @@ mod tests {
         test_lint! {
             #[test]
             fn test_array_min_values_with_end_dangling_comment_directive(
-                r#"
+                r"
                 array = [
                   1,
 
                   # tombi: lint.rules.array-min-values.disabled = true
                 ]
-                "#,
+                ",
                 SchemaPath(type_test_schema_path()),
             ) -> Ok(_)
         }
@@ -101,12 +101,12 @@ mod tests {
         test_lint! {
             #[test]
             fn test_array_min_values_with_key_leading_and_array_dangling_comment_directive(
-                r#"
+                r"
                 # tombi: lint.rules.key-empty.disabled = true
                 array = [
                   # tombi: lint.rules.array-min-values.disabled = true
                 ]
-                "#,
+                ",
                 SchemaPath(type_test_schema_path()),
             ) -> Ok(_)
         }
@@ -114,12 +114,12 @@ mod tests {
         test_lint! {
             #[test]
             fn test_array_min_values_with_array_leading_and_key_dangling_comment_directive(
-                r#"
+                r"
                 # tombi: lint.rules.array-min-values.disabled = true
                 array = [
                     # tombi: lint.rules.key-empty.disabled = true
                 ]
-                "#,
+                ",
                 SchemaPath(type_test_schema_path()),
             ) -> Err([
                 tombi_validator::DiagnosticKind::KeyNotAllowed {key: "key-empty".to_string()}
@@ -129,11 +129,11 @@ mod tests {
         test_lint! {
             #[test]
             fn test_nested_array(
-                r#"
+                r"
                 array = [[
                     # tombi: lint.rules.array-min-values.disabled = true
                 ]]
-                "#,
+                ",
                 SchemaPath(type_test_schema_path()),
             ) -> Err([
                 tombi_validator::DiagnosticKind::ArrayMinValues {
@@ -146,7 +146,7 @@ mod tests {
         test_lint! {
             #[test]
             fn test_nested_array_min_values_with_array_leading_and_key_dangling_comment_directive(
-                r#"
+                r"
                 # tombi: lint.rules.array-min-values.disabled = true
                 array = [
                     [
@@ -154,7 +154,7 @@ mod tests {
                     # tombi: lint.rules.array-min-values.disabled = true
                     ]
                 ]
-                "#,
+                ",
                 SchemaPath(type_test_schema_path()),
             ) -> Err([
                 tombi_validator::DiagnosticKind::KeyNotAllowed {key: "key-empty".to_string()}
@@ -164,7 +164,7 @@ mod tests {
         test_lint! {
             #[test]
             fn test_nested_array_integer_min_values_with_array_leading_and_array_dangling_comment_directive(
-                r#"
+                r"
                 # tombi: lint.rules.array-min-values.disabled = true
                 array = [
                     [
@@ -174,7 +174,7 @@ mod tests {
                     0, # tombi: lint.rules.integer-minimum.disabled = true
                     ]
                 ]
-                "#,
+                ",
                 SchemaPath(type_test_schema_path()),
             ) -> Err([
                 tombi_validator::DiagnosticKind::KeyNotAllowed {key: "key-empty".to_string()}

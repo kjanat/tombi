@@ -339,10 +339,10 @@ mod document_link_tests {
         test_document_link!(
             #[tokio::test]
             async fn cargo_target_dependencies_with_workspace(
-                r#"
+                r"
                 [target.'cfg(unix)'.dependencies]
                 serde = { workspace = true }
-                "#,
+                ",
                 SourcePath(project_root_path().join("crates/subcrate/Cargo.toml")),
             ) -> Ok(Some(vec![
                 {

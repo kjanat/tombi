@@ -167,49 +167,49 @@ mod test {
     test_format! {
         #[tokio::test]
         async fn empty_table_space_on_own_subtable(
-            r#"
+            r"
             [foo]
             [foo.bar]
-            "#
+            "
         ) -> Ok(source)
     }
 
     test_format! {
         #[tokio::test]
         async fn empty_table_space_on_other_table(
-            r#"
+            r"
             [foo]
 
             [bar.baz]
-            "#
+            "
         ) -> Ok(source)
     }
 
     test_format! {
         #[tokio::test]
         async fn empty_table_space_on_own_array_of_sub_tables(
-            r#"
+            r"
             [foo]
             [[foo.bar]]
-            "#
+            "
         ) -> Ok(source)
     }
 
     test_format! {
         #[tokio::test]
         async fn empty_table_space_on_other_array_of_tables(
-            r#"
+            r"
             [foo]
 
             [[bar.baz]]
-            "#
+            "
         ) -> Ok(source)
     }
 
     test_format! {
         #[tokio::test]
         async fn empty_table_space_on_other_array_of_tables_with_comments(
-            r#"
+            r"
             [foo]  # header table comment
             # table dangling comment 1-1
             # table dangling comment 1-2
@@ -223,24 +223,24 @@ mod test {
             # table header leading comment1
             # table header leading comment2
             [[bar.baz]]
-            "#
+            "
         ) -> Ok(source)
     }
 
     test_format! {
         #[tokio::test]
         async fn empty_array_of_tables_space_on_own_subtable(
-            r#"
+            r"
             [[foo]]
             [foo.bar]
-            "#
+            "
         ) -> Ok(source)
     }
 
     test_format! {
         #[tokio::test]
         async fn empty_array_of_tables_space_on_own_subtable_with_comments(
-            r#"
+            r"
             [[foo]]  # header trailing comment
             # table dangling comment 1-1
             # table dangling comment 1-2
@@ -254,25 +254,25 @@ mod test {
             # table header leading comment1
             # table header leading comment2
             [foo.bar]
-            "#
+            "
         ) -> Ok(source)
     }
 
     test_format! {
         #[tokio::test]
         async fn empty_array_of_tables_space_on_other_subtable(
-            r#"
+            r"
             [[foo]]
 
             [bar.baz]
-            "#
+            "
         ) -> Ok(source)
     }
 
     test_format! {
         #[tokio::test]
         async fn empty_array_of_tables_space_on_other_subtable_with_comments(
-            r#"
+            r"
             [[foo]]  # header trailing comment
             # table dangling comment 1-1
             # table dangling comment 1-2
@@ -284,25 +284,25 @@ mod test {
             # table dangling comment 3-1
 
             [bar.baz]
-            "#
+            "
         ) -> Ok(source)
     }
 
     test_format! {
         #[tokio::test]
         async fn empty_array_of_tables_space_on_same_array_of_tables(
-            r#"
+            r"
             [[foo]]
 
             [[foo]]
-            "#
+            "
         ) -> Ok(source)
     }
 
     test_format! {
         #[tokio::test]
         async fn empty_array_of_tables_space_on_same_array_of_tables_with_comment(
-            r#"
+            r"
             [[foo]]  # header trailing comment
             # table dangling comment 1-1
             # table dangling comment 1-2
@@ -316,23 +316,23 @@ mod test {
             # table header leading comment1
             # table header leading comment2
             [[foo]]
-            "#
+            "
         ) -> Ok(source)
     }
 
     test_format! {
         #[tokio::test]
         async fn only_dangling_comment1(
-            r#"
+            r"
             # root dangling comment
-            "#
+            "
         ) -> Ok(source)
     }
 
     test_format! {
         #[tokio::test]
         async fn only_dangling_comment2(
-            r#"
+            r"
             # root dangling comment 1-1
             # root dangling comment 1-2
 
@@ -341,7 +341,7 @@ mod test {
             # root dangling comment 2-3
 
             # root dangling comment 3-1
-            "#
+            "
         ) -> Ok(source)
     }
 }

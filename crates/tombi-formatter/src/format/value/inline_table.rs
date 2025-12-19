@@ -225,7 +225,7 @@ mod tests {
 
     test_format! {
         #[tokio::test]
-        async fn inline_table_key_value2(r#"point = { x = 1, y = 2 }"#) -> Ok(source)
+        async fn inline_table_key_value2(r"point = { x = 1, y = 2 }") -> Ok(source)
 
     }
 
@@ -237,10 +237,10 @@ mod tests {
     test_format! {
         #[tokio::test]
         async fn inline_table_inner_comment_only1(
-            r#"
+            r"
             inline_table = {
               # comment
-            }"#,
+            }",
             TomlVersion::V1_1_0_Preview
         ) -> Ok(source)
     }
@@ -248,7 +248,7 @@ mod tests {
     test_format! {
         #[tokio::test]
         async fn inline_table_inner_comment_only2(
-            r#"
+            r"
             inline_table = {
               # comment 1-1
               # comment 1-2
@@ -258,7 +258,7 @@ mod tests {
               # comment 2-3
 
               # comment 3-1
-            }"#,
+            }",
             TomlVersion::V1_1_0_Preview
         ) -> Ok(source)
     }
@@ -266,7 +266,7 @@ mod tests {
     test_format! {
         #[tokio::test]
         async fn inline_table_exceeds_line_width_v1_0_0(
-            r#"table = { key1 = 1111111111, key2 = 2222222222, key3 = 3333333333 }"#,
+            r"table = { key1 = 1111111111, key2 = 2222222222, key3 = 3333333333 }",
             TomlVersion::V1_0_0,
             FormatOptions {
                 rules: Some(FormatRules {
@@ -280,7 +280,7 @@ mod tests {
     test_format! {
         #[tokio::test]
         async fn inline_table_exceeds_line_width_v1_1_0(
-            r#"table = { key1 = 1111111111, key2 = 2222222222, key3 = 3333333333 }"#,
+            r"table = { key1 = 1111111111, key2 = 2222222222, key3 = 3333333333 }",
             TomlVersion::V1_1_0_Preview,
             FormatOptions {
                 rules: Some(FormatRules {
@@ -289,20 +289,20 @@ mod tests {
                 }),
             }
         ) -> Ok(
-            r#"
+            r"
             table = {
               key1 = 1111111111,
               key2 = 2222222222,
               key3 = 3333333333
             }
-            "#
+            "
         )
     }
 
     test_format! {
         #[tokio::test]
         async fn inline_table_with_nested_array_exceeds_line_width(
-            r#"table = { key1 = [1111111111, 2222222222], key2 = [3333333333, 4444444444] }"#,
+            r"table = { key1 = [1111111111, 2222222222], key2 = [3333333333, 4444444444] }",
             TomlVersion::V1_1_0_Preview,
             FormatOptions {
                 rules: Some(FormatRules {
@@ -311,19 +311,19 @@ mod tests {
                 }),
             }
         ) -> Ok(
-            r#"
+            r"
             table = {
               key1 = [1111111111, 2222222222],
               key2 = [3333333333, 4444444444]
             }
-            "#
+            "
         )
     }
 
     test_format! {
         #[tokio::test]
         async fn inline_table_with_nested_inline_table_exceeds_line_width(
-            r#"table = { t1 = { key1 = 1111111111, key2 = 2222222222, }, t2 = { key3 = 3333333333, key4 = 4444444444 } }"#,
+            r"table = { t1 = { key1 = 1111111111, key2 = 2222222222, }, t2 = { key3 = 3333333333, key4 = 4444444444 } }",
             TomlVersion::V1_1_0_Preview,
             FormatOptions {
                 rules: Some(FormatRules {
@@ -332,7 +332,7 @@ mod tests {
                 }),
             }
         ) -> Ok(
-            r#"
+            r"
             table = {
               t1 = {
                 key1 = 1111111111,
@@ -343,14 +343,14 @@ mod tests {
                 key4 = 4444444444
               }
             }
-            "#
+            "
         )
     }
 
     test_format! {
         #[tokio::test]
         async fn inline_table_with_nested_inline_table_exceeds_line_width_v1_0_0(
-            r#"
+            r"
             table = {
               t1 = {
                 key1 = 1111111111,
@@ -361,7 +361,7 @@ mod tests {
                 key4 = 4444444444
               }
             }
-            "#,
+            ",
             TomlVersion::V1_0_0,
             FormatOptions {
                 rules: Some(FormatRules {
@@ -370,7 +370,7 @@ mod tests {
                 }),
             }
         ) -> Ok(
-            r#"table = { t1 = { key1 = 1111111111, key2 = 2222222222 }, t2 = { key3 = 3333333333, key4 = 4444444444 } }"#
+            r"table = { t1 = { key1 = 1111111111, key2 = 2222222222 }, t2 = { key3 = 3333333333, key4 = 4444444444 } }"
         )
     }
 }

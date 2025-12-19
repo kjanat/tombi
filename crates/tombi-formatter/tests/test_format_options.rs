@@ -11,9 +11,9 @@ mod format_options {
         test_format! {
             #[tokio::test]
             async fn test_array_bracket_space_width_zero(
-                r#"
+                r"
                 key = [1, 2, 3]
-                "#,
+                ",
                 FormatOptions {
                     rules: Some(FormatRules {
                         array_bracket_space_width: Some(0.into()),
@@ -21,18 +21,18 @@ mod format_options {
                     }),
                 }
             ) -> Ok(
-                r#"
+                r"
                 key = [1, 2, 3]
-                "#
+                "
             )
         }
 
         test_format! {
             #[tokio::test]
             async fn test_array_bracket_space_width_one(
-                r#"
+                r"
                 key = [1, 2, 3]
-                "#,
+                ",
                 FormatOptions {
                     rules: Some(FormatRules {
                         array_bracket_space_width: Some(1.into()),
@@ -40,18 +40,18 @@ mod format_options {
                     }),
                 }
             ) -> Ok(
-                r#"
+                r"
                 key = [ 1, 2, 3 ]
-                "#
+                "
             )
         }
 
         test_format! {
             #[tokio::test]
             async fn test_array_bracket_space_width_two(
-                r#"
+                r"
                 key = [1, 2, 3]
-                "#,
+                ",
                 FormatOptions {
                     rules: Some(FormatRules {
                         array_bracket_space_width: Some(2.into()),
@@ -59,9 +59,9 @@ mod format_options {
                     }),
                 }
             ) -> Ok(
-                r#"
+                r"
                 key = [  1, 2, 3  ]
-                "#
+                "
             )
         }
     }
@@ -72,9 +72,9 @@ mod format_options {
         test_format! {
             #[tokio::test]
             async fn test_array_comma_space_width_zero(
-                r#"
+                r"
                 key = [1, 2,  3]
-                "#,
+                ",
                 FormatOptions {
                     rules: Some(FormatRules {
                         array_comma_space_width: Some(0.into()),
@@ -82,18 +82,18 @@ mod format_options {
                     }),
                 }
             ) -> Ok(
-                r#"
+                r"
                 key = [1,2,3]
-                "#
+                "
             )
         }
 
         test_format! {
             #[tokio::test]
             async fn test_array_comma_space_width_one(
-                r#"
+                r"
                 key = [1,2,3]
-                "#,
+                ",
                 FormatOptions {
                     rules: Some(FormatRules {
                         array_comma_space_width: Some(1.into()),
@@ -101,18 +101,18 @@ mod format_options {
                     }),
                 }
             ) -> Ok(
-                r#"
+                r"
                 key = [1, 2, 3]
-                "#
+                "
             )
         }
 
         test_format! {
             #[tokio::test]
             async fn test_array_comma_space_width_two(
-                r#"
+                r"
                 key = [1,2,3]
-                "#,
+                ",
                 FormatOptions {
                     rules: Some(FormatRules {
                         array_comma_space_width: Some(2.into()),
@@ -120,9 +120,9 @@ mod format_options {
                     }),
                 }
             ) -> Ok(
-                r#"
+                r"
                 key = [1,  2,  3]
-                "#
+                "
             )
         }
     }
@@ -133,9 +133,9 @@ mod format_options {
         test_format! {
             #[tokio::test]
             async fn test_date_time_delimiter_t(
-                r#"
+                r"
                 key = 2024-01-01 10:00:00
-                "#,
+                ",
                 FormatOptions {
                     rules: Some(FormatRules {
                         date_time_delimiter: Some(DateTimeDelimiter::T),
@@ -143,18 +143,18 @@ mod format_options {
                     }),
                 }
             ) -> Ok(
-                r#"
+                r"
                 key = 2024-01-01T10:00:00
-                "#
+                "
             )
         }
 
         test_format! {
             #[tokio::test]
             async fn test_date_time_delimiter_space(
-                r#"
+                r"
                 key = 2024-01-01T10:00:00
-                "#,
+                ",
                 FormatOptions {
                     rules: Some(FormatRules {
                         date_time_delimiter: Some(DateTimeDelimiter::Space),
@@ -162,18 +162,18 @@ mod format_options {
                     }),
                 }
             ) -> Ok(
-                r#"
+                r"
                 key = 2024-01-01 10:00:00
-                "#
+                "
             )
         }
 
         test_format! {
             #[tokio::test]
             async fn test_date_time_delimiter_preserve(
-                r#"
+                r"
                 key = 2024-01-01T10:00:00
-                "#,
+                ",
                 FormatOptions {
                     rules: Some(FormatRules {
                         date_time_delimiter: Some(DateTimeDelimiter::Preserve),
@@ -181,9 +181,9 @@ mod format_options {
                     }),
                 }
             ) -> Ok(
-                r#"
+                r"
                 key = 2024-01-01T10:00:00
-                "#
+                "
             )
         }
     }
@@ -286,34 +286,34 @@ mod format_options {
         test_format! {
             #[tokio::test]
             async fn test_indent_width_two(
-                r#"
+                r"
                 key = [
                    1,
                   2,
                     3,
                 ]
-                "#,
+                ",
             ) -> Ok(
-                r#"
+                r"
                 key = [
                   1,
                   2,
                   3,
                 ]
-                "#
+                "
             )
         }
 
         test_format! {
             #[tokio::test]
             async fn test_indent_width_four(
-                r#"
+                r"
                 key = [
                   1,
                   2,
                   3,
                 ]
-                "#,
+                ",
                 FormatOptions {
                     rules: Some(FormatRules {
                         indent_width: Some(4.into()),
@@ -321,13 +321,13 @@ mod format_options {
                     }),
                 }
             ) -> Ok(
-                r#"
+                r"
                 key = [
                     1,
                     2,
                     3,
                 ]
-                "#
+                "
             )
         }
     }
@@ -338,9 +338,9 @@ mod format_options {
         test_format! {
             #[tokio::test]
             async fn test_inline_table_brace_space_width_zero(
-                r#"
+                r"
                 key = {a = 1, b = 2}
-                "#,
+                ",
                 FormatOptions {
                     rules: Some(FormatRules {
                         inline_table_brace_space_width: Some(0.into()),
@@ -348,18 +348,18 @@ mod format_options {
                     }),
                 }
             ) -> Ok(
-                r#"
+                r"
                 key = {a = 1, b = 2}
-                "#
+                "
             )
         }
 
         test_format! {
             #[tokio::test]
             async fn test_inline_table_brace_space_width_one(
-                r#"
+                r"
                 key = {a = 1, b = 2}
-                "#,
+                ",
                 FormatOptions {
                     rules: Some(FormatRules {
                         inline_table_brace_space_width: Some(1.into()),
@@ -367,9 +367,9 @@ mod format_options {
                     }),
                 }
             ) -> Ok(
-                r#"
+                r"
                 key = { a = 1, b = 2 }
-                "#
+                "
             )
         }
     }
@@ -380,9 +380,9 @@ mod format_options {
         test_format! {
             #[tokio::test]
             async fn test_inline_table_comma_space_width_zero(
-                r#"
+                r"
                 key = {a = 1,b = 2}
-                "#,
+                ",
                 FormatOptions {
                     rules: Some(FormatRules {
                         inline_table_comma_space_width: Some(0.into()),
@@ -390,18 +390,18 @@ mod format_options {
                     }),
                 }
             ) -> Ok(
-                r#"
+                r"
                 key = { a = 1,b = 2 }
-                "#
+                "
             )
         }
 
         test_format! {
             #[tokio::test]
             async fn test_inline_table_comma_space_width_two(
-                r#"
+                r"
                 key = {a = 1,b = 2}
-                "#,
+                ",
                 FormatOptions {
                     rules: Some(FormatRules {
                         inline_table_comma_space_width: Some(2.into()),
@@ -409,9 +409,9 @@ mod format_options {
                     }),
                 }
             ) -> Ok(
-                r#"
+                r"
                 key = { a = 1,  b = 2 }
-                "#
+                "
             )
         }
     }
@@ -641,9 +641,9 @@ mod format_options {
         test_format! {
             #[tokio::test]
             async fn test_string_quote_style_double(
-                r#"
+                r"
                 key = 'value'
-                "#,
+                ",
                 FormatOptions {
                     rules: Some(FormatRules {
                         string_quote_style: Some(StringQuoteStyle::Double),
@@ -670,9 +670,9 @@ mod format_options {
                     }),
                 }
             ) -> Ok(
-                r#"
+                r"
                 key = 'value'
-                "#
+                "
             )
         }
 

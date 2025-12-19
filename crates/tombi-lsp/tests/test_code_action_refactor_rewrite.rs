@@ -7,138 +7,138 @@ mod refactor_rewrite {
         test_code_action_refactor_rewrite! {
             #[tokio::test]
             async fn dotted_keys_to_inline_table(
-                r#"
+                r"
             foo.bar█ = 1
-            "#,
+            ",
                 Select(CodeActionRefactorRewriteName::DottedKeysToInlineTable),
             ) -> Ok(Some(
-                r#"
+                r"
             foo = { bar = 1 }
-            "#
+            "
             ));
         }
 
         test_code_action_refactor_rewrite! {
             #[tokio::test]
             async fn dotted_keys_to_inline_table_with_comment(
-                r#"
+                r"
             foo.bar█ = 1 # comment
-            "#,
+            ",
                 Select(CodeActionRefactorRewriteName::DottedKeysToInlineTable),
             ) -> Ok(Some(
-                r#"
+                r"
             foo = { bar = 1 } # comment
-            "#
+            "
             ));
         }
 
         test_code_action_refactor_rewrite! {
             #[tokio::test]
             async fn nested_dotted_keys_to_inline_table_with_comment(
-                r#"
+                r"
                 foo.bar█.baz = 1 # comment
-                "#,
+                ",
                 Select(CodeActionRefactorRewriteName::DottedKeysToInlineTable),
             ) -> Ok(Some(
-                r#"
+                r"
                 foo = { bar.baz = 1 } # comment
-                "#
+                "
             ));
         }
 
         test_code_action_refactor_rewrite! {
             #[tokio::test]
             async fn inline_table_to_dotted_keys(
-                r#"
+                r"
             foo = { bar = █1 }
-            "#,
+            ",
                 Select(CodeActionRefactorRewriteName::InlineTableToDottedKeys),
             ) -> Ok(Some(
-                r#"
+                r"
             foo.bar = 1
-            "#
+            "
             ));
         }
 
         test_code_action_refactor_rewrite! {
             #[tokio::test]
             async fn inline_table_to_dotted_keys_with_comment(
-                r#"
+                r"
             foo = { bar = █1 } # comment
-            "#,
+            ",
                 Select(CodeActionRefactorRewriteName::InlineTableToDottedKeys),
             ) -> Ok(Some(
-                r#"
+                r"
             foo.bar = 1 # comment
-            "#
+            "
             ));
         }
 
         test_code_action_refactor_rewrite! {
             #[tokio::test]
             async fn nested_inline_table_to_dotted_keys_with_comment(
-                r#"
+                r"
             foo = { bar█.baz = 1 } # comment
-            "#,
+            ",
                 Select(CodeActionRefactorRewriteName::InlineTableToDottedKeys),
             ) -> Ok(Some(
-                r#"
+                r"
             foo.bar.baz = 1 # comment
-            "#
+            "
             ));
         }
 
         test_code_action_refactor_rewrite! {
             #[tokio::test]
             async fn inline_table_array_to_dotted_keys_with_comment(
-                r#"
+                r"
             foo = { bar = █[1, 2, 3] } # comment
-            "#,
+            ",
                 Select(CodeActionRefactorRewriteName::InlineTableToDottedKeys),
             ) -> Ok(Some(
-                r#"
+                r"
             foo.bar = [1, 2, 3] # comment
-            "#
+            "
             ));
         }
 
         test_code_action_refactor_rewrite! {
             #[tokio::test]
             async fn inline_table_multiline_array_to_dotted_keys_with_comment(
-                r#"
+                r"
             foo = { bar = █[
               1,
               2,
               3,
             ] } # comment
-            "#,
+            ",
                 Select(CodeActionRefactorRewriteName::InlineTableToDottedKeys),
             ) -> Ok(Some(
-                r#"
+                r"
             foo.bar = [
               1,
               2,
               3,
             ] # comment
-            "#
+            "
             ));
         }
 
         test_code_action_refactor_rewrite! {
             #[tokio::test]
             async fn inline_table_has_other_keys(
-                r#"
+                r"
             foo = { bar = █1, baz = 2 }
-            "#,
+            ",
             ) -> Ok(None);
         }
 
         test_code_action_refactor_rewrite! {
             #[tokio::test]
             async fn inline_table_has_other_keys_with_comment(
-                r#"
+                r"
             foo = { bar = █1, baz = 2 } # comment
-            "#,
+            ",
             ) -> Ok(None);
         }
     }
@@ -159,20 +159,20 @@ mod refactor_rewrite {
                 Select(CodeActionRefactorRewriteName::InheritFromWorkspace),
                 project_root_path().join("crates/subcrate/Cargo.toml"),
             ) -> Ok(Some(
-                r#"
+                r"
                 [package]
                 version.workspace = true
-                "#
+                "
             ));
         }
 
         test_code_action_refactor_rewrite! {
             #[tokio::test]
             async fn cargo_toml_package_version_workspace(
-                r#"
+                r"
                 [package]
                 version.workspace█ = true
-                "#,
+                ",
                 Select(CodeActionRefactorRewriteName::InheritFromWorkspace),
                 project_root_path().join("crates/subcrate/Cargo.toml"),
             ) -> Ok(None);
@@ -188,10 +188,10 @@ mod refactor_rewrite {
                 Select(CodeActionRefactorRewriteName::InheritDependencyFromWorkspace),
                 project_root_path().join("crates/subcrate/Cargo.toml"),
             ) -> Ok(Some(
-                r#"
+                r"
                 [dependencies]
                 serde = { workspace = true }
-                "#
+                "
             ));
         }
 
@@ -205,10 +205,10 @@ mod refactor_rewrite {
                 Select(CodeActionRefactorRewriteName::InheritDependencyFromWorkspace),
                 project_root_path().join("crates/subcrate/Cargo.toml"),
             ) -> Ok(Some(
-                r#"
+                r"
                 [dependencies]
                 serde = { workspace = true }
-                "#
+                "
             ));
         }
 
@@ -232,10 +232,10 @@ mod refactor_rewrite {
         test_code_action_refactor_rewrite! {
             #[tokio::test]
             async fn cargo_toml_dependencies_serde_dotted_keys_workspace(
-                r#"
+                r"
                 [dependencies]
                 serde.workspace█ = true
-                "#,
+                ",
                 Select(CodeActionRefactorRewriteName::InheritDependencyFromWorkspace),
                 project_root_path().join("crates/subcrate/Cargo.toml"),
             ) -> Ok(None);
@@ -244,10 +244,10 @@ mod refactor_rewrite {
         test_code_action_refactor_rewrite! {
             #[tokio::test]
             async fn cargo_toml_dependencies_serde_inline_table_workspace(
-                r#"
+                r"
                 [dependencies]
                 serde = { workspace█ = true }
-                "#,
+                ",
                 Select(CodeActionRefactorRewriteName::InheritDependencyFromWorkspace),
                 project_root_path().join("crates/subcrate/Cargo.toml"),
             ) -> Ok(None);
@@ -263,10 +263,10 @@ mod refactor_rewrite {
                 Select(CodeActionRefactorRewriteName::InheritDependencyFromWorkspace),
                 project_root_path().join("crates/subcrate/Cargo.toml"),
             ) -> Ok(Some(
-                r#"
+                r"
                 [dependencies.serde]
                 workspace = true
-                "#
+                "
             ));
         }
 
@@ -281,11 +281,11 @@ mod refactor_rewrite {
                 Select(CodeActionRefactorRewriteName::InheritDependencyFromWorkspace),
                 project_root_path().join("crates/subcrate/Cargo.toml"),
             ) -> Ok(Some(
-                r#"
+                r"
                 [dependencies.serde]
                 workspace = true
                 default-features = false
-                "#
+                "
             ));
         }
 
@@ -351,10 +351,10 @@ mod refactor_rewrite {
                 Select(CodeActionRefactorRewriteName::InheritDependencyFromWorkspace),
                 project_root_path().join("crates/subcrate/Cargo.toml"),
             ) -> Ok(Some(
-                r#"
+                r"
                 [target.'cfg(unix)'.dependencies]
                 serde = { workspace = true }
-                "#
+                "
             ));
         }
 
@@ -368,10 +368,10 @@ mod refactor_rewrite {
                 Select(CodeActionRefactorRewriteName::InheritDependencyFromWorkspace),
                 project_root_path().join("crates/subcrate/Cargo.toml"),
             ) -> Ok(Some(
-                r#"
+                r"
                 [target.'cfg(unix)'.dependencies]
                 serde = { workspace = true }
-                "#
+                "
             ));
         }
 

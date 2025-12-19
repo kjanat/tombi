@@ -233,10 +233,10 @@ mod tests {
         test_lint! {
             #[test]
             fn test_workspace_unknown(
-                r#"
+                r"
                 [workspace]
                 aaa = 1
-                "#,
+                ",
                 SchemaPath(cargo_schema_path()),
             ) -> Err([tombi_validator::DiagnosticKind::StrictAdditionalKeys {
                 accessors: tombi_schema_store::SchemaAccessors::from(vec![
@@ -250,10 +250,10 @@ mod tests {
         test_lint! {
             #[test]
             fn test_unonkwn_keys(
-                r#"
+                r"
                 [aaa]
                 bbb = 1
-                "#,
+                ",
                 SchemaPath(cargo_schema_path()),
             ) -> Err([tombi_validator::DiagnosticKind::KeyNotAllowed { key: "aaa".to_string() }])
         }
@@ -261,10 +261,10 @@ mod tests {
         test_lint! {
             #[test]
             fn test_package_name_wrong_type(
-                r#"
+                r"
                 [package]
                 name = 1
-                "#,
+                ",
                 SchemaPath(cargo_schema_path()),
             ) -> Err([tombi_validator::DiagnosticKind::TypeMismatch {
                 expected: tombi_schema_store::ValueType::String,
@@ -275,10 +275,10 @@ mod tests {
         test_lint! {
             #[test]
             fn test_package_name_wrong_type_with_comment_directive_disabled_eq_true(
-                r#"
+                r"
                 [package]
                 name = 1 # tombi: lint.rules.type-mismatch.disabled = true
-                "#,
+                ",
                 SchemaPath(cargo_schema_path()),
             ) -> Ok(_)
         }
@@ -286,10 +286,10 @@ mod tests {
         test_lint! {
             #[test]
             fn test_package_name_wrong_type_with_wrong_comment_directive_disabled_eq_true(
-                r#"
+                r"
                 [package]
                 name = 1 # tombi: lint.rules.type-mism.disabled = true
-                "#,
+                ",
                 SchemaPath(cargo_schema_path()),
             ) -> Err([
                 tombi_validator::DiagnosticKind::KeyNotAllowed { key: "type-mism".to_string() },
@@ -316,10 +316,10 @@ mod tests {
         test_lint! {
             #[test]
             fn test_tombi_schema_format_rules_array_bracket_space_width_eq_0(
-                r#"
+                r"
                 [format.rules]
                 array-bracket-space-width = 0
-                "#,
+                ",
                 SchemaPath(tombi_schema_path()),
             ) -> Ok(_)
         }
@@ -381,7 +381,7 @@ mod tests {
             // Ref: https://github.com/tombi-toml/tombi/issues/517
             #[test]
             fn test_mise_toml(
-                r#"
+                r"
                 #:schema https://mise.jdx.dev/schema/mise.json
 
                 [env]
@@ -392,7 +392,7 @@ mod tests {
 
                 # Flask/Poster dev ONLY settings
                 FLASK_DEBUG=1
-                "#,
+                ",
             ) -> Ok(_)
         }
     }
@@ -572,27 +572,27 @@ mod tests {
         test_lint! {
             #[test]
             fn test_schema_uri(
-                r#"
+                r"
                 #:schema https://www.schemastore.org/tombi.json
-                "#,
+                ",
             ) -> Ok(_)
         }
 
         test_lint! {
             #[test]
             fn test_schema_file(
-                r#"
+                r"
                 #:schema ./www.schemastore.org/tombi.json
-                "#,
+                ",
             ) -> Ok(_)
         }
 
         test_lint! {
             #[test]
             fn test_file_schema_does_not_exist_url(
-                r#"
+                r"
                 #:schema https://does-not-exist.co.jp
-                "#,
+                ",
             ) -> Err([
                 tombi_schema_store::Error::SchemaFetchFailed{
                     schema_uri: SchemaUri::from_str("https://does-not-exist.co.jp").unwrap(),
@@ -604,9 +604,9 @@ mod tests {
         test_lint! {
             #[test]
             fn test_file_schema_does_not_exist_file(
-                r#"
+                r"
                 #:schema does-not-exist.schema.json
-                "#,
+                ",
             ) -> Err([
                 tombi_schema_store::Error::SchemaFileNotFound{
                     schema_path: tombi_test_lib::project_root_path().join("does-not-exist.schema.json"),
@@ -617,9 +617,9 @@ mod tests {
         test_lint! {
             #[test]
             fn test_file_schema_relative_does_not_exist_file(
-                r#"
+                r"
                 #:schema ./does-not-exist.schema.json
-                "#,
+                ",
             ) -> Err([
                 tombi_schema_store::Error::SchemaFileNotFound{
                     schema_path: tombi_test_lib::project_root_path().join("does-not-exist.schema.json"),
@@ -630,9 +630,9 @@ mod tests {
         test_lint! {
             #[test]
             fn test_file_schema_parent_does_not_exist_file(
-                r#"
+                r"
                 #:schema ../does-not-exist.schema.json
-                "#,
+                ",
             ) -> Err([
                 tombi_schema_store::Error::SchemaFileNotFound{
                     schema_path: tombi_test_lib::project_root_path().join("../does-not-exist.schema.json"),
@@ -643,9 +643,9 @@ mod tests {
         test_lint! {
             #[test]
             fn test_tombi_document_comment_directive_lint_not_exist_eq_true(
-                r#"
+                r"
                 #:tombi lint.not-exist = true
-                "#,
+                ",
             ) -> Err([
                 tombi_validator::DiagnosticKind::KeyNotAllowed { key: "not-exist".to_string() }
             ])

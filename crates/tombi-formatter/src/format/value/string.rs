@@ -121,7 +121,7 @@ mod tests {
                     ..Default::default()
                 }),
             }
-        ) -> Ok(r#"key = 'value'"#)
+        ) -> Ok(r"key = 'value'")
     }
 
     test_format! {

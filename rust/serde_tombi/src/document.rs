@@ -575,9 +575,9 @@ id = 2
         );
 
         let toml_string = crate::to_string_async(&document).await.unwrap();
-        let expected = r#"
+        let expected = r"
 now = 2024-01-01T00:00:00Z
-"#;
+";
         toml_text_assert_eq!(toml_string, expected);
     }
 }

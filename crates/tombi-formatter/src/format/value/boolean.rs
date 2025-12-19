@@ -14,11 +14,11 @@ mod tests {
 
     test_format! {
         #[tokio::test]
-        async fn boolean_true(r#"boolean = true"#) -> Ok(source)
+        async fn boolean_true(r"boolean = true") -> Ok(source)
     }
 
     test_format! {
         #[tokio::test]
-        async fn boolean_false(r#"boolean = false"#) -> Ok(source)
+        async fn boolean_false(r"boolean = false") -> Ok(source)
     }
 }

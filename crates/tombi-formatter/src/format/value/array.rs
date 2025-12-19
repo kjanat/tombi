@@ -270,13 +270,13 @@ mod tests {
         async fn multiline_array1(
             "array = [1, 2, 3,]"
         ) -> Ok(
-            r#"
+            r"
             array = [
               1,
               2,
               3,
             ]
-            "#
+            "
         )
     }
 
@@ -285,70 +285,70 @@ mod tests {
         async fn multiline_array2(
             "array = [1, ]"
         ) -> Ok(
-            r#"
+            r"
             array = [
               1,
             ]
-            "#
+            "
         )
     }
 
     test_format! {
         #[tokio::test]
         async fn multiline_array3(
-            r#"
+            r"
             array = [
               1  # comment
             ]
-            "#
+            "
         ) -> Ok(
-            r#"
+            r"
             array = [
               1,  # comment
             ]
-            "#
+            "
         )
     }
 
     test_format! {
         #[tokio::test]
         async fn multiline_array4(
-            r#"
+            r"
             array = [
               1,  # comment
             ]
-            "#
+            "
         ) -> Ok(
-            r#"
+            r"
             array = [
               1,  # comment
             ]
-            "#
+            "
         )
     }
 
     test_format! {
         #[tokio::test]
         async fn multiline_array5(
-            r#"
+            r"
             array = [
               1  # comment
               ,
             ]
-            "#
+            "
         ) -> Ok(
-            r#"
+            r"
             array = [
               1,  # comment
             ]
-            "#
+            "
         )
     }
 
     test_format! {
         #[tokio::test]
         async fn multiline_array_with_full_comment(
-            r#"
+            r"
             # array leading comment1
             # array leading comment2
             array = [
@@ -376,9 +376,9 @@ mod tests {
               # array end dangling comment group 2-1
 
             ] # array trailing comment
-            "#
+            "
         ) -> Ok(
-            r#"
+            r"
             # array leading comment1
             # array leading comment2
             array = [
@@ -403,7 +403,7 @@ mod tests {
 
               # array end dangling comment group 2-1
             ]  # array trailing comment
-            "#
+            "
         )
     }
 
@@ -412,7 +412,7 @@ mod tests {
         async fn nested_multiline_array(
             "array = [ [1,2,3,], [4,5,6], [7,8,9,] ]"
         ) -> Ok(
-            r#"
+            r"
             array = [
               [
                 1,
@@ -426,7 +426,7 @@ mod tests {
                 9,
               ]
             ]
-            "#
+            "
         )
     }
 
@@ -435,7 +435,7 @@ mod tests {
         async fn nested_multiline_array_with_trailing_comma(
             "array = [ [1,2,3,], [4,5,6], [7,8,9,], ]"
         ) -> Ok(
-            r#"
+            r"
             array = [
               [
                 1,
@@ -449,24 +449,24 @@ mod tests {
                 9,
               ],
             ]
-            "#
+            "
         )
     }
 
     test_format! {
         #[tokio::test]
         async fn array_only_inner_comment_only1(
-            r#"
+            r"
             array = [
               # comment
-            ]"#
+            ]"
         ) -> Ok(source)
     }
 
     test_format! {
         #[tokio::test]
         async fn array_only_inner_comment_only2(
-            r#"
+            r"
             array = [
               # comment 1-1
               # comment 1-2
@@ -476,14 +476,14 @@ mod tests {
               # comment 2-3
 
               # comment 3-1
-            ]"#
+            ]"
         ) -> Ok(source)
     }
 
     test_format! {
         #[tokio::test]
         async fn array_exceeds_line_width(
-            r#"array = [1111111111, 2222222222, 3333333333]"#,
+            r"array = [1111111111, 2222222222, 3333333333]",
             FormatOptions {
                 rules: Some(FormatRules {
                     line_width: Some(20.try_into().unwrap()),
@@ -491,20 +491,20 @@ mod tests {
                 }),
             }
         ) -> Ok(
-            r#"
+            r"
             array = [
               1111111111,
               2222222222,
               3333333333
             ]
-            "#
+            "
         )
     }
 
     test_format! {
         #[tokio::test]
         async fn array_with_nested_array_exceeds_line_width(
-            r#"array = [[1111111111, 2222222222], [3333333333, 4444444444]]"#,
+            r"array = [[1111111111, 2222222222], [3333333333, 4444444444]]",
             FormatOptions {
                 rules: Some(FormatRules {
                     line_width: Some(30.try_into().unwrap()),
@@ -512,19 +512,19 @@ mod tests {
                 }),
             }
         ) -> Ok(
-            r#"
+            r"
             array = [
               [1111111111, 2222222222],
               [3333333333, 4444444444]
             ]
-            "#
+            "
         )
     }
 
     test_format! {
         #[tokio::test]
         async fn array_with_nested_inline_table_exceeds_line_width(
-            r#"array = [{ key1 = 1111111111, key2 = 2222222222 }, { key3 = [3333333333, 4444444444], key4 = [5555555555, 6666666666, 7777777777] }]"#,
+            r"array = [{ key1 = 1111111111, key2 = 2222222222 }, { key3 = [3333333333, 4444444444], key4 = [5555555555, 6666666666, 7777777777] }]",
             TomlVersion::V1_1_0_Preview,
             FormatOptions {
                 rules: Some(FormatRules {
@@ -533,7 +533,7 @@ mod tests {
                 }),
             }
         ) -> Ok(
-            r#"
+            r"
             array = [
               {
                 key1 = 1111111111,
@@ -548,7 +548,7 @@ mod tests {
                 ]
               }
             ]
-            "#
+            "
         )
     }
 

@@ -14,34 +14,34 @@ mod completion_edit {
         test_completion_edit! {
             #[tokio::test]
             async fn tombi_lsp_completion_dot(
-                r#"
+                r"
                 [lsp]
                 completion.█
-                "#,
+                ",
                 Select("enabled"),
                 SchemaPath(tombi_schema_path()),
             ) -> Ok(
-                r#"
+                r"
                 [lsp]
                 completion.enabled
-                "#
+                "
             );
         }
 
         test_completion_edit! {
             #[tokio::test]
             async fn tombi_lsp_completion_equal(
-                r#"
+                r"
                 [lsp]
                 completion=█
-                "#,
+                ",
                 Select("enabled"),
                 SchemaPath(tombi_schema_path()),
             ) -> Ok(
-                r#"
+                r"
                 [lsp]
                 completion = { enabled$1 }$0
-                "#
+                "
             );
         }
     }
@@ -54,10 +54,10 @@ mod completion_edit {
         test_completion_edit! {
             #[tokio::test]
             async fn cargo_package_version(
-                r#"
+                r"
                 [package]
                 version=█
-                "#,
+                ",
                 Select("\"0.1.0\""),
                 SchemaPath(cargo_schema_path()),
             ) -> Ok(
@@ -71,51 +71,51 @@ mod completion_edit {
         test_completion_edit! {
             #[tokio::test]
             async fn cargo_dependencies_serde_dot_work(
-                r#"
+                r"
                 [dependencies]
                 serde.work█
-                "#,
+                ",
                 Select("workspace"),
                 SchemaPath(cargo_schema_path()),
             ) -> Ok(
-                r#"
+                r"
                 [dependencies]
                 serde.workspace
-                "#
+                "
             );
         }
 
         test_completion_edit! {
             #[tokio::test]
             async fn cargo_dependencies_serde_eq_work(
-                r#"
+                r"
                 [dependencies]
                 serde=work█
-                "#,
+                ",
                 Select("workspace"),
                 SchemaPath(cargo_schema_path()),
             ) -> Ok(
-                r#"
+                r"
                 [dependencies]
                 serde = { workspace$1 }$0
-                "#
+                "
             );
         }
 
         test_completion_edit! {
             #[tokio::test]
             async fn cargo_dependencies_serde_workspace_dot(
-                r#"
+                r"
                 [dependencies]
                 serde = { workspace.█ }
-                "#,
+                ",
                 Select("true"),
                 SchemaPath(cargo_schema_path()),
             ) -> Ok(
-                r#"
+                r"
                 [dependencies]
                 serde = { workspace = true }
-                "#
+                "
             );
         }
     }
@@ -128,34 +128,34 @@ mod completion_edit {
         test_completion_edit! {
             #[tokio::test]
             async fn pyproject_project_authors_dot(
-                r#"
+                r"
                 [project]
                 authors.█
-                "#,
+                ",
                 Select("[]"),
                 SchemaPath(pyproject_schema_path()),
             ) -> Ok(
-                r#"
+                r"
                 [project]
                 authors = [$1]$0
-                "#
+                "
             );
         }
 
         test_completion_edit! {
             #[tokio::test]
             async fn pyproject_project_authors_equal(
-                r#"
+                r"
                 [project]
                 authors=█
-                "#,
+                ",
                 Select("[]"),
                 SchemaPath(pyproject_schema_path()),
             ) -> Ok(
-                r#"
+                r"
                 [project]
                 authors = [$1]$0
-                "#
+                "
             );
         }
 
@@ -179,34 +179,34 @@ mod completion_edit {
         test_completion_edit! {
             #[tokio::test]
             async fn pyproject_dependency_groups_dev_eq_array_select_single_quote(
-                r#"
+                r"
                 [dependency-groups]
                 dev=[█]
-                "#,
+                ",
                 Select("''"),
                 SchemaPath(pyproject_schema_path()),
             ) -> Ok(
-                r#"
+                r"
                 [dependency-groups]
                 dev=['$1'$0]
-                "#
+                "
             );
         }
 
         test_completion_edit! {
             #[tokio::test]
             async fn pyproject_dependency_groups_dev_eq_array_select_include_group(
-                r#"
+                r"
                 [dependency-groups]
                 dev=[█]
-                "#,
+                ",
                 Select("include-group"),
                 SchemaPath(pyproject_schema_path()),
             ) -> Ok(
-                r#"
+                r"
                 [dependency-groups]
                 dev=[{ include-group$1 }$0]
-                "#
+                "
             );
         }
 
@@ -400,34 +400,34 @@ mod completion_edit {
         test_completion_edit! {
             #[tokio::test]
             async fn pyproject_tool_mytool_key_select_dot(
-                r#"
+                r"
                 [tool.mytool]
                 key█
-                "#,
+                ",
                 Select("."),
                 SchemaPath(pyproject_schema_path()),
             ) -> Ok(
-                r#"
+                r"
                 [tool.mytool]
                 key.
-                "#
+                "
             );
         }
 
         test_completion_edit! {
             #[tokio::test]
             async fn pyproject_tool_mytool_key_select_equal(
-                r#"
+                r"
                 [tool.mytool]
                 key█
-                "#,
+                ",
                 Select("="),
                 SchemaPath(pyproject_schema_path()),
             ) -> Ok(
-                r#"
+                r"
                 [tool.mytool]
                 key=
-                "#
+                "
             );
         }
     }
@@ -948,9 +948,8 @@ mod completion_edit {
                                     }
                                 }
                                 continue
-                            } else {
-                                additional_new_text.push_str(line);
                             }
+        additional_new_text.push_str(line);
 
                         }
                         new_text = additional_new_text;

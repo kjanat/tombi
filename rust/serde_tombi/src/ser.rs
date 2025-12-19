@@ -886,7 +886,7 @@ value = "nested value"
         let toml = to_string_async(&test)
             .await
             .expect("TOML serialization failed");
-        let expected = r#"values = [1, 2, 3]"#;
+        let expected = r"values = [1, 2, 3]";
 
         toml_text_assert_eq!(toml, expected);
     }

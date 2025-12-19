@@ -270,7 +270,7 @@ value = "nested value"
             values: Vec<i32>,
         }
 
-        let toml = r#"values = [1, 2, 3]"#;
+        let toml = r"values = [1, 2, 3]";
 
         let expected = SimpleArrayTest {
             values: vec![1, 2, 3],
@@ -396,10 +396,10 @@ updated_at = "2023-07-20T14:45:30Z"
             empty_map: IndexMap<String, String>,
         }
 
-        let toml = r#"
+        let toml = r"
 empty_array = []
 empty_map = {}
-"#;
+";
 
         let expected = EmptyContainers {
             empty_array: vec![],
@@ -454,14 +454,14 @@ escape_chars = "\\t\\n\\r\\\""
             negative_zero: f64,
         }
 
-        let toml = r#"
+        let toml = r"
 min_i32 = -2147483648
 max_i32 = 2147483647
 min_f64 = -1.7976931348623157e308
 max_f64 = 1.7976931348623157e308
 zero = 0.0
 negative_zero = -0.0
-"#;
+";
 
         let expected = NumericBoundaries {
             min_i32: i32::MIN,
@@ -629,7 +629,7 @@ optional_string = "provided"
     #[tokio::test]
     async fn test_empty_tombi_config() {
         tombi_test_lib::init_tracing();
-        let toml = r#""#;
+        let toml = r"";
 
         let config: tombi_config::Config = from_str_async(toml)
             .await

@@ -22,9 +22,9 @@ pub async fn create_boolean_sortable_values<'a>(
         match (value.clone(), value_node) {
             (tombi_ast::Value::Boolean(_), tombi_document_tree::Value::Boolean(boolean_node)) => {
                 if boolean_node.value() {
-                    sortable_values.push((true, value, comma))
+                    sortable_values.push((true, value, comma));
                 } else {
-                    sortable_values.push((false, value, comma))
+                    sortable_values.push((false, value, comma));
                 }
             }
             (

@@ -56,10 +56,10 @@ mod completion_labels {
         test_completion_labels! {
             #[tokio::test]
             async fn schema_comment_directive_and_comment(
-                r#"
+                r"
                 #:schema https://www.schemastore.org/tombi.json
                 # █
-                "#,
+                ",
                 SchemaPath(tombi_schema_path()),
             ) -> Ok([]);
         }
@@ -67,9 +67,9 @@ mod completion_labels {
         test_completion_labels! {
             #[tokio::test]
             async fn tombi_comment_directive_toml_version(
-                r#"
+                r"
                 #:tombi toml-version█
-                "#,
+                ",
                 SchemaPath(tombi_schema_path()),
             ) -> Ok([".", "="]);
         }
@@ -88,10 +88,10 @@ mod completion_labels {
         test_completion_labels! {
             #[tokio::test]
             async fn tombi_comment_directive_and_colon(
-                r#"
+                r"
                 #:schema https://www.schemastore.org/tombi.json
                 #:█
-                "#,
+                ",
                 SchemaPath(tombi_schema_path()),
             ) -> Ok(["tombi"]);
         }
@@ -190,10 +190,10 @@ mod completion_labels {
         test_completion_labels! {
             #[tokio::test]
             async fn tombi_lsp_completion_enabled_true_and_space(
-                r#"
+                r"
                 [lsp]
                 completion.enabled = true █
-                "#,
+                ",
                 SchemaPath(tombi_schema_path()),
             ) -> Ok([]);
         }
@@ -308,10 +308,10 @@ mod completion_labels {
         test_completion_labels! {
             #[tokio::test]
             async fn tombi_lint_rules_key_empty_equal(
-                r#"
+                r"
                 [lint.rules]
                 key-empty = █
-                "#,
+                ",
                 SchemaPath(tombi_schema_path()),
             ) -> Ok([
                 "\"warn\"",
@@ -338,9 +338,9 @@ mod completion_labels {
         test_completion_labels! {
             #[tokio::test]
             async fn tombi_schema(
-                r#"
+                r"
                 [schema.█]
-                "#,
+                ",
                 SchemaPath(tombi_schema_path()),
             ) -> Ok([
                 "catalog",
@@ -366,10 +366,10 @@ mod completion_labels {
         test_completion_labels! {
             #[tokio::test]
             async fn tombi_schema_catalog(
-                r#"
+                r"
                 [schema]
                 catalog█
-                "#,
+                ",
                 SchemaPath(tombi_schema_path()),
             ) -> Ok([
                 ".",
@@ -380,10 +380,10 @@ mod completion_labels {
         test_completion_labels! {
             #[tokio::test]
             async fn tombi_lsp_completion_dot(
-                r#"
+                r"
                 [lsp]
                 completion.█
-                "#,
+                ",
                 SchemaPath(tombi_schema_path()),
             ) -> Ok([
                 "enabled",
@@ -394,10 +394,10 @@ mod completion_labels {
         test_completion_labels! {
             #[tokio::test]
             async fn tombi_lsp_completion_equal(
-                r#"
+                r"
                 [lsp]
                 completion=█
-                "#,
+                ",
                 SchemaPath(tombi_schema_path()),
             ) -> Ok([
                 "enabled",
@@ -408,10 +408,10 @@ mod completion_labels {
         test_completion_labels! {
             #[tokio::test]
             async fn tombi_schema_catalog_path(
-                r#"
+                r"
                 [schema.catalog]
                 paths =[█]
-                "#,
+                ",
                 SchemaPath(tombi_schema_path()),
             ) -> Ok([
                 "\"\"",
@@ -422,10 +422,10 @@ mod completion_labels {
         test_completion_labels! {
             #[tokio::test]
             async fn tombi_schema_catalog_path2(
-                r#"
+                r"
                 [schema.catalog]
                 paths = [█]
-                "#,
+                ",
                 SchemaPath(tombi_schema_path()),
             ) -> Ok([
                 "\"\"",
@@ -436,9 +436,9 @@ mod completion_labels {
         test_completion_labels! {
             #[tokio::test]
             async fn tombi_schema_catalog_path_inline(
-                r#"
+                r"
                 schema.catalog.paths =█
-                "#,
+                ",
                 SchemaPath(tombi_schema_path()),
             ) -> Ok([
                 format!("[\"{TOMBI_SCHEMASTORE_CATALOG_URL}\", \"{JSON_SCHEMASTORE_CATALOG_URL}\"]"),
@@ -449,11 +449,11 @@ mod completion_labels {
         test_completion_labels! {
             #[tokio::test]
             async fn tombi_lsp2(
-                r#"
+                r"
                 [lsp]
                 █
                 completion.enabled = true
-                "#,
+                ",
                 SchemaPath(tombi_schema_path()),
             ) -> Ok([
                 "code-action",
@@ -471,12 +471,12 @@ mod completion_labels {
         test_completion_labels! {
             #[tokio::test]
             async fn tombi_lsp3(
-                r#"
+                r"
                 [lsp]
                 formatting.enabled = true
                 █
                 completion.enabled = true
-                "#,
+                ",
                 SchemaPath(tombi_schema_path()),
             ) -> Ok([
                 "code-action",
@@ -493,13 +493,13 @@ mod completion_labels {
         test_completion_labels! {
             #[tokio::test]
             async fn tombi_lsp4(
-                r#"
+                r"
                 [lsp]
                 code-action.enabled = true
                 formatting.enabled = true
 
                 [lsp.█]
-                "#,
+                ",
                 SchemaPath(tombi_schema_path()),
             ) -> Ok([
                 "completion",
@@ -516,10 +516,10 @@ mod completion_labels {
         test_completion_labels! {
             #[tokio::test]
             async fn tombi_lsp_completion(
-                r#"
+                r"
                 [lsp]
                 completion.enabled = █
-                "#,
+                ",
                 SchemaPath(tombi_schema_path()),
             ) -> Ok([
                 "true",
@@ -530,10 +530,10 @@ mod completion_labels {
         test_completion_labels! {
             #[tokio::test]
             async fn tombi_lsp_comp(
-                r#"
+                r"
                 [lsp]
                 comp█
-                "#,
+                ",
                 SchemaPath(tombi_schema_path()),
             ) -> Ok([
                 "completion",
@@ -543,9 +543,9 @@ mod completion_labels {
         test_completion_labels! {
             #[tokio::test]
             async fn tombi_lsp_comp2(
-                r#"
+                r"
                 [lsp.comp█]
-                "#,
+                ",
                 SchemaPath(tombi_schema_path()),
             ) -> Ok([
                 "completion",
@@ -555,12 +555,12 @@ mod completion_labels {
         test_completion_labels! {
             #[tokio::test]
             async fn tombi_lsp_comp3(
-                r#"
+                r"
                 [lsp]
                 comp█
 
                 [schema]
-                "#,
+                ",
                 SchemaPath(tombi_schema_path()),
             ) -> Ok([
                 "completion",
@@ -570,10 +570,10 @@ mod completion_labels {
         test_completion_labels! {
             #[tokio::test]
             async fn tombi_schemars(
-                r#"
+                r"
                 [[schemas]]
                 █
-                "#,
+                ",
                 SchemaPath(tombi_schema_path()),
             ) -> Ok([
                 "include",
@@ -586,10 +586,10 @@ mod completion_labels {
         test_completion_labels! {
             #[tokio::test]
             async fn tombi_schemars_path(
-                r#"
+                r"
                 [[schemas]]
                 path.█
-                "#,
+                ",
                 SchemaPath(tombi_schema_path()),
             ) -> Ok([
                 "\"\"",
@@ -632,10 +632,10 @@ mod completion_labels {
         test_completion_labels! {
             #[tokio::test]
             async fn pyproject_project(
-                r#"
+                r"
                 [project]
                 █
-                "#,
+                ",
                 SchemaPath(pyproject_schema_path()),
             ) -> Ok([
                 "name",
@@ -664,10 +664,10 @@ mod completion_labels {
         test_completion_labels! {
             #[tokio::test]
             async fn pyproject_project_dynamic_array(
-                r#"
+                r"
                 [project]
                 dynamic = [█]
-                "#,
+                ",
                 SchemaPath(pyproject_schema_path()),
             ) -> Ok([
                 "\"authors\"",
@@ -762,9 +762,9 @@ mod completion_labels {
         test_completion_labels! {
             #[tokio::test]
             async fn pyproject_tool(
-                r#"
+                r"
                 [tool.█]
-                "#,
+                ",
                 SchemaPath(pyproject_schema_path()),
             ) -> Ok([
                 "black",
@@ -794,10 +794,10 @@ mod completion_labels {
         test_completion_labels! {
             #[tokio::test]
             async fn pyproject_tool_third_party_field(
-                r#"
+                r"
                 [tool.third_party]
                 field█
-                "#,
+                ",
                 SchemaPath(pyproject_schema_path()),
             ) -> Ok([
                 ".",
@@ -808,10 +808,10 @@ mod completion_labels {
         test_completion_labels! {
             #[tokio::test]
             async fn pyproject_tool_third_party_field_equal(
-                r#"
+                r"
                 [tool.third_party]
                 field=█
-                "#,
+                ",
                 SchemaPath(pyproject_schema_path()),
             ) -> Ok(AnyValue);
         }
@@ -819,10 +819,10 @@ mod completion_labels {
         test_completion_labels! {
             #[tokio::test]
             async fn pyproject_tool_third_party_field_equal_array(
-                r#"
+                r"
                 [tool.third_party]
                 field = [█]
-                "#,
+                ",
                 SchemaPath(pyproject_schema_path()),
             ) -> Ok(AnyValue);
         }
@@ -989,11 +989,11 @@ mod completion_labels {
         test_completion_labels! {
             #[tokio::test]
             async fn cargo_dependencies_and_next_section(
-                r#"
+                r"
                 [dependencies]
 
                 [█]
-                "#,
+                ",
                 SchemaPath(cargo_schema_path()),
             ) -> Ok([
                 "badges",
@@ -1018,10 +1018,10 @@ mod completion_labels {
         test_completion_labels! {
             #[tokio::test]
             async fn cargo_dependencies(
-                r#"
+                r"
                 [dependencies]
                 █
-                "#,
+                ",
                 SchemaPath(cargo_schema_path()),
             ) -> Ok([
                 "$crate_name",
@@ -1031,10 +1031,10 @@ mod completion_labels {
         test_completion_labels! {
             #[tokio::test]
             async fn cargo_dependencies_serde_bra_work_key(
-                r#"
+                r"
                 [dependencies]
                 serde = { work█ }
-                "#,
+                ",
                 SchemaPath(cargo_schema_path()),
             ) -> Ok([
                 "workspace",
@@ -1044,10 +1044,10 @@ mod completion_labels {
         test_completion_labels! {
             #[tokio::test]
             async fn cargo_dependencies_serde_workspace(
-                r#"
+                r"
                 [dependencies]
                 serde.workspace█
-                "#,
+                ",
                 SchemaPath(cargo_schema_path()),
             ) -> Ok([
                 ".",
@@ -1058,10 +1058,10 @@ mod completion_labels {
         test_completion_labels! {
             #[tokio::test]
             async fn cargo_dependencies_serde_workspace_dot(
-                r#"
+                r"
                 [dependencies]
                 serde = { workspace.█ }
-                "#,
+                ",
                 SchemaPath(cargo_schema_path()),
             ) -> Ok([
                 "true",
@@ -1072,11 +1072,11 @@ mod completion_labels {
         test_completion_labels! {
             #[tokio::test]
             async fn cargo_dependencies_serde_workspace_duplicated(
-                r#"
+                r"
                 [dependencies]
                 serde.workspace = true
                 serde.work█
-                "#,
+                ",
                 SchemaPath(cargo_schema_path()),
             ) -> Ok([]);
         }
@@ -1131,10 +1131,10 @@ mod completion_labels {
         test_completion_labels! {
          #[tokio::test]
             async fn cargo_dependencies_tombi_date_time_features_with_workspace_eq_true_comma(
-                r#"
+                r"
                 [dependencies]
                 tombi-date-time = { workspace = true, █ }
-                "#,
+                ",
                 SourcePath(project_root_path().join("crates/subcrate/Cargo.toml")),
                 SchemaPath(cargo_schema_path()),
             ) -> Ok([
@@ -1155,10 +1155,10 @@ mod completion_labels {
         test_completion_labels! {
             #[tokio::test]
             async fn cargo_dependencies_tombi_date_time_features_with_workspace(
-                r#"
+                r"
                 [dependencies]
                 tombi-date-time = { workspace = true, features█ }
-                "#,
+                ",
                 SourcePath(project_root_path().join("crates/subcrate/Cargo.toml")),
                 SchemaPath(cargo_schema_path()),
             ) -> Ok([
@@ -1170,10 +1170,10 @@ mod completion_labels {
         test_completion_labels! {
             #[tokio::test]
             async fn cargo_dependencies_tombi_date_time_features_eq_with_workspace(
-                r#"
+                r"
                 [dependencies]
                 tombi-date-time = { workspace = true, features=█ }
-                "#,
+                ",
                 SourcePath(project_root_path().join("crates/subcrate/Cargo.toml")),
                 SchemaPath(cargo_schema_path()),
             ) -> Ok([
@@ -1184,10 +1184,10 @@ mod completion_labels {
         test_completion_labels! {
             #[tokio::test]
             async fn cargo_dependencies_tombi_date_time_features_eq_array_with_workspace(
-                r#"
+                r"
                 [dependencies]
                 tombi-date-time = { workspace = true, features=[█] }
-                "#,
+                ",
                 SourcePath(project_root_path().join("crates/subcrate/Cargo.toml")),
                 SchemaPath(cargo_schema_path()),
             ) -> Ok([
@@ -1257,10 +1257,10 @@ mod completion_labels {
         test_completion_labels! {
             #[tokio::test]
             async fn cargo_dependencies_patch(
-                r#"
+                r"
                 [patch]
                 █
-                "#,
+                ",
                 SchemaPath(cargo_schema_path()),
             ) -> Ok([
                 "crates-io",
@@ -1272,10 +1272,10 @@ mod completion_labels {
         test_completion_labels! {
             #[tokio::test]
             async fn cargo_target_dependencies(
-                r#"
+                r"
                 [target.'cfg(unix)'.dependencies]
                 █
-                "#,
+                ",
                 SchemaPath(cargo_schema_path()),
             ) -> Ok([
                 "$crate_name",
@@ -1285,10 +1285,10 @@ mod completion_labels {
         test_completion_labels! {
             #[tokio::test]
             async fn cargo_target_dependencies_keys(
-                r#"
+                r"
                 [target.'cfg(unix)'.dependencies]
                 serde = { █ }
-                "#,
+                ",
                 SchemaPath(cargo_schema_path()),
             ) -> Ok([
                 "branch",
@@ -1340,10 +1340,10 @@ mod completion_labels {
         test_completion_labels! {
             #[tokio::test]
             async fn cargo_target_build_dependencies(
-                r#"
+                r"
                 [target.'cfg(windows)'.build-dependencies]
                 █
-                "#,
+                ",
                 SchemaPath(cargo_schema_path()),
             ) -> Ok([
                 "$crate_name",
@@ -1447,10 +1447,10 @@ mod completion_labels {
         test_completion_labels! {
             #[tokio::test]
             async fn aaa_bbb_double_bracket_ccc(
-                r#"
+                r"
                 [[aaa.bbb]]
                 ccc█
-                "#
+                "
             ) -> Ok([
                 ".",
                 "=",
@@ -1460,10 +1460,10 @@ mod completion_labels {
         test_completion_labels! {
             #[tokio::test]
             async fn aaa_bbb_double_bracket_ccc_equal(
-                r#"
+                r"
                 [[aaa.bbb]]
                 ccc=█
-                "#
+                "
             ) -> Ok(AnyValue);
         }
     }
@@ -1476,10 +1476,10 @@ mod completion_labels {
         test_completion_labels! {
             #[tokio::test]
             async fn pyproject_tool_type_test(
-                r#"
+                r"
                 [tool.type_test]
                 █
-                "#,
+                ",
                 SchemaPath(pyproject_schema_path()),
                 SubSchema {
                     root: "tool.type_test",
@@ -1503,10 +1503,10 @@ mod completion_labels {
         test_completion_labels! {
             #[tokio::test]
             async fn aaa_bbb_type_test(
-                r#"
+                r"
                 [aaa.bbb]
                 █
-                "#,
+                ",
                 SubSchema {
                     root: "aaa.bbb",
                     path: type_test_schema_path(),

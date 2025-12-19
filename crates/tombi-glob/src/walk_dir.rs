@@ -130,13 +130,13 @@ mod tests {
         let root_path = walker.root;
         if !root_path.exists() {
             return Err(crate::Error::RootPathNotFound {
-                path: root_path.to_path_buf(),
+                path: root_path.clone(),
             });
         }
 
         if !root_path.is_dir() {
             return Err(crate::Error::RootPathNotDirectory {
-                path: root_path.to_path_buf(),
+                path: root_path.clone(),
             });
         }
 
@@ -154,23 +154,20 @@ mod tests {
         walker.run(|| {
             let results_clone = Arc::clone(&results);
             Box::new(move |entry_result| {
-                match entry_result {
-                    Ok(entry) => {
-                        if let Some(file_type) = entry.file_type()
-                            && file_type.is_file() {
-                                let path = entry.path();
-                                let filename =
-                                    path.file_name().and_then(|n| n.to_str()).unwrap_or("");
+                if let Ok(entry) = entry_result {
+                    if let Some(file_type) = entry.file_type()
+                        && file_type.is_file() {
+                            let path = entry.path();
+                            let filename =
+                                path.file_name().and_then(|n| n.to_str()).unwrap_or("");
 
-                                if glob_match("*.rs", filename)
-                                    && let Ok(mut results_guard) = results_clone.lock() {
-                                        results_guard.push(path.to_path_buf());
-                                    }
-                            }
-                    }
-                    Err(_) => {
-                        // Ignore errors and continue
-                    }
+                            if glob_match("*.rs", filename)
+                                && let Ok(mut results_guard) = results_clone.lock() {
+                                    results_guard.push(path.to_path_buf());
+                                }
+                        }
+                } else {
+                    // Ignore errors and continue
                 }
                 ignore::WalkState::Continue
             })
@@ -196,13 +193,13 @@ mod tests {
         let root_path = walker.root;
         if !root_path.exists() {
             return Err(crate::Error::RootPathNotFound {
-                path: root_path.to_path_buf(),
+                path: root_path.clone(),
             });
         }
 
         if !root_path.is_dir() {
             return Err(crate::Error::RootPathNotDirectory {
-                path: root_path.to_path_buf(),
+                path: root_path.clone(),
             });
         }
 
@@ -220,23 +217,20 @@ mod tests {
         walker.run(|| {
             let results_clone = Arc::clone(&results);
             Box::new(move |entry_result| {
-                match entry_result {
-                    Ok(entry) => {
-                        if let Some(file_type) = entry.file_type()
-                            && file_type.is_file() {
-                                let path = entry.path();
-                                let filename =
-                                    path.file_name().and_then(|n| n.to_str()).unwrap_or("");
+                if let Ok(entry) = entry_result {
+                    if let Some(file_type) = entry.file_type()
+                        && file_type.is_file() {
+                            let path = entry.path();
+                            let filename =
+                                path.file_name().and_then(|n| n.to_str()).unwrap_or("");
 
-                                if glob_match("*.toml", filename)
-                                    && let Ok(mut results_guard) = results_clone.lock() {
-                                        results_guard.push(path.to_path_buf());
-                                    }
-                            }
-                    }
-                    Err(_) => {
-                        // Ignore errors and continue
-                    }
+                            if glob_match("*.toml", filename)
+                                && let Ok(mut results_guard) = results_clone.lock() {
+                                    results_guard.push(path.to_path_buf());
+                                }
+                        }
+                } else {
+                    // Ignore errors and continue
                 }
                 ignore::WalkState::Continue
             })

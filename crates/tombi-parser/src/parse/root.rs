@@ -76,14 +76,14 @@ mod test {
 
     #[test]
     fn test_begin_dangling_comments() {
-        let input = r#"
+        let input = r"
 # begin dangling_comment1
 # begin dangling_comment2
 
 # table leading comment1
 # table leading comment2
 [table]
-        "#
+        "
         .trim();
         let p = crate::parse(input, TomlVersion::default());
 

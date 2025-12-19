@@ -48,7 +48,7 @@ impl Comment {
                     schema_file_path = parent.join(schema_file_path);
                 }
                 if let Ok(canonicalized_file_path) = schema_file_path.canonicalize() {
-                    schema_file_path = canonicalized_file_path
+                    schema_file_path = canonicalized_file_path;
                 }
 
                 Some(SchemaDocumentCommentDirective {

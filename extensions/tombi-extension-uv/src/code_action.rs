@@ -574,7 +574,7 @@ mod tests {
     fn test_parse_dependency_with_extras() {
         let requirement = parse_requirement("pydantic[email,dotenv]>=2.10").unwrap();
         assert_eq!(requirement.name.to_string(), "pydantic");
-        let extras: Vec<String> = requirement.extras.iter().map(|e| e.to_string()).collect();
+        let extras: Vec<String> = requirement.extras.iter().map(std::string::ToString::to_string).collect();
         assert_eq!(extras, vec!["email", "dotenv"]);
         assert!(requirement.version_or_url.is_some());
     }
@@ -591,7 +591,7 @@ mod tests {
     fn test_parse_dependency_with_extras_no_version() {
         let requirement = parse_requirement("pydantic[email]").unwrap();
         assert_eq!(requirement.name.to_string(), "pydantic");
-        let extras: Vec<String> = requirement.extras.iter().map(|e| e.to_string()).collect();
+        let extras: Vec<String> = requirement.extras.iter().map(std::string::ToString::to_string).collect();
         assert_eq!(extras, vec!["email"]);
         assert!(requirement.version_or_url.is_none());
     }

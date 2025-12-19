@@ -319,7 +319,7 @@ impl Table {
                     }
                     _ => {
                         errors.push(crate::Error::DuplicateKey {
-                            key: entry.key().value.to_string(),
+                            key: entry.key().value.clone(),
                             range: entry.key().range(),
                         });
                     }
@@ -436,7 +436,7 @@ impl std::fmt::Display for Table {
                 .filter_map(|(k, v)| if let crate::Value::Incomplete { .. } = &v {
                     None
                 } else {
-                    Some(format!("{} = {}", k, v))
+                    Some(format!("{k} = {v}"))
                 })
                 .join(", ")
         )
@@ -559,7 +559,7 @@ impl IntoDocumentTreeAndErrors<crate::Table> for tombi_ast::Table {
                 errors.extend(errs);
             }
             if let Err(errs) = table.merge(other) {
-                errors.extend(errs)
+                errors.extend(errs);
             }
         }
 
@@ -693,7 +693,7 @@ impl IntoDocumentTreeAndErrors<Table> for tombi_ast::ArrayOfTable {
                 errors.extend(errs);
             }
             if let Err(errs) = table.merge(other) {
-                errors.extend(errs)
+                errors.extend(errs);
             }
         }
 
@@ -972,10 +972,10 @@ impl IntoDocumentTreeAndErrors<crate::Value> for tombi_ast::InlineTable {
             }
 
             if !errs.is_empty() {
-                errors.extend(errs)
+                errors.extend(errs);
             }
             if let Err(errs) = table.merge(other) {
-                errors.extend(errs)
+                errors.extend(errs);
             }
         }
 

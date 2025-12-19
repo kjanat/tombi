@@ -124,12 +124,12 @@ mod test {
 
     test_parser! {
         #[test]
-        fn inline_table_multi_line_v1_0_0(r#"
+        fn inline_table_multi_line_v1_0_0(r"
             key = {
                 key1 = 1,
                 key2 = 2,
             }
-            "#,
+            ",
             TomlVersion::V1_0_0
         ) -> Err([
             SyntaxError(InlineTableMustSingleLine, 0:6..3:1),
@@ -140,7 +140,7 @@ mod test {
 
     test_parser! {
         #[test]
-        fn inline_table_multi_line_in_multi_line_value_v1_0_0(r#"
+        fn inline_table_multi_line_in_multi_line_value_v1_0_0(r"
             a = { a = [
             ]}
             b = { a = [
@@ -150,7 +150,7 @@ mod test {
               3,
               4,
        	    ]}
-            "#,
+            ",
             TomlVersion::V1_0_0
         ) -> Ok(_)
     }
@@ -171,10 +171,10 @@ mod test {
 
     test_parser! {
         #[test]
-        fn invalid_inline_table_multi_line2_in_v1_0_0(r#"
+        fn invalid_inline_table_multi_line2_in_v1_0_0(r"
             t = {a=1,
             b=2}
-            "#,
+            ",
             TomlVersion::V1_0_0
         ) -> Err([
             SyntaxError(InlineTableMustSingleLine, 0:4..1:4),
@@ -183,12 +183,12 @@ mod test {
 
     test_parser! {
         #[test]
-        fn inline_table_multi_line_in_v1_1_0(r#"
+        fn inline_table_multi_line_in_v1_1_0(r"
             key = {
                 key1 = 1,
                 key2 = 2,
             }
-            "#,
+            ",
             TomlVersion::V1_1_0_Preview
         ) -> Ok(_)
     }

@@ -179,7 +179,7 @@ test_lex_tokens! {
 
 test_lex_tokens! {
     #[test]
-    fn table_only_header(r#"[package]"#) -> [
+    fn table_only_header(r"[package]") -> [
         Token(BRACKET_START, "["),
         Token(BARE_KEY, "package"),
         Token(BRACKET_END, "]"),
@@ -188,7 +188,7 @@ test_lex_tokens! {
 
 test_lex_tokens! {
     #[test]
-    fn table_empty_header(r#"[]"#) -> [
+    fn table_empty_header(r"[]") -> [
         Token(BRACKET_START, "["),
         Token(BRACKET_END, "]"),
     ];
@@ -196,7 +196,7 @@ test_lex_tokens! {
 
 test_lex_tokens! {
     #[test]
-    fn table_hyphen_header(r#"[-]"#) -> [
+    fn table_hyphen_header(r"[-]") -> [
         Token(BRACKET_START, "["),
         Token(BARE_KEY, "-"),
         Token(BRACKET_END, "]"),
@@ -374,7 +374,7 @@ test_lex_token! {
 
 test_lex_token! {
     #[test]
-    fn literal_string2(r#"'C:\Users\nodejs\templates'"#) -> Ok(Token(LITERAL_STRING, (0, 27)));
+    fn literal_string2(r"'C:\Users\nodejs\templates'") -> Ok(Token(LITERAL_STRING, (0, 27)));
 }
 
 test_lex_token! {

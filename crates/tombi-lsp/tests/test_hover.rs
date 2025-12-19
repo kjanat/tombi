@@ -77,9 +77,9 @@ mod hover_keys_value {
             //       the Keys in the hover content is `schema[$index]`, not `schemas`.
             //       Therefore, the Value is `Table`.
             async fn tombi_schemas(
-                r#"
+                r"
                 [[schemas█]]
-                "#,
+                ",
                 SchemaPath(tombi_schema_path()),
             ) -> Ok({
                 "Keys": "schemas[0]",
@@ -90,9 +90,9 @@ mod hover_keys_value {
         test_hover_keys_value!(
             #[tokio::test]
             async fn tombi_schemas_without_schema(
-                r#"
+                r"
                 [[schemas█]]
-                "#,
+                ",
             ) -> Ok({
                 "Keys": "schemas[0]",
                 "Value": "Table"
@@ -177,10 +177,10 @@ mod hover_keys_value {
         test_hover_keys_value!(
             #[tokio::test]
             async fn cargo_package_name_incomplete(
-                r#"
+                r"
                 [package]
                 name = █
-                "#,
+                ",
                 SchemaPath(cargo_schema_path()),
             ) -> Ok({
                 "Keys": "package.name",
@@ -218,10 +218,10 @@ mod hover_keys_value {
         test_hover_keys_value!(
             #[tokio::test]
             async fn cargo_dependencies_key(
-                r#"
+                r"
                 [dependencies]
                 serde█ = { workspace = true }
-                "#,
+                ",
                 SchemaPath(cargo_schema_path()),
             ) -> Ok({
                 "Keys": "dependencies.serde",
@@ -259,10 +259,10 @@ mod hover_keys_value {
         test_hover_keys_value!(
             #[tokio::test]
             async fn cargo_dependencies_workspace(
-                r#"
+                r"
                 [dependencies]
                 serde = { workspace█ = true }
-                "#,
+                ",
                 SchemaPath(cargo_schema_path()),
             ) -> Ok({
                 "Keys": "dependencies.serde.workspace",
@@ -273,10 +273,10 @@ mod hover_keys_value {
         test_hover_keys_value!(
             #[tokio::test]
             async fn cargo_dependencies_workspace_without_schema(
-                r#"
+                r"
                 [dependencies]
                 serde = { workspace█ = true }
-                "#,
+                ",
             ) -> Ok({
                 "Keys": "dependencies.serde.workspace",
                 "Value": "Boolean"
@@ -341,10 +341,10 @@ mod hover_keys_value {
         test_hover_keys_value!(
             #[tokio::test]
             async fn cargo_profile_release_strip_true(
-                r#"
+                r"
                 [profile.release]
                 strip = true█
-                "#,
+                ",
                 SchemaPath(cargo_schema_path()),
             ) -> Ok({
                 "Keys": "profile.release.strip",
@@ -355,10 +355,10 @@ mod hover_keys_value {
         test_hover_keys_value!(
             #[tokio::test]
             async fn cargo_profile_release_strip_false(
-                r#"
+                r"
                 [profile.release]
                 strip = false█
-                "#,
+                ",
                 SchemaPath(cargo_schema_path()),
             ) -> Ok({
                 "Keys": "profile.release.strip",

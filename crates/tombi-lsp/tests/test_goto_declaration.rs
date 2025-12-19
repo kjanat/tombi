@@ -9,10 +9,10 @@ mod goto_declaration_tests {
         test_goto_declaration!(
             #[tokio::test]
             async fn dependencies_serde_workspace(
-                r#"
+                r"
                 [dependencies]
                 serde = { workspace█ = true }
-                "#,
+                ",
                 SourcePath(project_root_path().join("crates/test-crate/Cargo.toml")),
             ) -> Ok([project_root_path().join("Cargo.toml")]);
         );
@@ -20,10 +20,10 @@ mod goto_declaration_tests {
         test_goto_declaration!(
             #[tokio::test]
             async fn dependencies_serde(
-                r#"
+                r"
                 [dependencies]
                 serde█ = { workspace = true }
-                "#,
+                ",
                 SourcePath(project_root_path().join("crates/test-crate/Cargo.toml")),
             ) -> Ok([project_root_path().join("Cargo.toml")]);
         );
@@ -63,10 +63,10 @@ mod goto_declaration_tests {
         test_goto_declaration!(
             #[tokio::test]
             async fn tool_uv_sources_tombi_beta(
-                r#"
+                r"
                 [tool.uv.sources]
                 tombi-beta█ = { workspace = true }
-                "#,
+                ",
                 SourcePath(project_root_path().join("python/tombi-beta/pyproject.toml")),
             ) -> Ok([project_root_path().join("pyproject.toml")]);
         );
@@ -74,10 +74,10 @@ mod goto_declaration_tests {
         test_goto_declaration!(
             #[tokio::test]
             async fn tool_uv_sources_tombi_beta_workspace(
-                r#"
+                r"
                 [tool.uv.sources]
                 tombi-beta = { workspace█ = true }
-                "#,
+                ",
                 SourcePath(project_root_path().join("python/tombi-beta/pyproject.toml")),
             ) -> Ok([project_root_path().join("pyproject.toml")]);
         );

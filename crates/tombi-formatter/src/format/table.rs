@@ -88,7 +88,7 @@ mod tests {
     test_format! {
         #[tokio::test]
         async fn table_only_header(
-            r#"[package]"#
+            r"[package]"
         ) -> Ok(source)
     }
 
@@ -102,7 +102,7 @@ mod tests {
     test_format! {
         #[tokio::test]
         async fn table_only_header_nested_keys(
-            r#"[dependencies.unicase]"#
+            r"[dependencies.unicase]"
         ) -> Ok(source)
     }
 
