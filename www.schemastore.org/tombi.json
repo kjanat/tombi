@@ -117,7 +117,9 @@
             "type": "string"
           },
           "minItems": 1,
-          "default": null
+          "default": [
+            "**/*.toml"
+          ]
         },
         "exclude": {
           "title": "File patterns to exclude",
@@ -853,7 +855,10 @@
           "items": {
             "$ref": "#/definitions/SchemaCatalogPath"
           },
-          "default": null
+          "default": [
+            "tombi://www.schemastore.org/api/json/catalog.json",
+            "https://www.schemastore.org/api/json/catalog.json"
+          ]
         }
       },
       "additionalProperties": false
