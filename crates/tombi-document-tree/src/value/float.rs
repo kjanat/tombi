@@ -15,21 +15,25 @@ pub struct Float {
 
 impl Float {
     #[inline]
+    #[must_use] 
     pub fn value(&self) -> f64 {
         self.value
     }
 
     #[inline]
+    #[must_use] 
     pub fn range(&self) -> tombi_text::Range {
         self.range
     }
 
     #[inline]
+    #[must_use] 
     pub fn symbol_range(&self) -> tombi_text::Range {
         self.range
     }
 
     #[inline]
+    #[must_use] 
     pub fn comment_directives(&self) -> Option<&[TombiValueCommentDirective]> {
         self.comment_directives.as_deref()
     }

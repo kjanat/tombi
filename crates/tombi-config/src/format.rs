@@ -224,6 +224,7 @@ pub struct FormatRules {
 }
 
 impl FormatRules {
+    #[must_use] 
     pub fn override_with(self, override_rules: &Self) -> Self {
         Self {
             array_bracket_space_width: self

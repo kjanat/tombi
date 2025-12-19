@@ -90,6 +90,7 @@ impl Array {
     }
 
     #[inline]
+    #[must_use] 
     pub fn get(&self, index: usize) -> Option<&Value> {
         self.values.get(index)
     }
@@ -100,11 +101,13 @@ impl Array {
     }
 
     #[inline]
+    #[must_use] 
     pub fn first(&self) -> Option<&Value> {
         self.values.first()
     }
 
     #[inline]
+    #[must_use] 
     pub fn last(&self) -> Option<&Value> {
         self.values.last()
     }
@@ -161,11 +164,13 @@ impl Array {
     }
 
     #[inline]
+    #[must_use] 
     pub fn kind(&self) -> ArrayKind {
         self.kind
     }
 
     #[inline]
+    #[must_use] 
     pub fn values(&self) -> &[Value] {
         &self.values
     }
@@ -176,21 +181,25 @@ impl Array {
     }
 
     #[inline]
+    #[must_use] 
     pub fn range(&self) -> tombi_text::Range {
         self.range
     }
 
     #[inline]
+    #[must_use] 
     pub fn symbol_range(&self) -> tombi_text::Range {
         self.symbol_range
     }
 
     #[inline]
+    #[must_use] 
     pub fn comment_directives(&self) -> Option<&[TombiValueCommentDirective]> {
         self.comment_directives.as_deref()
     }
 
     #[inline]
+    #[must_use] 
     pub fn inner_comment_directives(&self) -> Option<&[TombiValueCommentDirective]> {
         self.inner_comment_directives.as_deref()
     }
@@ -201,11 +210,13 @@ impl Array {
     }
 
     #[inline]
+    #[must_use] 
     pub fn len(&self) -> usize {
         self.values.len()
     }
 
     #[inline]
+    #[must_use] 
     pub fn is_empty(&self) -> bool {
         self.values.is_empty()
     }

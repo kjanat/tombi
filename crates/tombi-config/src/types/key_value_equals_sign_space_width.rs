@@ -5,6 +5,7 @@ pub struct KeyValueEqualsSignSpaceWidth(u8);
 
 impl KeyValueEqualsSignSpaceWidth {
     #[inline]
+    #[must_use] 
     pub fn value(&self) -> u8 {
         self.0
     }

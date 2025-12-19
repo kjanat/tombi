@@ -14,21 +14,25 @@ pub struct LocalDate {
 
 impl LocalDate {
     #[inline]
+    #[must_use] 
     pub fn value(&self) -> &tombi_date_time::LocalDate {
         &self.value
     }
 
     #[inline]
+    #[must_use] 
     pub fn range(&self) -> tombi_text::Range {
         self.range
     }
 
     #[inline]
+    #[must_use] 
     pub fn symbol_range(&self) -> tombi_text::Range {
         self.range
     }
 
     #[inline]
+    #[must_use] 
     pub fn comment_directives(&self) -> Option<&[TombiValueCommentDirective]> {
         self.comment_directives.as_deref()
     }

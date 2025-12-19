@@ -7,6 +7,7 @@ pub struct LineWidth(NonZeroU8);
 
 impl LineWidth {
     #[inline]
+    #[must_use] 
     pub fn value(&self) -> u8 {
         self.0.get()
     }

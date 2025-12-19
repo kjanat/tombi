@@ -5,6 +5,7 @@ pub struct IndentWidth(u8);
 
 impl IndentWidth {
     #[inline]
+    #[must_use] 
     pub fn value(&self) -> u8 {
         self.0
     }

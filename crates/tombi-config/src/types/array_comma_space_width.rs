@@ -5,6 +5,7 @@ pub struct ArrayCommaSpaceWidth(u8);
 
 impl ArrayCommaSpaceWidth {
     #[inline]
+    #[must_use] 
     pub fn value(&self) -> u8 {
         self.0
     }

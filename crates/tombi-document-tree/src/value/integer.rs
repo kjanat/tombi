@@ -25,26 +25,31 @@ pub struct Integer {
 
 impl Integer {
     #[inline]
+    #[must_use] 
     pub fn kind(&self) -> IntegerKind {
         self.kind
     }
 
     #[inline]
+    #[must_use] 
     pub fn value(&self) -> i64 {
         self.value
     }
 
     #[inline]
+    #[must_use] 
     pub fn range(&self) -> tombi_text::Range {
         self.range
     }
 
     #[inline]
+    #[must_use] 
     pub fn symbol_range(&self) -> tombi_text::Range {
         self.range
     }
 
     #[inline]
+    #[must_use] 
     pub fn comment_directives(&self) -> Option<&[TombiValueCommentDirective]> {
         self.comment_directives.as_deref()
     }

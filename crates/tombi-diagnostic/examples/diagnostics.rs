@@ -7,6 +7,7 @@ use tracing_subscriber::prelude::*;
 #[derive(clap::Parser)]
 pub struct Args {}
 
+#[must_use] 
 pub fn project_root_path() -> PathBuf {
     let dir = std::env::var("CARGO_MANIFEST_DIR")
         .unwrap_or_else(|_| env!("CARGO_MANIFEST_DIR").to_owned());
@@ -18,6 +19,7 @@ pub fn project_root_path() -> PathBuf {
         .to_owned()
 }
 
+#[must_use] 
 pub fn source_file() -> PathBuf {
     project_root_path().join("Cargo.toml")
 }

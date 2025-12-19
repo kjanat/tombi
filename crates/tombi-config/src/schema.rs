@@ -27,6 +27,7 @@ pub struct SchemaOverviewOptions {
 }
 
 impl SchemaOverviewOptions {
+    #[must_use] 
     pub const fn default() -> Self {
         Self {
             enabled: None,
@@ -35,6 +36,7 @@ impl SchemaOverviewOptions {
         }
     }
 
+    #[must_use] 
     pub fn catalog_paths(&self) -> Option<Vec<SchemaCatalogPath>> {
         if self.enabled.unwrap_or_default().value() {
             self.catalog
@@ -48,6 +50,7 @@ impl SchemaOverviewOptions {
         }
     }
 
+    #[must_use] 
     pub fn strict(&self) -> Option<bool> {
         self.strict.as_ref().map(|strict| strict.value())
     }
@@ -90,6 +93,7 @@ pub enum SchemaItem {
 }
 
 impl SchemaItem {
+    #[must_use] 
     pub fn path(&self) -> &str {
         match self {
             Self::Root(item) => &item.path,
@@ -97,6 +101,7 @@ impl SchemaItem {
         }
     }
 
+    #[must_use] 
     pub fn include(&self) -> &[String] {
         match self {
             Self::Root(item) => &item.include,
@@ -104,6 +109,7 @@ impl SchemaItem {
         }
     }
 
+    #[must_use] 
     pub fn toml_version(&self) -> Option<TomlVersion> {
         match self {
             Self::Root(item) => item.toml_version,
@@ -111,6 +117,7 @@ impl SchemaItem {
         }
     }
 
+    #[must_use] 
     pub fn root(&self) -> Option<&str> {
         match self {
             Self::Root(_) => None,

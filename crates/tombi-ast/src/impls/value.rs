@@ -1,4 +1,5 @@
 impl crate::Value {
+    #[must_use] 
     pub fn range(&self) -> tombi_text::Range {
         match self {
             Self::Boolean(boolean) => boolean.range(),
@@ -20,6 +21,7 @@ impl crate::Value {
         }
     }
 
+    #[must_use] 
     pub fn token_range(&self) -> tombi_text::Range {
         match self {
             Self::Boolean(boolean) => boolean.token().unwrap().range(),

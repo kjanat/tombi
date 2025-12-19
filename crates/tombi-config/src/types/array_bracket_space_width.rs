@@ -6,6 +6,7 @@ pub struct ArrayBracketSpaceWidth(u8);
 
 impl ArrayBracketSpaceWidth {
     #[inline]
+    #[must_use] 
     pub fn value(&self) -> u8 {
         self.0
     }

@@ -7,6 +7,7 @@ pub enum TableOrArrayOfTable {
 }
 
 impl TableOrArrayOfTable {
+    #[must_use] 
     pub fn header(&self) -> Option<Keys> {
         match self {
             Self::Table(table) => table.header(),
@@ -14,6 +15,7 @@ impl TableOrArrayOfTable {
         }
     }
 
+    #[must_use] 
     pub fn range(&self) -> tombi_text::Range {
         match self {
             Self::Table(table) => table.range(),

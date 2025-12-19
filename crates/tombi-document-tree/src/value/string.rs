@@ -72,21 +72,25 @@ impl crate::String {
     }
 
     #[inline]
+    #[must_use] 
     pub fn kind(&self) -> StringKind {
         self.kind
     }
 
     #[inline]
+    #[must_use] 
     pub fn value(&self) -> &str {
         &self.value
     }
 
     #[inline]
+    #[must_use] 
     pub fn range(&self) -> tombi_text::Range {
         self.range
     }
 
     #[inline]
+    #[must_use] 
     pub fn unquoted_range(&self) -> tombi_text::Range {
         match self.kind() {
             StringKind::BasicString | StringKind::LiteralString => {
@@ -105,11 +109,13 @@ impl crate::String {
     }
 
     #[inline]
+    #[must_use] 
     pub fn symbol_range(&self) -> tombi_text::Range {
         self.range
     }
 
     #[inline]
+    #[must_use] 
     pub fn comment_directives(&self) -> Option<&[TombiValueCommentDirective]> {
         self.comment_directives.as_deref()
     }

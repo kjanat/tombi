@@ -11,18 +11,22 @@ pub struct Array {
 }
 impl Array {
     #[inline]
+    #[must_use] 
     pub fn values(&self) -> AstChildren<Value> {
         support::node::children(&self.syntax)
     }
     #[inline]
+    #[must_use] 
     pub fn bracket_start(&self) -> Option<SyntaxToken> {
         support::node::token(&self.syntax, T!['['])
     }
     #[inline]
+    #[must_use] 
     pub fn bracket_end(&self) -> Option<SyntaxToken> {
         support::node::token(&self.syntax, T![']'])
     }
     #[inline]
+    #[must_use] 
     pub fn range(&self) -> tombi_text::Range {
         self.syntax.range()
     }
@@ -34,22 +38,27 @@ pub struct ArrayOfTable {
 }
 impl ArrayOfTable {
     #[inline]
+    #[must_use] 
     pub fn header(&self) -> Option<Keys> {
         support::node::child(&self.syntax)
     }
     #[inline]
+    #[must_use] 
     pub fn key_values(&self) -> AstChildren<KeyValue> {
         support::node::children(&self.syntax)
     }
     #[inline]
+    #[must_use] 
     pub fn double_bracket_start(&self) -> Option<SyntaxToken> {
         support::node::token(&self.syntax, T!["[["])
     }
     #[inline]
+    #[must_use] 
     pub fn double_bracket_end(&self) -> Option<SyntaxToken> {
         support::node::token(&self.syntax, T!["]]"])
     }
     #[inline]
+    #[must_use] 
     pub fn range(&self) -> tombi_text::Range {
         self.syntax.range()
     }
@@ -61,10 +70,12 @@ pub struct BareKey {
 }
 impl BareKey {
     #[inline]
+    #[must_use] 
     pub fn token(&self) -> Option<SyntaxToken> {
         support::node::token(&self.syntax, BARE_KEY)
     }
     #[inline]
+    #[must_use] 
     pub fn range(&self) -> tombi_text::Range {
         self.syntax.range()
     }
@@ -76,10 +87,12 @@ pub struct BasicString {
 }
 impl BasicString {
     #[inline]
+    #[must_use] 
     pub fn token(&self) -> Option<SyntaxToken> {
         support::node::token(&self.syntax, BASIC_STRING)
     }
     #[inline]
+    #[must_use] 
     pub fn range(&self) -> tombi_text::Range {
         self.syntax.range()
     }
@@ -91,10 +104,12 @@ pub struct Boolean {
 }
 impl Boolean {
     #[inline]
+    #[must_use] 
     pub fn token(&self) -> Option<SyntaxToken> {
         support::node::token(&self.syntax, BOOLEAN)
     }
     #[inline]
+    #[must_use] 
     pub fn range(&self) -> tombi_text::Range {
         self.syntax.range()
     }
@@ -106,10 +121,12 @@ pub struct Comma {
 }
 impl Comma {
     #[inline]
+    #[must_use] 
     pub fn comma(&self) -> Option<SyntaxToken> {
         support::node::token(&self.syntax, T ! [,])
     }
     #[inline]
+    #[must_use] 
     pub fn range(&self) -> tombi_text::Range {
         self.syntax.range()
     }
@@ -121,10 +138,12 @@ pub struct Float {
 }
 impl Float {
     #[inline]
+    #[must_use] 
     pub fn token(&self) -> Option<SyntaxToken> {
         support::node::token(&self.syntax, FLOAT)
     }
     #[inline]
+    #[must_use] 
     pub fn range(&self) -> tombi_text::Range {
         self.syntax.range()
     }
@@ -136,18 +155,22 @@ pub struct InlineTable {
 }
 impl InlineTable {
     #[inline]
+    #[must_use] 
     pub fn key_values(&self) -> AstChildren<KeyValue> {
         support::node::children(&self.syntax)
     }
     #[inline]
+    #[must_use] 
     pub fn brace_start(&self) -> Option<SyntaxToken> {
         support::node::token(&self.syntax, T!['{'])
     }
     #[inline]
+    #[must_use] 
     pub fn brace_end(&self) -> Option<SyntaxToken> {
         support::node::token(&self.syntax, T!['}'])
     }
     #[inline]
+    #[must_use] 
     pub fn range(&self) -> tombi_text::Range {
         self.syntax.range()
     }
@@ -159,10 +182,12 @@ pub struct IntegerBin {
 }
 impl IntegerBin {
     #[inline]
+    #[must_use] 
     pub fn token(&self) -> Option<SyntaxToken> {
         support::node::token(&self.syntax, INTEGER_BIN)
     }
     #[inline]
+    #[must_use] 
     pub fn range(&self) -> tombi_text::Range {
         self.syntax.range()
     }
@@ -174,10 +199,12 @@ pub struct IntegerDec {
 }
 impl IntegerDec {
     #[inline]
+    #[must_use] 
     pub fn token(&self) -> Option<SyntaxToken> {
         support::node::token(&self.syntax, INTEGER_DEC)
     }
     #[inline]
+    #[must_use] 
     pub fn range(&self) -> tombi_text::Range {
         self.syntax.range()
     }
@@ -189,10 +216,12 @@ pub struct IntegerHex {
 }
 impl IntegerHex {
     #[inline]
+    #[must_use] 
     pub fn token(&self) -> Option<SyntaxToken> {
         support::node::token(&self.syntax, INTEGER_HEX)
     }
     #[inline]
+    #[must_use] 
     pub fn range(&self) -> tombi_text::Range {
         self.syntax.range()
     }
@@ -204,10 +233,12 @@ pub struct IntegerOct {
 }
 impl IntegerOct {
     #[inline]
+    #[must_use] 
     pub fn token(&self) -> Option<SyntaxToken> {
         support::node::token(&self.syntax, INTEGER_OCT)
     }
     #[inline]
+    #[must_use] 
     pub fn range(&self) -> tombi_text::Range {
         self.syntax.range()
     }
@@ -219,18 +250,22 @@ pub struct KeyValue {
 }
 impl KeyValue {
     #[inline]
+    #[must_use] 
     pub fn keys(&self) -> Option<Keys> {
         support::node::child(&self.syntax)
     }
     #[inline]
+    #[must_use] 
     pub fn value(&self) -> Option<Value> {
         support::node::child(&self.syntax)
     }
     #[inline]
+    #[must_use] 
     pub fn eq(&self) -> Option<SyntaxToken> {
         support::node::token(&self.syntax, T ! [=])
     }
     #[inline]
+    #[must_use] 
     pub fn range(&self) -> tombi_text::Range {
         self.syntax.range()
     }
@@ -242,10 +277,12 @@ pub struct Keys {
 }
 impl Keys {
     #[inline]
+    #[must_use] 
     pub fn keys(&self) -> AstChildren<Key> {
         support::node::children(&self.syntax)
     }
     #[inline]
+    #[must_use] 
     pub fn range(&self) -> tombi_text::Range {
         self.syntax.range()
     }
@@ -257,10 +294,12 @@ pub struct LiteralString {
 }
 impl LiteralString {
     #[inline]
+    #[must_use] 
     pub fn token(&self) -> Option<SyntaxToken> {
         support::node::token(&self.syntax, LITERAL_STRING)
     }
     #[inline]
+    #[must_use] 
     pub fn range(&self) -> tombi_text::Range {
         self.syntax.range()
     }
@@ -272,10 +311,12 @@ pub struct LocalDate {
 }
 impl LocalDate {
     #[inline]
+    #[must_use] 
     pub fn token(&self) -> Option<SyntaxToken> {
         support::node::token(&self.syntax, LOCAL_DATE)
     }
     #[inline]
+    #[must_use] 
     pub fn range(&self) -> tombi_text::Range {
         self.syntax.range()
     }
@@ -287,10 +328,12 @@ pub struct LocalDateTime {
 }
 impl LocalDateTime {
     #[inline]
+    #[must_use] 
     pub fn token(&self) -> Option<SyntaxToken> {
         support::node::token(&self.syntax, LOCAL_DATE_TIME)
     }
     #[inline]
+    #[must_use] 
     pub fn range(&self) -> tombi_text::Range {
         self.syntax.range()
     }
@@ -302,10 +345,12 @@ pub struct LocalTime {
 }
 impl LocalTime {
     #[inline]
+    #[must_use] 
     pub fn token(&self) -> Option<SyntaxToken> {
         support::node::token(&self.syntax, LOCAL_TIME)
     }
     #[inline]
+    #[must_use] 
     pub fn range(&self) -> tombi_text::Range {
         self.syntax.range()
     }
@@ -317,10 +362,12 @@ pub struct MultiLineBasicString {
 }
 impl MultiLineBasicString {
     #[inline]
+    #[must_use] 
     pub fn token(&self) -> Option<SyntaxToken> {
         support::node::token(&self.syntax, MULTI_LINE_BASIC_STRING)
     }
     #[inline]
+    #[must_use] 
     pub fn range(&self) -> tombi_text::Range {
         self.syntax.range()
     }
@@ -332,10 +379,12 @@ pub struct MultiLineLiteralString {
 }
 impl MultiLineLiteralString {
     #[inline]
+    #[must_use] 
     pub fn token(&self) -> Option<SyntaxToken> {
         support::node::token(&self.syntax, MULTI_LINE_LITERAL_STRING)
     }
     #[inline]
+    #[must_use] 
     pub fn range(&self) -> tombi_text::Range {
         self.syntax.range()
     }
@@ -347,10 +396,12 @@ pub struct OffsetDateTime {
 }
 impl OffsetDateTime {
     #[inline]
+    #[must_use] 
     pub fn token(&self) -> Option<SyntaxToken> {
         support::node::token(&self.syntax, OFFSET_DATE_TIME)
     }
     #[inline]
+    #[must_use] 
     pub fn range(&self) -> tombi_text::Range {
         self.syntax.range()
     }
@@ -362,10 +413,12 @@ pub struct Root {
 }
 impl Root {
     #[inline]
+    #[must_use] 
     pub fn items(&self) -> AstChildren<RootItem> {
         support::node::children(&self.syntax)
     }
     #[inline]
+    #[must_use] 
     pub fn range(&self) -> tombi_text::Range {
         self.syntax.range()
     }
@@ -377,22 +430,27 @@ pub struct Table {
 }
 impl Table {
     #[inline]
+    #[must_use] 
     pub fn header(&self) -> Option<Keys> {
         support::node::child(&self.syntax)
     }
     #[inline]
+    #[must_use] 
     pub fn key_values(&self) -> AstChildren<KeyValue> {
         support::node::children(&self.syntax)
     }
     #[inline]
+    #[must_use] 
     pub fn bracket_start(&self) -> Option<SyntaxToken> {
         support::node::token(&self.syntax, T!['['])
     }
     #[inline]
+    #[must_use] 
     pub fn bracket_end(&self) -> Option<SyntaxToken> {
         support::node::token(&self.syntax, T![']'])
     }
     #[inline]
+    #[must_use] 
     pub fn range(&self) -> tombi_text::Range {
         self.syntax.range()
     }

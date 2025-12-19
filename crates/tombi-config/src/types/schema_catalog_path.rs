@@ -19,6 +19,7 @@ pub struct SchemaCatalogPath(String);
 
 impl SchemaCatalogPath {
     #[inline]
+    #[must_use] 
     pub fn value(&self) -> &str {
         self.0.as_str()
     }

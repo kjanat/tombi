@@ -40,6 +40,7 @@ pub enum Value {
 
 impl Value {
     #[inline]
+    #[must_use] 
     pub fn range(&self) -> tombi_text::Range {
         match self {
             Value::Boolean(value) => value.range(),
@@ -57,6 +58,7 @@ impl Value {
     }
 
     #[inline]
+    #[must_use] 
     pub fn symbol_range(&self) -> tombi_text::Range {
         match self {
             Value::Boolean(value) => value.symbol_range(),
@@ -74,6 +76,7 @@ impl Value {
     }
 
     #[inline]
+    #[must_use] 
     pub fn comment_directives(&self) -> Option<&[TombiValueCommentDirective]> {
         match self {
             Value::Boolean(value) => value.comment_directives(),
@@ -90,6 +93,7 @@ impl Value {
         }
     }
 
+    #[must_use] 
     pub fn is_inline(&self) -> bool {
         match self {
             Value::Boolean(_)
@@ -158,6 +162,7 @@ impl Value {
         }
     }
 
+    #[must_use] 
     pub fn contains(&self, position: tombi_text::Position) -> bool {
         self.range().contains(position)
             || self

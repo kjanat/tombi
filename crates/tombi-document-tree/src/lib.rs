@@ -96,6 +96,7 @@ where
     Some((key, value))
 }
 
+#[must_use] 
 pub fn dig_accessors<'a>(
     document_tree: &'a crate::DocumentTree,
     accessors: &'a [tombi_accessor::Accessor],
@@ -125,6 +126,7 @@ pub fn dig_accessors<'a>(
     Some((current_accessor, value))
 }
 
+#[must_use] 
 pub fn get_accessors(
     document_tree: &crate::DocumentTree,
     keys: &[crate::Key],

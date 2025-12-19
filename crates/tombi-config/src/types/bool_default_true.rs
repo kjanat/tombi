@@ -6,6 +6,7 @@ pub struct BoolDefaultTrue(pub bool);
 
 impl BoolDefaultTrue {
     #[inline]
+    #[must_use] 
     pub fn value(&self) -> bool {
         self.0
     }

@@ -7,6 +7,7 @@ pub enum ValueOrKeyValue {
 }
 
 impl ValueOrKeyValue {
+    #[must_use] 
     pub fn range(&self) -> tombi_text::Range {
         match self {
             ValueOrKeyValue::Value(value) => value.range(),

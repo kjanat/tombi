@@ -16,6 +16,7 @@ impl crate::KeyValue {
         )
     }
 
+    #[must_use] 
     pub fn get_accessors(&self, toml_version: TomlVersion) -> Option<Vec<Accessor>> {
         self.keys().map(|keys| keys.accessors(toml_version))
     }

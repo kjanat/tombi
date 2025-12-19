@@ -79,10 +79,12 @@ pub enum Error {
 }
 
 impl Error {
+    #[must_use] 
     pub fn to_message(&self) -> String {
         self.to_string()
     }
 
+    #[must_use] 
     pub fn code(&self) -> &'static str {
         match self {
             Self::DuplicateKey { .. } => "duplicate-key",
@@ -101,6 +103,7 @@ impl Error {
         }
     }
 
+    #[must_use] 
     pub fn range(&self) -> tombi_text::Range {
         match self {
             Self::DuplicateKey { range, .. } => *range,

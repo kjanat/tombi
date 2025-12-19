@@ -13,6 +13,7 @@ pub struct LintOptions {
 }
 
 impl LintOptions {
+    #[must_use] 
     pub const fn default() -> Self {
         Self { rules: None }
     }
@@ -73,6 +74,7 @@ pub struct LintRules {
 }
 
 impl LintRules {
+    #[must_use] 
     pub fn override_with(self, override_rules: &Self) -> Self {
         Self {
             key_empty: self.key_empty.or(override_rules.key_empty),

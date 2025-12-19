@@ -183,16 +183,19 @@ impl Table {
     }
 
     #[inline]
+    #[must_use] 
     pub fn comment_directives(&self) -> Option<&[TombiValueCommentDirective]> {
         self.comment_directives.as_deref()
     }
 
     #[inline]
+    #[must_use] 
     pub fn inner_comment_directives(&self) -> Option<&[TombiValueCommentDirective]> {
         self.inner_comment_directives.as_deref()
     }
 
     #[inline]
+    #[must_use] 
     pub fn contains_key(&self, key: &str) -> bool {
         self.key_values.contains_key(key)
     }
@@ -208,6 +211,7 @@ impl Table {
     }
 
     #[inline]
+    #[must_use] 
     pub fn key_values(&self) -> &IndexMap<Key, Value> {
         &self.key_values
     }
@@ -401,26 +405,31 @@ impl Table {
     }
 
     #[inline]
+    #[must_use] 
     pub fn len(&self) -> usize {
         self.key_values.len()
     }
 
     #[inline]
+    #[must_use] 
     pub fn is_empty(&self) -> bool {
         self.key_values.is_empty()
     }
 
     #[inline]
+    #[must_use] 
     pub fn kind(&self) -> TableKind {
         self.kind
     }
 
     #[inline]
+    #[must_use] 
     pub fn range(&self) -> tombi_text::Range {
         self.range
     }
 
     #[inline]
+    #[must_use] 
     pub fn symbol_range(&self) -> tombi_text::Range {
         self.symbol_range
     }

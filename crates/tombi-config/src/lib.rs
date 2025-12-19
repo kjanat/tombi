@@ -64,18 +64,22 @@ pub struct Config {
 }
 
 impl Config {
+    #[must_use] 
     pub fn include(&self) -> Option<&Vec<String>> {
         self.files.as_ref().and_then(|files| files.include.as_ref())
     }
 
+    #[must_use] 
     pub fn exclude(&self) -> Option<&Vec<String>> {
         self.files.as_ref().and_then(|files| files.exclude.as_ref())
     }
 
+    #[must_use] 
     pub fn overrides(&self) -> Option<&Vec<OverrideItem>> {
         self.overrides.as_ref()
     }
 
+    #[must_use] 
     pub fn format(&self, override_options: Option<&OverrideFormatOptions>) -> FormatOptions {
         let options = self.format.clone().unwrap_or_default();
         let base_rules = options.rules.unwrap_or_default();
@@ -92,6 +96,7 @@ impl Config {
         FormatOptions { rules: Some(rules) }
     }
 
+    #[must_use] 
     pub fn lint(&self, override_options: Option<&OverrideLintOptions>) -> LintOptions {
         let base_rules = self
             .lint

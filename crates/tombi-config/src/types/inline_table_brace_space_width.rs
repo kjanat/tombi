@@ -5,6 +5,7 @@ pub struct InlineTableBraceSpaceWidth(u8);
 
 impl InlineTableBraceSpaceWidth {
     #[inline]
+    #[must_use] 
     pub fn value(&self) -> u8 {
         self.0
     }

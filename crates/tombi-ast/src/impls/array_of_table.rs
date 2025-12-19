@@ -10,10 +10,12 @@ impl crate::ArrayOfTable {
         support::node::leading_comments(self.syntax().children_with_tokens())
     }
 
+    #[must_use] 
     pub fn header_trailing_comment(&self) -> Option<crate::TrailingComment> {
         support::node::trailing_comment(self.syntax().children_with_tokens(), T!("]]"))
     }
 
+    #[must_use] 
     pub fn key_values_dangling_comments(&self) -> Vec<Vec<crate::DanglingComment>> {
         support::node::dangling_comments(
             self.syntax()
@@ -24,6 +26,7 @@ impl crate::ArrayOfTable {
         )
     }
 
+    #[must_use] 
     pub fn key_values_begin_dangling_comments(&self) -> Vec<Vec<crate::BeginDanglingComment>> {
         support::node::begin_dangling_comments(
             self.syntax()
@@ -34,6 +37,7 @@ impl crate::ArrayOfTable {
         )
     }
 
+    #[must_use] 
     pub fn key_values_end_dangling_comments(&self) -> Vec<Vec<crate::EndDanglingComment>> {
         support::node::end_dangling_comments(self.syntax().children_with_tokens())
     }
@@ -93,6 +97,7 @@ impl crate::ArrayOfTable {
         key_values_comment_directives.into_iter()
     }
 
+    #[must_use] 
     pub fn contains_header(&self, position: tombi_text::Position) -> bool {
         self.double_bracket_start().unwrap().range().end <= position
             && position <= self.double_bracket_end().unwrap().range().start

@@ -5,6 +5,7 @@ pub struct InlineTableCommaSpaceWidth(u8);
 
 impl InlineTableCommaSpaceWidth {
     #[inline]
+    #[must_use] 
     pub fn value(&self) -> u8 {
         self.0
     }

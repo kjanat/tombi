@@ -40,6 +40,7 @@ pub struct LspOptions {
 }
 
 impl LspOptions {
+    #[must_use] 
     pub const fn default() -> Self {
         Self {
             code_action: None,

@@ -20,21 +20,25 @@ pub struct Key {
 
 impl Key {
     #[inline]
+    #[must_use] 
     pub fn kind(&self) -> KeyKind {
         self.kind
     }
 
     #[inline]
+    #[must_use] 
     pub fn comment_directives(&self) -> Option<&[TombiValueCommentDirective]> {
         self.comment_directives.as_deref()
     }
 
     #[inline]
+    #[must_use] 
     pub fn range(&self) -> tombi_text::Range {
         self.range
     }
 
     #[inline]
+    #[must_use] 
     pub fn unquoted_range(&self) -> tombi_text::Range {
         match self.kind {
             KeyKind::BareKey => self.range,
