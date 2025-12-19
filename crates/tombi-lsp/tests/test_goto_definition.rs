@@ -250,11 +250,11 @@ mod goto_definition_tests {
             async fn bin_path_resolves_existing_file(
                 r#"
                 [[bin]]
-                name = "profile"
-                path = "src/bin/profile.rs█"
+                name = "decode"
+                path = "bin/decode.rs█"
                 "#,
-                SourcePath(project_root_path().join("crates/tombi-glob/Cargo.toml")),
-            ) -> Ok([project_root_path().join("crates/tombi-glob/src/bin/profile.rs")]);
+                SourcePath(project_root_path().join("toml-test/Cargo.toml")),
+            ) -> Ok([project_root_path().join("toml-test/bin/decode.rs")]);
         );
 
         test_goto_definition!(
@@ -263,9 +263,9 @@ mod goto_definition_tests {
                 r#"
                 [[bin]]
                 name = "missing"
-                path = "src/bin/missing.rs█"
+                path = "bin/missing.rs█"
                 "#,
-                SourcePath(project_root_path().join("crates/tombi-glob/Cargo.toml")),
+                SourcePath(project_root_path().join("toml-test/Cargo.toml")),
             ) -> Ok([]);
         );
 
@@ -275,14 +275,14 @@ mod goto_definition_tests {
                 r#"
                 [[bin]]
                 name = "primary"
-                path = "src/bin/profile.rs"
+                path = "bin/decode.rs"
 
                 [[bin]]
                 name = "secondary"
-                path = "src/bin/profile.rs█"
+                path = "bin/decode.rs█"
                 "#,
-                SourcePath(project_root_path().join("crates/tombi-glob/Cargo.toml")),
-            ) -> Ok([project_root_path().join("crates/tombi-glob/src/bin/profile.rs")]);
+                SourcePath(project_root_path().join("toml-test/Cargo.toml")),
+            ) -> Ok([project_root_path().join("toml-test/bin/decode.rs")]);
         );
 
         // Tests for platform specific dependencies (Issue #1192)

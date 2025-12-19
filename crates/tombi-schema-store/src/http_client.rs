@@ -12,6 +12,9 @@ fn http_timeout_secs() -> u64 {
         .unwrap_or(DEFAULT_HTTP_TIMEOUT)
 }
 
+// Priority order: reqwest01 > gloo-net06 > surf2
+// Only one HttpClient implementation is exported based on feature priority
+
 #[cfg(feature = "reqwest01")]
 mod reqwest_client;
 #[cfg(feature = "reqwest01")]
@@ -25,7 +28,7 @@ pub use gloo_net_client::HttpClient;
 
 #[cfg(feature = "surf2")]
 mod surf_client;
-#[cfg(feature = "surf2")]
+#[cfg(all(feature = "surf2", not(any(feature = "reqwest01", feature = "gloo-net06"))))]
 pub use surf_client::HttpClient;
 
 // Provide a stub when no features are enabled

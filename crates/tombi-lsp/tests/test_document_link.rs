@@ -305,14 +305,14 @@ mod document_link_tests {
             async fn cargo_bin_path_links_to_target(
                 r#"
                 [[bin]]
-                name = "profile"
-                path = "src/bin/profile.rs"
+                name = "decode"
+                path = "bin/decode.rs"
                 "#,
-                SourcePath(project_root_path().join("crates/tombi-glob/Cargo.toml")),
+                SourcePath(project_root_path().join("toml-test/Cargo.toml")),
             ) -> Ok(Some(vec![
                 {
-                    path: project_root_path().join("crates/tombi-glob/src/bin/profile.rs"),
-                    range: 2:8..2:26,
+                    path: project_root_path().join("toml-test/bin/decode.rs"),
+                    range: 2:8..2:21,
                     tooltip: tombi_extension_cargo::DocumentLinkToolTip::RustSource,
                 }
             ]));

@@ -3779,7 +3779,6 @@ dependencies = [
  "fast-glob",
  "ignore",
  "rayon",
- "serde_tombi",
  "thiserror 2.0.12",
  "tokio",
  "tombi-config",
