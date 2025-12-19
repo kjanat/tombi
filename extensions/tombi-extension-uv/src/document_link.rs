@@ -71,7 +71,7 @@ pub async fn document_link(
             workspace,
             &pyproject_toml_path,
             toml_version,
-        )?);
+        ));
     }
 
     // Collect tool.uv.sources information
@@ -84,7 +84,7 @@ pub async fn document_link(
                 source,
                 &pyproject_toml_path,
                 toml_version,
-            )?);
+            ));
         }
 
         Some(sources)
@@ -101,7 +101,7 @@ pub async fn document_link(
             uv_sources,
             &pyproject_toml_path,
             toml_version,
-        )?);
+        ));
     }
 
     // Handle [project.optional-dependencies] section
@@ -113,7 +113,7 @@ pub async fn document_link(
             uv_sources,
             &pyproject_toml_path,
             toml_version,
-        )?);
+        ));
     }
 
     // Handle [dependency-groups] section
@@ -125,7 +125,7 @@ pub async fn document_link(
             uv_sources,
             &pyproject_toml_path,
             toml_version,
-        )?);
+        ));
     }
 
     if document_links.is_empty() {
@@ -140,9 +140,9 @@ fn document_link_for_workspace_pyproject_toml(
     workspace: &tombi_document_tree::Table,
     workspace_pyproject_toml_path: &std::path::Path,
     toml_version: TomlVersion,
-) -> Result<Vec<tombi_extension::DocumentLink>, tower_lsp::jsonrpc::Error> {
+) -> Vec<tombi_extension::DocumentLink> {
     let Some(tombi_document_tree::Value::Array(members)) = workspace.get("members") else {
-        return Ok(Vec::with_capacity(0));
+        return Vec::with_capacity(0);
     };
 
     let mut total_document_links = vec![];
@@ -151,7 +151,7 @@ fn document_link_for_workspace_pyproject_toml(
             continue;
         };
 
-        let Ok(member_paskage_locations) = goto_member_pyprojects(
+        let member_paskage_locations = goto_member_pyprojects(
             workspace_document_tree,
             &[
                 tombi_schema_store::Accessor::Key("tool".to_string()),
@@ -162,9 +162,10 @@ fn document_link_for_workspace_pyproject_toml(
             ],
             workspace_pyproject_toml_path,
             toml_version,
-        ) else {
+        );
+        if member_paskage_locations.is_empty() {
             continue;
-        };
+        }
 
         let mut member_document_links =
             member_paskage_locations.into_iter().filter_map(|location| {
@@ -193,7 +194,7 @@ fn document_link_for_workspace_pyproject_toml(
         }
     }
 
-    Ok(total_document_links)
+    total_document_links
 }
 
 fn document_link_for_member_pyproject_toml(
@@ -201,21 +202,21 @@ fn document_link_for_member_pyproject_toml(
     source: &tombi_document_tree::Value,
     pyproject_toml_path: &std::path::Path,
     toml_version: TomlVersion,
-) -> Result<Vec<tombi_extension::DocumentLink>, tower_lsp::jsonrpc::Error> {
+) -> Vec<tombi_extension::DocumentLink> {
     let tombi_document_tree::Value::Table(source) = source else {
-        return Ok(Vec::with_capacity(0));
+        return Vec::with_capacity(0);
     };
 
     let Some((workspace_pyproject_toml_path, _, workspace_pyproject_toml_document_tree)) =
         find_workspace_pyproject_toml(pyproject_toml_path, toml_version)
     else {
-        return Ok(Vec::with_capacity(0));
+        return Vec::with_capacity(0);
     };
 
     let Ok(workspace_pyproject_toml_uri) =
         tombi_uri::Uri::from_file_path(&workspace_pyproject_toml_path)
     else {
-        return Ok(Vec::with_capacity(0));
+        return Vec::with_capacity(0);
     };
 
     let mut document_links = vec![];
@@ -245,7 +246,7 @@ fn document_link_for_member_pyproject_toml(
         });
     }
 
-    Ok(document_links)
+    document_links
 }
 
 fn document_link_for_project_dependencies(
@@ -253,7 +254,7 @@ fn document_link_for_project_dependencies(
     uv_sources: Option<&tombi_document_tree::Table>,
     pyproject_toml_path: &std::path::Path,
     toml_version: TomlVersion,
-) -> Result<Vec<tombi_extension::DocumentLink>, tower_lsp::jsonrpc::Error> {
+) -> Vec<tombi_extension::DocumentLink> {
     let mut document_links = Vec::with_capacity(dependencies.len());
 
     for dep_value in dependencies.values() {
@@ -274,25 +275,24 @@ fn document_link_for_project_dependencies(
                             sources.get_key_value(package_name.as_ref())
                     {
                         // Try to create document links for the local source
-                        if let Ok(links) = document_link_for_member_pyproject_toml(
+                        let links = document_link_for_member_pyproject_toml(
                             package_key,
                             source_value,
                             pyproject_toml_path,
                             toml_version,
-                        ) {
-                            for link in links {
-                                if link.tooltip
-                                    == Into::<&'static str>::into(
-                                        DocumentLinkToolTip::PyprojectToml,
-                                    )
-                                {
-                                    // Update the range to point to the dependency spec
-                                    document_links.push(tombi_extension::DocumentLink {
-                                        target: link.target,
-                                        range: dep_spec.unquoted_range(),
-                                        tooltip: link.tooltip,
-                                    });
-                                }
+                        );
+                        for link in links {
+                            if link.tooltip
+                                == Into::<&'static str>::into(
+                                    DocumentLinkToolTip::PyprojectToml,
+                                )
+                            {
+                                // Update the range to point to the dependency spec
+                                document_links.push(tombi_extension::DocumentLink {
+                                    target: link.target,
+                                    range: dep_spec.unquoted_range(),
+                                    tooltip: link.tooltip,
+                                });
                             }
                         }
                     }
@@ -312,7 +312,7 @@ fn document_link_for_project_dependencies(
         }
     }
 
-    Ok(document_links)
+    document_links
 }
 
 fn document_link_for_dependency_groups(
@@ -320,7 +320,7 @@ fn document_link_for_dependency_groups(
     uv_sources: Option<&tombi_document_tree::Table>,
     pyproject_toml_path: &std::path::Path,
     toml_version: TomlVersion,
-) -> Result<Vec<tombi_extension::DocumentLink>, tower_lsp::jsonrpc::Error> {
+) -> Vec<tombi_extension::DocumentLink> {
     let mut document_links = Vec::new();
 
     // Iterate through each dependency group
@@ -332,11 +332,11 @@ fn document_link_for_dependency_groups(
                 uv_sources,
                 pyproject_toml_path,
                 toml_version,
-            )?);
+            ));
         }
     }
 
-    Ok(document_links)
+    document_links
 }
 
 fn document_link_for_optional_dependencies(
@@ -344,7 +344,7 @@ fn document_link_for_optional_dependencies(
     uv_sources: Option<&tombi_document_tree::Table>,
     pyproject_toml_path: &std::path::Path,
     toml_version: TomlVersion,
-) -> Result<Vec<tombi_extension::DocumentLink>, tower_lsp::jsonrpc::Error> {
+) -> Vec<tombi_extension::DocumentLink> {
     let mut document_links = Vec::new();
 
     // Iterate through each optional dependency group
@@ -356,9 +356,9 @@ fn document_link_for_optional_dependencies(
                 uv_sources,
                 pyproject_toml_path,
                 toml_version,
-            )?);
+            ));
         }
     }
 
-    Ok(document_links)
+    document_links
 }

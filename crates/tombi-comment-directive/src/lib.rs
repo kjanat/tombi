@@ -16,13 +16,13 @@ pub trait TombiCommentDirectiveImpl {
 #[cfg(feature = "jsonschema")]
 #[allow(unused)]
 #[inline]
-const fn default_true() -> Option<bool> {
-    Some(true)
+const fn default_true() -> bool {
+    true
 }
 
 #[cfg(feature = "jsonschema")]
 #[allow(unused)]
 #[inline]
-const fn default_false() -> Option<bool> {
-    Some(false)
+const fn default_false() -> bool {
+    false
 }

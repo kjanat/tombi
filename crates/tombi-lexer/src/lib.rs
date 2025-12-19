@@ -136,9 +136,9 @@ impl Cursor<'_> {
             return Ok(Token::eof());
         }
         match self.current() {
-            _ if self.is_whitespace() => self.whitespace(),
+            _ if self.is_whitespace() => Ok(self.whitespace()),
             _ if self.is_line_break() => self.line_break(),
-            '#' => self.line_comment(),
+            '#' => Ok(self.line_comment()),
             '"' => {
                 if self.matches(r#"""""#) {
                     self.multi_line_basic_string()
@@ -226,16 +226,16 @@ impl Cursor<'_> {
         is_whitespace(self.current())
     }
 
-    fn whitespace(&mut self) -> Result<Token, crate::Error> {
+    fn whitespace(&mut self) -> Token {
         self.eat_while(is_whitespace);
-        Ok(Token::new(SyntaxKind::WHITESPACE, self.pop_span_range()))
+        Token::new(SyntaxKind::WHITESPACE, self.pop_span_range())
     }
 
-    fn line_comment(&mut self) -> Result<Token, crate::Error> {
+    fn line_comment(&mut self) -> Token {
         debug_assert!(self.current() == '#');
 
         self.eat_while(|c| !matches!(c, '\n' | '\r'));
-        Ok(Token::new(SyntaxKind::COMMENT, self.pop_span_range()))
+        Token::new(SyntaxKind::COMMENT, self.pop_span_range())
     }
 
     fn is_line_break(&self) -> bool {

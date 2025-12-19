@@ -63,24 +63,20 @@ pub struct SchemaCatalog {
     ///
     /// The catalog is evaluated after the schemas specified by [[schemas]].\
     /// Schemas are loaded in order from the beginning of the catalog list.
-    #[cfg_attr(feature = "jsonschema", schemars(default = "catalog_paths_default"))]
-    #[cfg_attr(feature = "serde", serde(default = "catalog_paths_default"))]
+    #[cfg_attr(feature = "jsonschema", schemars(default))]
+    #[cfg_attr(feature = "serde", serde(default))]
     pub paths: Option<Vec<SchemaCatalogPath>>,
 }
 
 impl Default for SchemaCatalog {
     fn default() -> Self {
         Self {
-            paths: catalog_paths_default(),
+            paths: Some(vec![
+                TOMBI_SCHEMASTORE_CATALOG_URL.into(),
+                JSON_SCHEMASTORE_CATALOG_URL.into(),
+            ]),
         }
     }
-}
-
-fn catalog_paths_default() -> Option<Vec<SchemaCatalogPath>> {
-    Some(vec![
-        TOMBI_SCHEMASTORE_CATALOG_URL.into(),
-        JSON_SCHEMASTORE_CATALOG_URL.into(),
-    ])
 }
 
 /// # Schema item

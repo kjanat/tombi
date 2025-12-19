@@ -50,7 +50,7 @@ impl<'a> VersionChunkIter<'a> {
         })
     }
 
-    fn parse_str_chunk(&mut self, chars: std::str::CharIndices<'a>) -> Option<VersionChunk<'a>> {
+    fn parse_str_chunk(&mut self, chars: std::str::CharIndices<'a>) -> VersionChunk<'a> {
         let mut end = self.start;
         let mut is_end_of_chunk = false;
         let mut version_op_pos = None;
@@ -83,7 +83,7 @@ impl<'a> VersionChunkIter<'a> {
             let str_part = &self.ident[self.start..op_pos];
             self.start = op_pos;
             if !str_part.is_empty() {
-                return Some(VersionChunk::Str(str_part));
+                return VersionChunk::Str(str_part);
             }
         }
 
@@ -97,7 +97,7 @@ impl<'a> VersionChunkIter<'a> {
             value
         };
 
-        Some(VersionChunk::Str(source))
+        VersionChunk::Str(source)
     }
 
     fn check_version_operator_at(&self, pos: usize) -> Option<usize> {
@@ -141,7 +141,7 @@ impl<'a> Iterator for VersionChunkIter<'a> {
             return Some(VersionChunk::VersionOp(op));
         }
 
-        self.parse_str_chunk(chars)
+        Some(self.parse_str_chunk(chars))
     }
 }
 

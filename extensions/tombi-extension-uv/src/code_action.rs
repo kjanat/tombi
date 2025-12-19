@@ -360,7 +360,7 @@ fn add_workspace_dependency_code_action(
     )?;
 
     // Generate member edit (convert to version-less format, preserving extras)
-    let member_edit = generate_member_dependency_edit(&dependency_requirement, line_index)?;
+    let member_edit = generate_member_dependency_edit(&dependency_requirement, line_index);
 
     // Build WorkspaceEdit with both file changes
     let workspace_edit_full = WorkspaceEdit {
@@ -470,13 +470,13 @@ fn generate_member_dependency_edit(
         dependency,
     }: &DependencyRequirement,
     line_index: &tombi_text::LineIndex,
-) -> Option<TextEdit> {
+) -> TextEdit {
     let new_dep_str = format_dependency_without_version(requirement);
 
-    Some(TextEdit {
+    TextEdit {
         range: dependency.range().into_lsp(line_index),
         new_text: format!("\"{new_dep_str}\""),
-    })
+    }
 }
 
 fn use_workspace_dependency_code_action(

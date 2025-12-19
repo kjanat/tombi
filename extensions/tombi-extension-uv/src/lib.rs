@@ -238,7 +238,7 @@ fn goto_definition_for_member_pyproject_toml(
             pyproject_toml_path,
             toml_version,
             jump_to_package,
-        )? {
+        ) {
             Some(location) => Ok(vec![location]),
             None => Ok(Vec::with_capacity(0)),
         }
@@ -256,13 +256,13 @@ fn goto_definition_for_workspace_pyproject_toml(
     if matches_accessors!(accessors, ["tool", "uv", "workspace", "members"])
         || matches_accessors!(accessors, ["tool", "uv", "workspace", "members", _])
     {
-        goto_member_pyprojects(
+        Ok(goto_member_pyprojects(
             workspace_document_tree,
             accessors,
             workspace_pyproject_toml_path,
             toml_version,
         )
-        .map(|locations| locations.into_iter().filter_map(Into::into).collect_vec())
+        .into_iter().filter_map(Into::into).collect_vec())
     } else {
         Ok(Vec::with_capacity(0))
     }
@@ -285,7 +285,7 @@ fn goto_workspace_member(
     pyproject_toml_path: &std::path::Path,
     toml_version: TomlVersion,
     jump_to_package: bool,
-) -> Result<Option<tombi_extension::DefinitionLocation>, tower_lsp::jsonrpc::Error> {
+) -> Option<tombi_extension::DefinitionLocation> {
     debug_assert!(
         matches_accessors!(accessors, ["tool", "uv", "sources", _])
             || matches_accessors!(accessors, ["tool", "uv", "sources", _, "workspace"])
@@ -294,20 +294,20 @@ fn goto_workspace_member(
     let Some((workspace_pyproject_toml_path, _, workspace_pyproject_toml_document_tree)) =
         find_workspace_pyproject_toml(pyproject_toml_path, toml_version)
     else {
-        return Ok(None);
+        return None;
     };
 
     let package_name = if let tombi_schema_store::Accessor::Key(key) = &accessors[3] {
         key
     } else {
-        return Ok(None);
+        return None;
     };
     if accessors.len() == 3
         && let Some((_, tombi_document_tree::Value::Table(table))) =
             dig_accessors(document_tree, accessors)
         && !table.contains_key("workspace")
     {
-        return Ok(None);
+        return None;
     }
 
     let Some((package_toml_path, member_range)) = find_member_project_toml(
@@ -316,38 +316,38 @@ fn goto_workspace_member(
         &workspace_pyproject_toml_path,
         toml_version,
     ) else {
-        return Ok(None);
+        return None;
     };
 
     if jump_to_package {
         let Ok(package_pyproject_toml_uri) = tombi_uri::Uri::from_file_path(&package_toml_path)
         else {
-            return Ok(None);
+            return None;
         };
         let Some(member_document_tree) =
             load_pyproject_toml_document_tree(pyproject_toml_path, toml_version)
         else {
-            return Ok(None);
+            return None;
         };
         let Some(package_name) = get_project_name(&member_document_tree) else {
-            return Ok(None);
+            return None;
         };
 
-        Ok(Some(tombi_extension::DefinitionLocation {
+        Some(tombi_extension::DefinitionLocation {
             uri: package_pyproject_toml_uri,
             range: package_name.unquoted_range(),
-        }))
+        })
     } else {
         let Ok(workspace_pyproject_toml_uri) =
             tombi_uri::Uri::from_file_path(&workspace_pyproject_toml_path)
         else {
-            return Ok(None);
+            return None;
         };
 
-        Ok(Some(tombi_extension::DefinitionLocation {
+        Some(tombi_extension::DefinitionLocation {
             uri: workspace_pyproject_toml_uri,
             range: member_range,
-        }))
+        })
     }
 }
 
@@ -362,14 +362,14 @@ fn goto_member_pyprojects(
     accessors: &[tombi_schema_store::Accessor],
     workspace_pyproject_toml_path: &std::path::Path,
     toml_version: TomlVersion,
-) -> Result<Vec<PackageLocation>, tower_lsp::jsonrpc::Error> {
+) -> Vec<PackageLocation> {
     let member_patterns = extract_member_patterns(workspace_document_tree, accessors);
     if member_patterns.is_empty() {
-        return Ok(Vec::with_capacity(0));
+        return Vec::with_capacity(0);
     }
 
     let Some(workspace_dir_path) = workspace_pyproject_toml_path.parent() else {
-        return Ok(Vec::with_capacity(0));
+        return Vec::with_capacity(0);
     };
 
     let exclude_patterns = extract_exclude_patterns(workspace_document_tree);
@@ -394,7 +394,7 @@ fn goto_member_pyprojects(
         });
     }
 
-    Ok(locations)
+    locations
 }
 
 fn find_member_project_toml(

@@ -55,19 +55,11 @@
   "definitions": {
     "TomlVersion": {
       "title": "TOML version",
-      "oneOf": [
-        {
-          "type": "string",
-          "enum": [
-            "v1.0.0",
-            "v1.1.0"
-          ]
-        },
-        {
-          "type": "string",
-          "const": "v1.1.0-preview",
-          "deprecated": true
-        }
+      "type": "string",
+      "enum": [
+        "v1.0.0",
+        "v1.1.0-preview",
+        "v1.1.0"
       ]
     },
     "FormatOptions": {

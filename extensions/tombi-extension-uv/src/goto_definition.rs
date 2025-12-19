@@ -55,7 +55,7 @@ pub async fn goto_definition(
             accessors,
             &pyproject_toml_path,
             toml_version,
-        )?
+        )
     } else {
         Vec::with_capacity(0)
     };
@@ -72,15 +72,15 @@ fn goto_definition_for_dependency_package(
     accessors: &[Accessor],
     pyproject_toml_path: &std::path::Path,
     toml_version: TomlVersion,
-) -> Result<Vec<tombi_extension::DefinitionLocation>, tower_lsp::jsonrpc::Error> {
+) -> Vec<tombi_extension::DefinitionLocation> {
     // Get the dependency string from the current position
     let Some((_, Value::String(dep_str))) = dig_accessors(document_tree, accessors) else {
-        return Ok(Vec::with_capacity(0));
+        return Vec::with_capacity(0);
     };
 
     // Parse the PEP 508 requirement to extract package name
     let Some(requirement) = parse_requirement(dep_str.value()) else {
-        return Ok(Vec::with_capacity(0));
+        return Vec::with_capacity(0);
     };
     let package_name = requirement.name.as_ref();
 
@@ -90,20 +90,20 @@ fn goto_definition_for_dependency_package(
     {
         if let Some((_, Value::Boolean(is_workspace))) = source_table.get_key_value("workspace") {
             if !is_workspace.value() {
-                return Ok(Vec::with_capacity(0));
+                return Vec::with_capacity(0);
             }
             if let Some(location) =
                 get_workspace_dependency_definition(package_name, pyproject_toml_path, toml_version)
             {
-                return Ok(vec![location]);
+                return vec![location];
             }
-            return Ok(Vec::with_capacity(0));
+            return Vec::with_capacity(0);
         }
         if let Some((_, Value::String(path))) = source_table.get_key_value("path") {
             if let Some(location) = get_path_dependency_definition(path.value(), toml_version) {
-                return Ok(vec![location]);
+                return vec![location];
             }
-            return Ok(Vec::with_capacity(0));
+            return Vec::with_capacity(0);
         }
     }
 
@@ -127,7 +127,7 @@ fn goto_definition_for_dependency_package(
         ));
     }
 
-    Ok(locations)
+    locations
 }
 
 fn get_workspace_dependency_definition(

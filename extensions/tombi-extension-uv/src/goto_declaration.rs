@@ -32,7 +32,7 @@ pub async fn goto_declaration(
         ["tool", "uv", "sources"]
     ) {
         if matches_accessors!(accessors, ["tool", "uv", "sources", _, "path"]) {
-            goto_declaration_for_sources_path(document_tree, accessors, &pyproject_toml_path)?
+            goto_declaration_for_sources_path(document_tree, accessors, &pyproject_toml_path)
         } else {
             goto_definition_for_member_pyproject_toml(
                 document_tree,
@@ -61,7 +61,7 @@ pub async fn goto_declaration(
             accessors,
             &pyproject_toml_path,
             toml_version,
-        )?
+        )
     } else {
         Vec::with_capacity(0)
     };
@@ -78,20 +78,20 @@ fn goto_declaration_for_dependency_package(
     accessors: &[tombi_schema_store::Accessor],
     pyproject_toml_path: &std::path::Path,
     toml_version: TomlVersion,
-) -> Result<Vec<tombi_extension::DefinitionLocation>, tower_lsp::jsonrpc::Error> {
+) -> Vec<tombi_extension::DefinitionLocation> {
     if dig_keys(document_tree, &["tool", "uv", "workspace"]).is_some() {
-        return Ok(Vec::with_capacity(0));
+        return Vec::with_capacity(0);
     }
 
     // Get the dependency string from the current position
     let Some((_, Value::String(dependency))) = dig_accessors(document_tree, accessors) else {
-        return Ok(Vec::with_capacity(0));
+        return Vec::with_capacity(0);
     };
 
     // Parse the PEP 508 requirement to extract package name
     let requirement = match Requirement::<VerbatimUrl>::from_str(dependency.value()) {
         Ok(requirement) => requirement,
-        Err(_) => return Ok(Vec::with_capacity(0)),
+        Err(_) => return Vec::with_capacity(0),
     };
     let package_name = requirement.name.as_ref();
 
@@ -128,7 +128,7 @@ fn goto_declaration_for_dependency_package(
         toml_version,
     ));
 
-    Ok(locations)
+    locations
 }
 
 fn get_workspace_dependency_declaration(
@@ -164,16 +164,16 @@ fn goto_declaration_for_sources_path(
     document_tree: &tombi_document_tree::DocumentTree,
     accessors: &[tombi_schema_store::Accessor],
     pyproject_toml_path: &std::path::Path,
-) -> Result<Vec<tombi_extension::DefinitionLocation>, tower_lsp::jsonrpc::Error> {
+) -> Vec<tombi_extension::DefinitionLocation> {
     let Some((_, Value::String(path_value))) = dig_accessors(document_tree, accessors) else {
-        return Ok(Vec::with_capacity(0));
+        return Vec::with_capacity(0);
     };
 
     if let Some(location) = get_path_dependency_declaration(pyproject_toml_path, path_value) {
-        return Ok(vec![location]);
+        return vec![location];
     }
 
-    Ok(Vec::with_capacity(0))
+    Vec::with_capacity(0)
 }
 
 fn get_path_dependency_declaration(

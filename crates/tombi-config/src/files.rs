@@ -11,7 +11,7 @@ pub struct FilesOptions {
     /// The file match pattern to include in formatting and linting.
     /// Supports glob pattern.
     #[cfg_attr(feature = "jsonschema", schemars(length(min = 1)))]
-    #[cfg_attr(feature = "serde", serde(default = "default_include_patterns"))]
+    #[cfg_attr(feature = "serde", serde(default))]
     pub include: Option<Vec<String>>,
 
     /// # File patterns to exclude
@@ -22,14 +22,10 @@ pub struct FilesOptions {
     pub exclude: Option<Vec<String>>,
 }
 
-fn default_include_patterns() -> Option<Vec<String>> {
-    Some(vec!["**/*.toml".to_string()])
-}
-
 impl Default for FilesOptions {
     fn default() -> Self {
         Self {
-            include: default_include_patterns(),
+            include: Some(vec!["**/*.toml".to_string()]),
             exclude: None,
         }
     }

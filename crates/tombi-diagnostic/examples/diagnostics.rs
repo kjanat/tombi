@@ -22,7 +22,7 @@ pub fn source_file() -> PathBuf {
     project_root_path().join("Cargo.toml")
 }
 
-fn main() -> Result<(), Box<dyn std::error::Error>> {
+fn main() {
     let _args = Args::parse_from(std::env::args_os());
 
     tracing_subscriber::registry()
@@ -46,6 +46,4 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
     error
         .with_source_file(&source_file)
         .print(&mut Pretty, true);
-
-    Ok(())
 }
