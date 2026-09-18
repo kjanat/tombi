@@ -40,6 +40,7 @@ tombi-test-lib.workspace = true
 [features]
 jsonschema = ["dep:schemars", "serde", "tombi-config/jsonschema"]
 serde = ["dep:serde"]
+wasm-js-rng = ["tombi-hashmap/wasm-js-rng"]
 
 [lints]
 workspace = true

@@ -46,6 +46,7 @@ lib = [
   "dep:tombi-config",
   "dep:tombi-diagnostic",
   "dep:tombi-formatter",
+  "tombi-formatter/wasm-js-rng",
   "dep:tombi-glob",
   "dep:tombi-linter",
   "dep:tombi-schema-store",
