@@ -16,7 +16,7 @@ native = ["tokio/rt-multi-thread"]
 wasm = []
 
 [dependencies]
-chrono.workspace = true
+chrono = { workspace = true, default-features = true }
 dirs.workspace = true
 itertools.workspace = true
 log.workspace = true
