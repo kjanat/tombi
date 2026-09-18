@@ -8,7 +8,7 @@ license.workspace = true
 
 [dependencies]
 # TOML date/time values do not require the current time or a JS host.
-chrono = { version = "0.4.41", default-features = false, features = ["std"] }
+chrono = { workspace = true, features = ["std"] }
 itertools.workspace = true
 thiserror.workspace = true
 tombi-accessor.workspace = true
