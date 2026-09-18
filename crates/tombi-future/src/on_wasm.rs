@@ -4,14 +4,14 @@ pub type BoxFuture<'a, T> = futures::future::LocalBoxFuture<'a, T>;
 #[cfg(feature = "wasm-send")]
 pub type BoxFuture<'a, T> = futures::future::BoxFuture<'a, T>;
 
-#[cfg(target_arch = "wasm32")]
+#[cfg(all(target_arch = "wasm32", feature = "wasm"))]
 #[derive(Debug)]
 pub struct TaskHandle {
     abort_handle: futures::future::AbortHandle,
     finished: std::sync::Arc<std::sync::atomic::AtomicBool>,
 }
 
-#[cfg(target_arch = "wasm32")]
+#[cfg(all(target_arch = "wasm32", feature = "wasm"))]
 impl TaskHandle {
     #[inline]
     pub fn abort(&self) {
@@ -24,7 +24,7 @@ impl TaskHandle {
     }
 }
 
-#[cfg(target_arch = "wasm32")]
+#[cfg(all(target_arch = "wasm32", feature = "wasm"))]
 pub fn spawn(task: impl futures::Future<Output = ()> + Send + 'static) -> TaskHandle {
     let (abort_handle, abort_registration) = futures::future::AbortHandle::new_pair();
     let finished = std::sync::Arc::new(std::sync::atomic::AtomicBool::new(false));
