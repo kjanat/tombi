@@ -133,34 +133,34 @@ jobs:
       - name: Install WASM target
         run: rustup target add wasm32-unknown-unknown
       - name: Check WASM host dependency profiles
+        env:
+          headless-wasm: ${{ runner.temp }}/headless-wasm-tree.txt
+          browser-wasm: ${{ runner.temp }}/browser-wasm-tree.txt
         run: |
           cargo check --locked -p tombi-formatter --target wasm32-unknown-unknown
-          cargo tree --locked -p tombi-formatter --target wasm32-unknown-unknown \
-            --prefix none --format '{p} {f}' > "$RUNNER_TEMP/headless-wasm-tree.txt"
+          cargo tree  --locked -p tombi-formatter --target wasm32-unknown-unknown --prefix none --format '{p} {f}' > "${headless-wasm}"
 
-          if grep -Eq '^wasm-bindgen-futures ' "$RUNNER_TEMP/headless-wasm-tree.txt"; then
+          if grep -Eq '^wasm-bindgen-futures ' "${headless-wasm}"; then
             echo "::error::headless formatter unexpectedly depends on wasm-bindgen-futures"
             exit 1
           fi
-          if grep -Eq '^chrono .*wasmbind' "$RUNNER_TEMP/headless-wasm-tree.txt"; then
+          if grep -Eq '^chrono .*wasmbind' "${headless-wasm}"; then
             echo "::error::headless formatter unexpectedly enables Chrono's JS backend"
             exit 1
           fi
-          if grep -Eq '^getrandom v0\.3\.[0-9]+ .*wasm_js' "$RUNNER_TEMP/headless-wasm-tree.txt"; then
+          if grep -Eq '^getrandom v0\.3\.[0-9]+ .*wasm_js' "${headless-wasm}"; then
             echo "::error::headless formatter unexpectedly enables getrandom's JS backend"
             exit 1
           fi
-          grep -Eq '^ahash v0\.8\.[0-9]+ .*no-rng' "$RUNNER_TEMP/headless-wasm-tree.txt"
-          if grep -Eq '^ahash v0\.8\.[0-9]+ .*runtime-rng' "$RUNNER_TEMP/headless-wasm-tree.txt"; then
+          grep -Eq '^ahash v0\.8\.[0-9]+ .*no-rng' "${headless-wasm}"
+          if grep -Eq '^ahash v0\.8\.[0-9]+ .*runtime-rng' "${headless-wasm}"; then
             echo "::error::headless formatter unexpectedly enables aHash runtime RNG"
             exit 1
           fi
 
-          cargo tree --locked -p tombi-wasm --target wasm32-unknown-unknown \
-            --no-default-features --features lib --prefix none --format '{p} {f}' \
-            > "$RUNNER_TEMP/browser-wasm-tree.txt"
-          grep -Eq '^ahash v0\.8\.[0-9]+ .*runtime-rng' "$RUNNER_TEMP/browser-wasm-tree.txt"
-          grep -Eq '^getrandom v0\.3\.[0-9]+ .*wasm_js' "$RUNNER_TEMP/browser-wasm-tree.txt"
+          cargo tree --locked -p tombi-wasm --target wasm32-unknown-unknown --no-default-features --features lib --prefix none --format '{p} {f}' > "${browser-wasm}"
+          grep -Eq '^ahash v0\.8\.[0-9]+ .*runtime-rng' "${browser-wasm}"
+          grep -Eq '^getrandom v0\.3\.[0-9]+ .*wasm_js' "${browser-wasm}"
       - name: Run library WASM Clippy
         run: cargo clippy --locked -p tombi-wasm --target wasm32-unknown-unknown --no-default-features --features lib -- -D warnings
       - name: Run LSP WASM Clippy
