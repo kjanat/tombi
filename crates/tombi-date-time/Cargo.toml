@@ -8,7 +8,7 @@ license.workspace = true
 
 [dependencies]
 # Keep Local conversion types; only the separate JS Date backend is unnecessary.
-chrono = { version = "0.4.41", default-features = false, features = ["std", "clock", "serde"], optional = true }
+chrono = { workspace = true, features = ["std", "clock"], optional = true }
 serde = { workspace = true, optional = true }
 thiserror.workspace = true
 
