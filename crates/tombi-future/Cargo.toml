@@ -8,8 +8,8 @@ license.workspace = true
 
 [features]
 native = []
-wasm = []
-wasm-send = ["dep:send_wrapper"]
+wasm = ["dep:wasm-bindgen-futures"]
+wasm-send = ["dep:send_wrapper", "wasm"]
 
 [dependencies]
 futures.workspace = true
@@ -19,7 +19,7 @@ send_wrapper = { workspace = true, optional = true }
 tokio = { workspace = true, features = ["rt"] }
 
 [target.'cfg(target_arch = "wasm32")'.dependencies]
-wasm-bindgen-futures.workspace = true
+wasm-bindgen-futures = { workspace = true, optional = true }
 
 [lints]
 workspace = true

@@ -11,7 +11,8 @@ default = ["diagnostic"]
 diagnostic = ["dep:tombi-diagnostic"]
 
 [dependencies]
-chrono.workspace = true
+# TOML date/time values do not require the current time or a JS host.
+chrono = { version = "0.4.41", default-features = false, features = ["std"] }
 itertools.workspace = true
 thiserror.workspace = true
 tombi-accessor.workspace = true
