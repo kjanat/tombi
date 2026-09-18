@@ -69,6 +69,7 @@ tombi-extension-cargo = { workspace = true, features = ["wasm"] }
 tombi-extension-nagi-sql = { workspace = true, features = ["wasm"] }
 tombi-extension-pyproject = { workspace = true, features = ["wasm"] }
 tombi-future = { workspace = true, features = ["wasm", "wasm-send"] }
+tombi-hashmap = { workspace = true, features = ["wasm-js-rng"] }
 tombi-schema-store = { workspace = true, features = ["wasm"] }
 tower-lsp = { workspace = true, features = ["runtime-agnostic"] }
 

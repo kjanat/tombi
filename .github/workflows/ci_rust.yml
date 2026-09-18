@@ -132,6 +132,35 @@ jobs:
           key: wasm32-unknown-unknown
       - name: Install WASM target
         run: rustup target add wasm32-unknown-unknown
+      - name: Check WASM host dependency profiles
+        run: |
+          cargo check --locked -p tombi-formatter --target wasm32-unknown-unknown
+          cargo tree --locked -p tombi-formatter --target wasm32-unknown-unknown \
+            --prefix none --format '{p} {f}' > "$RUNNER_TEMP/headless-wasm-tree.txt"
+
+          if grep -Eq '^wasm-bindgen-futures ' "$RUNNER_TEMP/headless-wasm-tree.txt"; then
+            echo "::error::headless formatter unexpectedly depends on wasm-bindgen-futures"
+            exit 1
+          fi
+          if grep -Eq '^chrono .*wasmbind' "$RUNNER_TEMP/headless-wasm-tree.txt"; then
+            echo "::error::headless formatter unexpectedly enables Chrono's JS backend"
+            exit 1
+          fi
+          if grep -Eq '^getrandom v0\.3\.[0-9]+ .*wasm_js' "$RUNNER_TEMP/headless-wasm-tree.txt"; then
+            echo "::error::headless formatter unexpectedly enables getrandom's JS backend"
+            exit 1
+          fi
+          grep -Eq '^ahash v0\.8\.[0-9]+ .*no-rng' "$RUNNER_TEMP/headless-wasm-tree.txt"
+          if grep -Eq '^ahash v0\.8\.[0-9]+ .*runtime-rng' "$RUNNER_TEMP/headless-wasm-tree.txt"; then
+            echo "::error::headless formatter unexpectedly enables aHash runtime RNG"
+            exit 1
+          fi
+
+          cargo tree --locked -p tombi-wasm --target wasm32-unknown-unknown \
+            --no-default-features --features lib --prefix none --format '{p} {f}' \
+            > "$RUNNER_TEMP/browser-wasm-tree.txt"
+          grep -Eq '^ahash v0\.8\.[0-9]+ .*runtime-rng' "$RUNNER_TEMP/browser-wasm-tree.txt"
+          grep -Eq '^getrandom v0\.3\.[0-9]+ .*wasm_js' "$RUNNER_TEMP/browser-wasm-tree.txt"
       - name: Run library WASM Clippy
         run: cargo clippy --locked -p tombi-wasm --target wasm32-unknown-unknown --no-default-features --features lib -- -D warnings
       - name: Run LSP WASM Clippy
