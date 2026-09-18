@@ -7,7 +7,8 @@ repository.workspace = true
 license.workspace = true
 
 [dependencies]
-chrono = { workspace = true, optional = true }
+# Calendar parsing/conversion needs neither a clock nor browser bindings.
+chrono = { version = "0.4.41", default-features = false, features = ["std", "serde"], optional = true }
 serde = { workspace = true, optional = true }
 thiserror.workspace = true
 
