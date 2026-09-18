@@ -12,8 +12,8 @@ chrono = ["dep:chrono"]
 serde = ["dep:serde"]
 
 [dependencies]
-# Calendar parsing/conversion needs neither a clock nor browser bindings.
-chrono = { version = "0.4.41", default-features = false, features = ["std", "serde"], optional = true }
+# Keep Local conversion types; only the separate JS Date backend is unnecessary.
+chrono = { version = "0.4.41", default-features = false, features = ["std", "clock", "serde"], optional = true }
 serde = { workspace = true, optional = true }
 thiserror.workspace = true
 
