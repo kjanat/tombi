@@ -31,7 +31,7 @@ license = "MIT"
 addr = "0.15.6"
 anyhow = "1.0.103"
 bytes = "1.11.1"
-chrono = { version = "0.4.41", features = ["serde"] }
+chrono = { version = "0.4.41", default-features = false, features = ["serde"] }
 clap = { version = "4.5.37", features = ["derive", "env", "string"] }
 console_error_panic_hook = "0.1.7"
 convert_case = "0.6.0"
