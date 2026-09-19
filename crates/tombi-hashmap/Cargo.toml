@@ -13,12 +13,20 @@ indexmap = { version = "2.9.0" }
 ahash = { version = "0.8.11" }
 
 [target.'cfg(target_family = "wasm")'.dependencies]
-# Hash-table seeding only; no browser getrandom backend or fake RNG API.
 ahash = { version = "0.8.11", default-features = false, features = ["std", "no-rng"] }
+# Feature-only dependency used to select getrandom's JavaScript backend.
+getrandom = { version = "0.3.3", optional = true }
 
 [features]
 default = []
 serde = ["ahash/serde", "indexmap/serde"]
+# Restore the pre-existing browser behavior explicitly. `runtime-rng` wins
+# over aHash's `no-rng` marker when both are enabled.
+wasm-js-rng = [
+  "ahash/runtime-rng",
+  "dep:getrandom",
+  "getrandom/wasm_js",
+]
 
 [lints]
 workspace = true
