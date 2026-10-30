@@ -18,7 +18,7 @@ reqwest = { workspace = true, optional = true }
 serde.workspace = true
 serde_json.workspace = true
 thiserror.workspace = true
-tokio = { workspace = true, features = ["sync"] }
+tokio = { workspace = true, features = ["rt", "sync"] }
 tombi-accessor.workspace = true
 tombi-ast-syntax.workspace = true
 tombi-cache.workspace = true
